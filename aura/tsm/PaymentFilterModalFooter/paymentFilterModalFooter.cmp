@@ -1,0 +1,61 @@
+<aura:component controller="AccountBillingAuraCtl">
+    <aura:attribute name="nucleusId" type="String" access="public"/>
+    <aura:attribute name="accountData" type="Map" access="public"/>
+    
+    <aura:attribute name="enableSearch" type="Boolean" default="true"/>
+    <aura:attribute name="paymentType" type="String" />
+    <aura:attribute name="lastName" type="String" />
+    <aura:attribute name="fourDigits" type="String" />
+    <aura:attribute name="cardType" type="String" />
+    <aura:attribute name="billingEmail" type="String" />
+    <aura:attribute name="retailNumber" type="String" />
+    <aura:attribute name="paymentAccount" type="Object" />
+    <aura:attribute name="retailCard" type="Object" />
+    <aura:registerEvent name="paymentOptionEvt" type="c:SendPaymentOptionEvt"/>
+    <aura:registerEvent name="showErrorMessagesEvt" type="c:ShowErrorMessages"/>
+
+    <aura:handler event="c:EnableSearchButtonEvt" action="{!c.handleEnableSearch}"/>
+    <!--<aura:handler event="c:SendPaymentOptionEvt" action="{!c.handlePaymentOptionEvt}"/>-->
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/> 
+    
+    <lightning:overlayLibrary aura:id="overlayModal"/>
+    
+    <lightning:spinner alternativeText="Loading..." size="large" variant="brand" class="slds-hide footerSpinner" aura:id="spinnerIcon"/>
+    
+    <lightning:button label="Cancel" title="Cancel" onclick="{!c.closeModal}" aura:id="cancelBtn"/>
+    <lightning:button variant="brand" disabled="{!v.enableSearch}" onclick="{!c.searchPaymentOptions}" aura:id="searchBtn">Search</lightning:button>
+    
+    <lightning:button label="Back" title="Back" onclick="{!c.goBack}" class="slds-hide" aura:id="backBtn" />
+    <lightning:button variant="brand" label="Done" title="Done" onclick="{!c.handleDone}" class="slds-hide" aura:id="doneBtn"/>
+    
+    <span aura:id="redeemAndReverseBtn" class="slds-hide slds-m-left_x-small" >
+        <aura:if isTrue="{! v.retailCard }">
+            <!--
+            <aura:if isTrue="{! v.retailCard.status != 'INACTIVE'}">
+                <aura:if isTrue="{!v.retailCard.amount != '0.00'}">
+                    <lightning:button variant="brand" label="Redeem" title="Redeem" onclick="{!c.doRedeem}" />
+                    
+                    <aura:set attribute="else">
+                        <lightning:button label="Reverse" title="Reverse" variant="brand" onclick="{!c.doReverse}" />        
+                    </aura:set>
+                </aura:if>
+            </aura:if>
+			-->
+            <!--v.retailCard.status : {!v.retailCard.status}, v.retailCard.userId: {!v.retailCard.userId}, v.nucleusId: {!v.nucleusId}-->
+            <aura:if isTrue="{! v.retailCard.status == 'INACTIVE'}">
+                <!-- No action for INACTIVE Card -->
+                <aura:set attribute="else">
+                    <aura:if isTrue="{! v.retailCard.status == 'REDEEMED'}">
+                        <!-- check if same user account -->
+                        <aura:if isTrue="{!v.nucleusId == v.retailCard.userId}">
+                            <lightning:button label="Reverse" title="Reverse" variant="brand" onclick="{!c.doReverse}" />                            
+                        </aura:if>
+                        <aura:set attribute="else">
+                            <lightning:button variant="brand" label="Redeem" title="Redeem" onclick="{!c.doRedeem}" />
+                        </aura:set>
+                    </aura:if>
+                </aura:set>
+            </aura:if>
+        </aura:if>        
+    </span>
+</aura:component>
