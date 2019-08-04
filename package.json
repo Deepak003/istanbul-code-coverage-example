@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jasmine spec/specs.js",
-    "test-cover": "istanbul cover --include-all-sources spec/specs.js && istanbul check-coverage"
+    "test-cover": "istanbul cover --root './aura/tsm' --include-all-sources spec/specs.js && istanbul check-coverage"
   },
   "keywords": [
     "istanbul"
@@ -16,10 +16,16 @@
     "istanbul": "^0.4.5",
     "jasmine": "^2.8.0",
     "jasmine-console-reporter": "^2.0.1",
+<<<<<<< HEAD
     "jasmine-node": "^3.0.0",
     "jasmine-supertest": "^1.0.0",
     "nyc": "^14.1.1",
     "supertest": "^3.0.0"
+=======
+    "supertest": "^3.0.0",
+    "nyc": "^14.1.1",
+    "jasmine-supertest": "^1.0.0"
+>>>>>>> 035193394d808405a2d0c99673e93e054eb22d11
   },
   "dependencies": {}
 }
