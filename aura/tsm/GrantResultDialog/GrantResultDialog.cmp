@@ -1,0 +1,46 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">
+    <aura:attribute name="openGrantResponse" type="boolean"/>    
+    <aura:attribute name="responseData" type="Map" /> 
+    
+    <aura:attribute name="successData" type="List" default="[]"/>
+    <aura:attribute name="failedData" type="List" default="[]"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:registerEvent name="grantResetEvent" type="c:GrantComponentEvent" />
+    
+    <div style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open backdropClass">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeConfirmation}" alternativeText="Approved" />
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="font-normal slds-text-heading_medium slds-hyphenate">Grant Content: {!v.successData.length} Successsful, {!v.failedData.length} Failed</h2>
+                </header>
+                <div class="slds-modal__content slds-p-right_x-large slds-p-left_x-large setting-height slds-is-relative">
+                    
+                    <div class="slds-m-top_large slds-m-bottom_x-small">{!v.successData.length} In-game content successfully granted</div>
+                    <div class="slds-m-bottom_medium">
+                        <aura:iteration items="{!v.successData}" var="item" indexVar="idx">
+                            <div>- {!item.type} : {!item.name}, {!item.category}, {!item.quantity}</div>
+                        </aura:iteration>
+                    </div>
+                    <aura:if isTrue="{!v.failedData.length > 0}">
+                        <div class="warning-text slds-m-top_large slds-m-bottom_x-small">{!v.failedData.length} In-game content grant failed</div>
+                    </aura:if>
+                    <div class="slds-m-bottom_medium">
+                        <aura:iteration items="{!v.failedData}" var="item" indexVar="idx">
+                            <div class="warning-text">- {!item.type} : {!item.name}, {!item.category}, {!item.quantity}</div>
+                        </aura:iteration>
+                    </div>
+                    
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button aura:id="viewGrantCart" variant="brand" label="Okay" onclick="{!c.closeConfirmation}"/> 
+                </footer>
+            </div>
+        </section>  
+        <div class="slds-backdrop slds-backdrop_open backdropClass"></div>
+    </div>
+</aura:component>

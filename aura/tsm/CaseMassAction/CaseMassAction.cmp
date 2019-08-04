@@ -1,0 +1,90 @@
+<aura:component implements="force:appHostable,force:hasRecordId" access="global" controller="MassActionAuraCtl">
+    <!-- Attributes -->
+    <aura:attribute name="caseCount" type="Integer" default="0"/>
+    <aura:attribute name="massActionOptionsList" type="List"/>
+    <aura:attribute name="queueNames" type="String" /> 
+    <aura:attribute name="massCaseNote" type="String"/>
+    <aura:attribute name="massActionType" type="String"/>
+    <aura:attribute name="selectedQueue" type="String"/>
+    <aura:attribute name="selectedCaseIdsForMassAction" type="String[]"/>
+    <aura:attribute name="queuesToSelect" type="List"/>
+    <aura:attribute name="workIdsList" type="List"/>
+    <aura:attribute name="counter" type="Integer"  default="0"/>
+    
+    
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+     <!-- Event handlers -->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="lightning:omniChannelWorkAccepted" action="{! c.onWorkAccepted }"/>
+    <aura:handler event="lightning:omniChannelWorkClosed" action="{! c.onWorkClosed }"/>
+    <!-- Component body -->
+  <div class="preview-container slds-is-relative" id="preview-container">
+            <div class="slds-text-align_left slds-m-top_large slds-m-bottom_large slds-p-left_large slds-p-right_large petition-preview-header" aura:id="petition-preview-header">
+                <h2 class="slds-page-header__title slds-m-right_small slds-truncate slds-align-left" title="Petition Preview">
+                     {!v.caseCount} cases selected
+                </h2>
+            </div>
+               <div class="slds-p-left_large slds-p-right_large slds-p-bottom_large">
+                   <div class="slds-media__figure heading slds-align-top">
+                                <h2><lightning:icon iconName="utility:list" title="Petition Actions" />&nbsp;Petition Actions</h2>
+                   </div>
+                   <!--Dropdowns for action and queues-->
+                     <lightning:combobox aura:id="massActionOptions"
+                                      class="data-field-label"
+                                      placeholder="Select Action"
+                                      value=""
+                                      onchange="{!c.handleMassActionSelect}"
+                                      options="{!v.massActionOptionsList}"/> 
+                   <lightning:combobox aura:id="queueSelectDropdown"
+                                      class="data-field-label slds-hide"
+                                      placeholder="Select Queue"
+                                      value=""
+                                      onchange="{!c.handleQueueSelect}"
+                                      options="{!v.queuesToSelect}"/> 
+                   <!-- Mass note section with text box and commit -cancel buttons -->
+                   <div class="slds-hide" aura:id="massNoteSection">
+                    <div class="slds-media__figure heading slds-align-top slds-p-top_large">
+                                <h2><lightning:icon iconName="utility:note"
+                                                    title="Make Notes" />Make Notes</h2>
+                            </div>
+					<!--Text area for mass note -->
+                   <div class="notesArea slds-p-bottom_medium" onkeyup="{!c.keyPressController}">
+                        <lightning:textarea id="makeNote" name="makeNotes" value="{!v.massCaseNote}"
+                                            label="Enter Case Notes" maxlength="3900" />
+                    </div>
+                   <div class="slds-grid slds-m-top_small slds-is-relative">
+                       <div class="slds-col slds-size_1-of-2">
+						<!--cancel button -->
+                       <lightning:button   class="slds-button_neutral actionButtons"                                        
+                                          label="Cancel" title="Commit" 
+                                          onclick="{!c.cancelMassCaseAction }" aura:id="cancel_commit_button"/>
+                       </div>
+                       <div class="slds-col slds-size_1-of-2">
+						<!--Commit button -->
+                       <lightning:button class="actionButtons disableButton" variant="brand"                                   
+                                          label="Commit" title="Commit" 
+                                          onclick="{!c.handleMassCaseActionCommit }" aura:id="mass_commit_button"/></div>
+                  	 </div>
+                   </div>
+      </div>
+        <div class="slds-text-align_center">
+            <lightning:spinner class="slds-hide" aura:id="massCaseActionSpinner" variant="brand" size="large"/>
+        </div>
+		</div>
+    <div class="slds-text-align_center">
+        <!-- <lightning:spinner class="slds-hide" aura:id="workerAgentSpinner" variant="brand" size="large"/> -->
+        <!-- AHT modal start-->
+        <div class="demo-only slds-hide" style="height: 640px;" aura:id="AHTModal">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <p>Mass action process is in progress. Please wait.</p>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+        <!--AHT modal end-->		
+    </div>
+</aura:component>

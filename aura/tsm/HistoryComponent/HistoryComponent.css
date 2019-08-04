@@ -1,0 +1,144 @@
+.THIS .footer-note{
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.THIS .pagination-footer {
+    margin-top: 15px;
+}
+
+.THIS .history-modal {
+    max-width: 60rem;
+    width: 100%;
+}
+
+.THIS .accordion-history .slds-accordion__section {
+    padding: 0;
+}
+
+.THIS .history-table {
+    border: 1px solid rgb(217, 219, 221);
+}
+
+.THIS .h4 {
+    font-size: 1rem;
+}
+
+.THIS .red {
+    color: #DC143C;
+}
+
+.THIS .risk-criteria-container {
+    width: 48%;
+    margin-top: 5px;
+    display: inline-block;
+    margin-left: 19px;
+        margin-bottom: 10px;
+}
+.THIS .risk-type-container {
+    width: 47%;
+    margin: 10px;
+    display: inline-block;
+    vertical-align: top;
+}
+.THIS .select-locale {
+    display: inline-flex;
+    margin-left: 10px;
+    margin-top: 20px;
+}
+
+.THIS .select-locale label span{
+    font-size: 20px;
+    color: black;
+    margin-left: 5px;
+}
+
+.THIS .slds-select {
+    width: 145px
+}
+
+.THIS .label-config {
+    margin-left: 15px;
+    margin-right: 10px;
+    margin-bottom: 15px;
+    display: inline-flex;
+    border-bottom: 1px solid black;
+}
+
+.THIS .label label {
+        font-size: 1rem;
+}
+.THIS .label div {
+         width: 117px;
+}
+
+   
+.THIS .routing-options {
+        margin-left: 15px;
+}
+
+.THIS .input-group {
+            display: inline-flex;
+}
+
+.THIS .selected-locale {
+       margin-bottom: 25px;
+}
+
+.THIS .slds-accordion__content{
+    margin-left: 45px;
+}
+
+.THIS .slds-accordion__summary{
+	margin-bottom: 0;
+}
+
+.THIS .slds-accordion__section {
+    padding: 0;
+}
+
+.THIS .rule-name {
+    width: 92%;
+    display: inline-block;
+}
+
+.THIS .config-value {
+    font-weight: bold;
+    position: relative;
+    display: inline-block;
+}
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+.THIS .red:hover .old-value {
+	visibility: visible;    
+    
+}
+.THIS .old-value {
+	visibility: hidden;
+    width: 120px;
+    background-color: darkslategray;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 2px 0;
+    position: absolute;
+    z-index: 1;
+    font-weight: normal;
+    font-size: 1em;
+    top: 80%;
+    left: 50%;
+    margin-left: -60px;   
+}
+.THIS .risk-type-config {
+    border: 1px solid #d3d3d3;
+}
+.THIS .save-history {
+	line-height: 20px;
+    padding: 2px;
+}
+.THIS .pagination-label {
+    margin-top: 14px;
+    padding: 8px;
+}

@@ -1,0 +1,59 @@
+<aura:component controller="CaseActivitiesAuraCtl">
+    <aura:attribute name="case" type="Object" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="caseUpdatesList" type="List" default="[]" access="private"/>
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <aura:iteration items="{! v.caseUpdatesList}" var="row" indexVar="index">
+        <div class="slds-grid slds-wrap case-container">
+            
+            <div class="slds-col slds-p-left--none slds-size_1-of-1 case-date">
+                <!--<lightning:formattedDateTime value="{! row.date }" 
+                                            year="numeric" month="short" day="2-digit"
+                  							hour="2-digit" minute="2-digit"
+                                             />-->
+		<c:FormattedDateTime value="{!row.date}"/>
+            </div>
+            
+            <div class="slds-col slds-p-left--none slds-grid slds-size_1-of-1">                
+                <div class="slds-col slds-p-left--none slds-size_1-of-3">
+                    
+                    <aura:iteration items="{! row.links }" var="link">
+                        <div class="case-summary-transcript">
+                            <aura:if isTrue="{!link.type=='ATTACHMENT'}">
+                                <a data-urls="{! link.urls }" href="#" onclick="{!c.onLinkClick}">{! link.label }</a>
+                                <aura:set attribute="else">
+                            		<a href="{! link.href }">{! link.label }</a>
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                    </aura:iteration>
+                </div>
+                <div class="slds-col slds-p-left--none slds-size_2-of-3">
+                    <div class="slds-grid slds-col slds-p-left--none slds-p-bottom_xx-small">
+                        <div class="slds-col slds-p-left--none slds-size_1-of-2 case-action">
+                            <div class="case-action-p1 heading">Case action</div>
+                            <div class="case-action-p2">{! row.caseAction }</div>
+                        </div>
+                        <div class="slds-col slds-p-left--none slds-size_1-of-2">
+                            <div class="heading">Advisor</div>
+                            <div>{! row.advisorName }</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-p-left--none slds-grid slds-size_1-of-1 heading">Note</div>
+                    <div class="slds-col slds-p-left--none slds-grid slds-size_1-of-1">{! row.note.title }</div>
+                    
+                    <aura:if isTrue="{! row.note.actions.length != 0 }">
+                        <div>Actions performed:</div>
+                        <aura:iteration items="{! row.note.actions }" var="action">
+                            <div class="slds-col slds-p-left--none slds-grid slds-size_1-of-1 note-list">-{!action}</div>
+                        </aura:iteration>
+                    </aura:if>
+                </div>
+                
+            </div>
+        </div>
+    </aura:iteration>    
+    
+</aura:component>

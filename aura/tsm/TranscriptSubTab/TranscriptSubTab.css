@@ -1,0 +1,27 @@
+.THIS {
+    /*background: white;*/
+    min-height: 50vh;
+    height: 100%;
+    overflow: auto;
+}
+
+.THIS .section-title {
+    font-size: 14px;
+    color: #2b2826;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.THIS .section-subtitle {
+    font-size: 11px;
+    color: #706e6b;
+}
+
+.THIS .section-body {
+    font-size: 13px;
+    color: #2b2826;
+}
+
+.THIS .bold {
+    font-weight: bold;
+}

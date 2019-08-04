@@ -1,0 +1,110 @@
+<aura:component controller="NotificationAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global"> 
+    <!-- Local variables -->     
+    <aura:attribute name="notificationList" type="List"/>
+    <aura:attribute name="searchArticles" type="List"/>
+    <aura:attribute name="currentNotificationBody" type="Map"/>   
+    <aura:attribute name="currentSelectedArticle" type="Map"/> 
+    <aura:attribute name="selectedIndex" type="Integer"/> 
+    
+    <!-- List of variables used for search -->
+    <aura:attribute name="searchString" type="String"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="keyPressTimer" type="Integer" default="0" />
+    
+    <!-- Platform Event Subscribe-->
+    <lightning:empApi aura:id="empApi"/>
+    <aura:attribute name="channel" type="String" default="/event/NotificationEvent__e"/>
+    <aura:attribute name="subscription" type="Map"/>
+    
+    <!-- Register Handlers --> 
+    <aura:registerEvent name="acknowledgementAlert" type="c:AcknowledgementAlertEvent"/>
+    
+    <!-- Handle event --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <!-- Notification Util component --> 
+    <div class="slds-grid">
+        <!-- Component Search --> 
+        <div class="slds-size_2-of-2 slds-p-horizontal_medium slds-p-bottom_small">
+            <lightning:input
+                             aura:id="notification-search"
+                             name="notificationSearch"
+                             type="search"
+                             placeholder="Search message title"
+                             value="{!v.searchString}"
+                             onchange ="{! c.searchNotification }"
+                             />
+        </div>
+        
+        <!--<lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>-->
+        
+        <!-- Notification body component --> 
+        <div class="">   
+            <section name="notificationPopover" aura:id="notificationPopover"
+                     class="notification-pannel container-height slds-popover adding-absolute slds-hide" role="dialog"
+                     aria-label="Dialog Title" aria-describedby="dialog-body-id-5">
+                
+                 <!-- Notification header --> 
+                <div class="notification-pannel slds-popover__body poopover-padding">
+                    <lightning:layout >
+                        <lightning:layoutItem size="11">
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="1">
+                            <lightning:icon class="slds-float_right card-details" iconName="utility:close" size="small" onclick="{!c.closeNotification}" alternativeText="Close" />
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    
+                    <!-- Dynamic display component --> 
+                    <lightning:layout >
+                        <div class="notification-pannel message-content" aura:id="notificationDOM">
+                            <c:NotificationBodyPannel currentNotificationBody="{!v.currentNotificationBody}"/>
+                        </div>
+                    </lightning:layout>
+                    
+                     <!-- Notification footer --> 
+                    <div>
+                        <div class="notification-pannel slds-float_right slds-m-top--medium slds-m-bottom--medium">
+                            <aura:if isTrue="{!v.currentSelectedArticle.isRead == false}">
+                                <lightning:button class="notification-pannel slds-float_right" onclick="{!c.acknowledgeNotification}"
+                                                  variant="brand" value="" label="Acknowledge" />
+                                <aura:set attribute="else">
+                                    <div class="notification-pannel notification-unread">I've acknowledged this message</div>
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                    </div>
+                </div>
+            </section> 
+        </div>  
+    </div>
+    <!-- Body of Notifcation List --> 
+    <ul role="listbox" class="slds-listbox slds-listbox_vertical slds-is-relative">
+         <!-- Looping through articles --> 
+        <aura:iteration items="{!v.searchArticles}" var="eachNotification" indexVar="idx">
+            <li role="presentation" class="slds-listbox__item">
+                <div data-value="{!idx}" aura:id="notification-item" class="notification-pannel slds-p-horizontal_small card-details article-hover" onclick="{!c.selectRelatedNotification}">
+                    <div class="slds-grid slds-m-bottom--small slds-p-top_small">
+                        <div class="{! join(' ',
+                                    'slds-size_1-of-2 slds-text-title',
+                                    if(!eachNotification.isRead, 'notification-unread')
+                                    )}">
+                            {!eachNotification.createdBy}
+                        </div>
+                        <div class="slds-size_1-of-2 notification-body notification-color">
+                            <lightning:formattedDateTime class="slds-float_right" value="{!eachNotification.publishStartTime}" year="numeric" month="numeric" day="numeric" hour="2-digit"
+                                                         minute="2-digit" timeZoneName="short" hour12="true" timeZone="UTC"/>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-border_bottom notification-body slds-p-bottom--small">
+                        <div class="{! join(' ',
+                                    '',
+                                    if(!eachNotification.isRead, 'notification-unread')
+                                    )}">
+                            {!eachNotification.messageTitle}
+                        </div>  
+                    </div>
+                </div>
+            </li>
+        </aura:iteration>
+    </ul>         
+</aura:component>

@@ -1,0 +1,109 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId"
+                access="global" controller ="ProductAuraController">
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="platformname" type="Object" />
+    <aura:attribute name="category" type="Object" />
+    <aura:attribute name="allProducts" type="String"/> 
+    <aura:attribute name="prodname" type="Object" />
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="gameStatsData" type="list" />
+    <aura:attribute name="personaId" type="String" />
+    <aura:attribute name="selectedPersonaId" type="String" />
+    <aura:attribute name="gamerId" type="String" />
+    <aura:attribute name="selectedPersona" type="Object" /> 
+    <aura:attribute name="prodnamrforfifa" type="boolean" default="false" />
+    <aura:attribute name="isLoading" type="boolean" default="true"/>
+    <aura:attribute name="prodnamrforothergames" type="boolean" default="false" />
+    <aura:attribute name="gameStats" type="list"/>
+    <aura:attribute name="generalStat" type="list"/>
+    <aura:attribute name="otherStat" type="list"/>
+    <aura:attribute name="generalStats" type="Map" access="public"/>
+    <aura:attribute name="otherStats" type="Map" default="{}" />
+    <aura:attribute name="productType" type="String" />
+    <aura:attribute name="productname" type="String" />    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.generalStats}" action="{!c.handleChange}" />
+    <aura:handler name="change" value="{!v.otherStats}" action="{!c.handleChange}" />
+    <aura:handler name="change" value="{!v.gameStatsData}" action="{!c.onChangeOfGameStats}"/>
+    
+    <aura:if isTrue="{!v.prodnamrforothergames}">
+        
+        <aura:if isTrue = "{!not(empty(v.generalStat))}">
+            <lightning:layout multipleRows="true" class="otherGameCSS">
+                <lightning:layoutItem  size="12" class="slds-text-heading_medium stats-title">
+                    Game Stats
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem  size="10" class="slds-p-top_medium">
+                    <div>
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        
+                        <aura:iteration items="{!v.generalStat}" var="obj" indexVar="idx">                    
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size--2-of-3 slds-text-title_bold">
+                                    {!obj.displayName}
+                                </div>
+                                <div class="slds-text-body_regular">
+                                    {!obj.value}
+                                </div>  
+                            </div><br/>
+                        </aura:iteration>
+                        
+                    </div>
+                </lightning:layoutItem>
+                
+            </lightning:layout> 
+            <aura:set attribute="else">
+                <lightning:layout multipleRows="true">
+                    <lightning:layoutItem  size="12" class="slds-text-heading_medium stats-title">
+                        Game Stats
+                    </lightning:layoutItem>
+                    
+                    <lightning:layoutItem  size="10" class="slds-p-top_medium">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        
+                        <div>No Data</div>
+                    </lightning:layoutItem>
+                    
+                </lightning:layout>  
+            </aura:set>
+            
+        </aura:if>
+        <aura:set attribute="else">
+            
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem   size="12" class="slds-text-heading_medium stats-title">
+                    <div style="height:35px;">Game Stats</div>
+                </lightning:layoutItem>
+                <aura:if isTrue = "{!not(empty(v.gameStats))}">
+                    
+                    <lightning:layoutItem  size="12" class="slds-text-title_bold stats-no-bold">
+                        General Stats
+                    </lightning:layoutItem>
+                    <aura:iteration items="{!v.generalStat}" var="obj" indexVar="idx">                    
+                        <lightning:layoutItem class="slds-p-top_small" size="4">
+                            <lightning:layoutItem>
+                                <div class="slds-text-body_regular fontG">{!obj.displayName}</div>
+                            </lightning:layoutItem>
+                            <div>{!obj.value}</div>
+                        </lightning:layoutItem>
+                    </aura:iteration>
+                    
+                    <lightning:layoutItem  size="12" class="slds-text-title_bold stats-no-bold"> 
+                        <div style = 'margin-top:20px'>Other Stats</div>
+                    </lightning:layoutItem>
+                    <aura:iteration items="{!v.otherStat}" var="obj" indexVar="idx">                    
+                        <lightning:layoutItem class="slds-p-top_small" size="4">
+                            <lightning:layoutItem>
+                                <div class="slds-text-body_regular fontG">{!obj.displayName}</div>
+                            </lightning:layoutItem>
+                            <div>{!obj.value}</div>
+                        </lightning:layoutItem>
+                    </aura:iteration>
+                    <aura:set attribute ="else">No Data</aura:set>
+                </aura:if>
+            </lightning:layout>
+        </aura:set>        
+    </aura:if>
+    
+</aura:component>

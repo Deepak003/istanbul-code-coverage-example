@@ -1,0 +1,188 @@
+.THIS .petition-actions {
+    background-color: #F4F6F9;
+    bottom: 28px;
+}
+.THIS .slds-spinner_container {
+    z-index: 9;
+}
+.THIS .notesArea .slds-button_brand {
+    width: 100%;
+}
+.THIS.petition-actions.slds-is-absolute {    
+    width: 99%;
+    z-index: 999;    
+}
+.THIS.petition-actions .petition-actions-header-main .slds-media__figure .slds-icon_container {
+    background-color: rgb(118, 128, 136);
+    width: 24px;
+    height: 24px;
+}
+.THIS.petition-actions .petition-actions-header-main .slds-media__body .petition-actions-header {
+    font-weight:500;
+    font-size: 1.25rem;
+}
+.THIS.petition-actions .petition-actions-header-main .slds-icon_container .slds-icon-text-default {
+    /*fill: rgb(255, 255, 255);*/
+    padding: 2px;
+    width: 22px;
+    height: 24px;
+}
+.THIS .notesArea textarea {
+    height: 8rem;
+}
+.THIS #caseNote textarea {
+    height: 8rem;
+}
+.THIS .full-width-btn {
+    width: 100%;
+}
+.THIS .half-width-btn {
+    width: 50%;
+}
+.THIS .petition-actions-header {
+    font-weight:500;
+    font-size: 1.25rem;
+}
+.THIS .petition-actions-header-main .slds-media__figure .slds-icon_container {
+    background-color: rgb(118, 128, 136);
+    width: 28px;
+    height: 28px;
+}
+.THIS .petition-actions-header-main .slds-media__figure .slds-icon-text-default {
+    fill: rgb(255, 255, 255);
+    padding: 2px;
+    width: 22px;
+    height: 24px;
+}
+.THIS  .commitViolationButton{
+    width: 100%;
+}
+.THIS  .violationActionSpinner{
+    margin-left: 159px;
+    height: 10px;
+    margin-top: 183px;
+}
+.THIS  .productEntitlementsSpinner{
+    margin-left: 159px;
+    height: 10px;
+    margin-top: 183px;
+}
+.THIS .disabled-section {
+    opacity: 0.5;
+}
+.THIS .image-hide {
+    background-color: #D8DDE6;
+}
+.THIS .image-hide .uiInputCheckbox input[type=checkbox] {
+    display: inline-block;
+}
+.THIS .image-hide .uiInputCheckbox label > span {
+    position: absolute;
+    top: 27%;
+}
+.THIS .image-hide-detail .uiInputCheckbox input[type=checkbox] {
+    display: inline-block;
+}
+.THIS .image-hide-detail .uiInputCheckbox label > span {
+    position: absolute;
+    top: 27%;
+    left:3rem;
+}
+.THIS .custom-duration {
+    min-height: calc(1.875rem + (1px * 2));
+    border-radius: .25rem 0 0 .25rem;
+}
+.THIS .penalty-cus-duration-unit {
+    bottom: 0;
+    right: 2px;
+}
+.THIS .penalty-cus-duration-unit input[type=checkbox] {
+    border-radius: 0 .25rem .25rem 0;
+}
+.THIS .disableButton
+{
+    opacity: 0.5;
+    pointer-events: none;
+}
+.THIS .detail-image-huide label span {
+    margin-left: 10px;
+}
+.THIS .thor-cursor-pointer {
+    cursor: pointer;
+}
+.THIS .makeNotesSec label.form-element__label {
+	margin-left: 3.2rem;
+}
+.THIS .makeNotesSec input[type=checkbox] {
+	display: inline-block;
+    left: 1.5rem;
+    position: absolute;
+}
+.THIS .acc-sticky-pin {
+	position: relative;
+    left: 1.5rem;
+    top: -20px;
+    height: 14px;
+}
+.THIS .acc-sticky-pin svg {
+	width: 1rem;
+    fill: #c5c5c5;
+}
+.THIS .cp-account-note label {
+	margin-left: 1.5rem;
+}
+.THIS .Arabic-SA p {
+	text-align: right;
+	direction:rtl;
+}
+.THIS .Arabic-SA table tr td {
+	text-align: right;
+	direction:rtl;
+}
+.THIS .Arabic-SA .slds-rich-text-area__content {
+	text-align: right;
+	direction:rtl;
+}
+.THIS .scroll-petition-preview {
+	height: calc(100vh - 35vh);    
+    overflow-x: scroll;
+}
+.THIS .thor-expand-icon {
+    position: relative;
+    right: -20px;
+    width: 100%;
+    height: 100%;
+    z-index: 90;
+}
+.THIS .thor-expand-icon svg {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.THIS .thor-expan-editor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.75);
+    z-index: 99;
+    height: 100%;
+    width: 100%;
+    opacity: 1;
+}
+.THIS .thor-expan-icon-clicked {
+    top: 5px;
+    right: 0;
+    position: absolute;
+    z-index: 99999;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: rgba(201, 201, 201, 0.28);
+}
+.THIS .thor-expan-editor .lightningInputRichText {    
+    height: 100%;
+    z-index: 999999;
+}
+.THIS .thor-expan-editor .lightningInputRichText .slds-rich-text-editor {
+    height: 50%;
+    background: #fff;
+}

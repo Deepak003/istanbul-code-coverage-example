@@ -1,0 +1,126 @@
+<aura:component controller="GDPRRequestController" access="global">
+    <!-- handlers -->
+    <aura:handler name="change" value="{! v.objGDPRRequest.PrimaryId__c }" action="{! c.handleButton }"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <!-- attributes -->
+    <aura:attribute name="secondaryTypeVar" type="String"/>
+    <aura:attribute name="secondaryIdVar" type="String"/>
+    <aura:attribute name="addSuccess" type="Boolean" default="false" />
+    <aura:attribute name="indexToDelete" type="Integer"/>
+    <aura:attribute name="restrict" type="String"/>
+    <aura:attribute name="errorMessage" type="String" default=""/>
+    <aura:attribute name="currentDate" type="Date"/>
+    <aura:attribute name="type" type="String" default="" />
+    <aura:attribute name="message" type="String" default=""/>
+    <aura:attribute name="RequestType" type="String[]"/>
+    <aura:attribute name="disableButton" type="boolean" default="true"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="objGDPRRequestSecondaryId" type="GDPRRequestSecondaryId__c" default="{sobjectType : 'GDPRRequestSecondaryId__c'}" />
+    <aura:attribute name="objGDPRRequest" type="GDPRRequest__c" default="{sobjectType : 'GDPRRequest__c'}" />
+    <aura:attribute name="secondaryIdList" type="List" default="[1]" />
+    <aura:attribute name="objSecondaryIdList" type="List" default="[]"/>
+    <aura:attribute name="newReqFlag" type="Boolean" />
+    <aura:attribute name="dueDate" type="Date"/>
+    <aura:attribute name="PrimaryId" type="String[]" />
+    <aura:attribute name="SecondaryId" type="String[]" />
+    <div style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{!c.closeModal}"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          size="large"
+                                          class="slds-modal__close"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Add New Request</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__control">
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_2-of-6">
+                                    <div class="slds-form-element">
+                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:select label="Primary ID" aura:id="primary" name="primaryId" value="{!v.objGDPRRequest.PrimaryIdType__c}" onchange="{!c.resetPrimary}">
+                                                <aura:iteration items="{!v.PrimaryId}" var="val">
+                                                    <option value="{!val}" text="{!val}" />  
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-size_3-of-6">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control" style="margin-top:4px;">
+                                            <lightning:input 
+                                                             onchange="{!c.checkValidity}" 
+                                                             pattern="{!v.restrict}" 
+                                                             type="text"
+                                                             messageWhenPatternMismatch="{!v.errorMessage}"
+                                                             aura:id="requestForm" 
+                                                             value="{!v.objGDPRRequest.PrimaryId__c}"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <aura:iteration items="{!v.secondaryIdList}" var="item" indexVar="index">
+                                <c:SecondaryIdComponent 
+                                                        secondaryIdListInner="{! v.secondaryIdList}"
+                                                        objSecondaryIdList="{! v.objSecondaryIdList}"
+                                                        objGDPRRequestSecondaryId="{! v.objGDPRRequestSecondaryId}"
+                                                        
+                                                        SecondaryId="{! v.SecondaryId}"
+                                                        indexToDelete="{!v.indexToDelete}"
+                                                        indexNo="{!index}"/>
+                            </aura:iteration>
+                            <br/>
+                            <lightning:icon iconName="utility:add" size="x-small" alternativeText=""/>&nbsp;
+                            <lightning:button variant="base" label="Add Another Secondary ID" title="Base action" onclick="{! c.addSecondId }"/>
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_2-of-4">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="select-03">Activity Flag</label>
+                                        <div class="slds-form-element__control">
+                                            <lightning:select label="Flag" aura:id="requestFlag" name="secId" value="{!v.objGDPRRequest.RequestType__c}">
+                                                <aura:iteration items="{!v.RequestType}" var="val">
+                                                    <option value="{!val}" text="{!val}" />  
+                                                </aura:iteration>
+                                            </lightning:select>
+                                        </div>
+                                    </div>
+                                </div>                              
+                            </div>
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_2-of-4">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <lightning:input type="date" min="{!v.currentDate}" aura:id="date-01" value="{! v.objGDPRRequest.DueDate__c}" label="Due Date" />
+                                        </div>
+                                    </div>
+                                </div>                              
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <aura:if isTrue="{!v.spinner}">
+                    <div aura:id="spinnerId" class="slds-spinner_container" style="background-color: transparent;">
+                       <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert">
+                         <span class="slds-assistive-text">Loading</span>
+                         <div class="slds-spinner__dot-a"></div>
+                         <div class="slds-spinner__dot-b"></div>
+                       </div>
+                    </div>
+                 </aura:if>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">Cancel</button>
+                    <button disabled="{!v.disableButton}" class="slds-button slds-button_neutral" onclick="{!c.addRequest}">Add</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    
+</aura:component>

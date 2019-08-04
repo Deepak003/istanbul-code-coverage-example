@@ -1,0 +1,39 @@
+.THIS {
+    align-items: center;
+    z-index: 110;
+    margin: 0 auto;
+    width: 40.8%;
+    line-height: 1.6rem;
+    position: fixed;
+    top: -15px;
+    left: 31%;
+}
+.THIS.player-search-spin {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+.THIS .plsearch-main {
+    margin: 0 auto;
+}
+.THIS .slds-combobox_object-switcher .slds-combobox__input:focus {
+    width:12.5rem;
+}
+.THIS .gamerDropdownOuter{
+    width: 29%;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+.THIS .gamer-dropdown {
+    line-height: .8rem;
+    left: 1px;
+    top: -12px;
+}
+.THIS .searchResutlsDropDown {
+    width: 71%;
+	position: absolute;
+	right: 0;
+}

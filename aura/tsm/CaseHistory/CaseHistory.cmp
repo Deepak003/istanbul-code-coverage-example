@@ -1,0 +1,85 @@
+<aura:component controller="CaseHistoryAuraCtl">
+    <aura:attribute name="historyData" type="List" default="[]" />
+    <aura:attribute name="historyDataAll" type="List" default="[]" />
+    <aura:attribute name="accountIdSF" type="String" default="" />
+    <aura:attribute name="accountIdNucleus" type="String" default="" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="accountFlag" type="Boolean" default="true" />
+    <aura:attribute name="expandAll" type="Boolean" default="false" />
+    <aura:attribute name="pageNumber" type="Integer" default="1" access="GLOBAL" />
+    <aura:attribute name="pageNumberArch" type="Integer" default="0" access="GLOBAL" />
+    <aura:attribute name="pageLimit" type="Integer" default="20" access="GLOBAL" />
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="c:CaseHistoryRenderEvt" action="{!c.caseHistoryRenderCmplt}" />
+    <aura:method name="getAllCasesByAccIdSF" 
+                 action="{!c.getAllCasesByAccIdSF}" 
+                 access="PUBLIC"
+                 description="call the get all cases by Id method" />
+    
+	<lightning:layout multipleRows="true">
+        <lightning:layoutItem flexibility="auto" size="12">
+            <aura:if isTrue="{!v.accountIdSF}">
+            <lightning:layout >
+                <lightning:layoutItem flexibility="auto" size="12" class="detail-container">
+                    <div class="slds-p-top_large slds-p-right_large">
+                        <div class="slds-grid slds-m-bottom_medium">
+                        	<div class="slds-col slds-size_1-of-2">
+                            	<h1 class="slds-page-header__title slds-truncate slds-align-left">
+                                    Case History
+                                </h1>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2 slds-text-align_right">
+                            	<!--lightning:button variant="neutral"                                          
+                                          label="Expand All" title="Expand All" 
+                                          onclick="{!c.expandAllClick }" />
+                                <lightning:buttonIcon iconName="utility:rating"
+                                                size="medium" 
+                                                variant="bare"
+                                                class="slds-m-left_medium slds-icon slds-icon_medium"
+                                                title="Expand All" /-->
+                            </div>
+                        </div>                        
+                        <c:DataGrid expandAll="{!v.expandAll}" data="{!v.historyData}" pkField="strCaseId" aura:id="datagrid" type="expand">
+                            <c:DataGridColumn fieldName="strSubject" label="Subject" class=""/>
+                            <c:DataGridColumn fieldName="strCaseNumber" type="caseNumber" label="Case Number" class=""/>
+                            <c:DataGridColumn fieldName="strLastModifiedDate" label="Date" type="Date" class="slds-is-sortable"/>
+                            <c:DataGridColumn fieldName="strStatus" label="Status" class=""/>
+                            <c:DataGridColumn fieldName="strRecordType" type="caseType" label="Type" class=""/>
+							<aura:if isTrue="{!v.accountFlag == true}">
+                            	<c:DataGridColumn fieldName="Status" label="Action" class=""/>
+                            </aura:if>                            
+                            <c:DataGridColumn fieldName="seeMore" label="See More" type="seemore" class=""/>
+                            <c:DataGridColumn fieldName="isArchived" type="displayIcon" label="" class=""/>
+                            <c:DataGridColumn fieldName="strCategoryName" label="categ" type="hidden"/>
+                            <c:DataGridColumn fieldName="strProductName" label="prodname" type="hidden"/>
+                            <c:DataGridColumn fieldName="strPlatformName" label="platname" type="hidden"/>
+                            <c:DataGridColumn fieldName="strViewUrl" label="viewurl" type="hidden"/>
+                            <c:DataGridColumn fieldName="strProductUrl" label="produrl" type="hidden"/>
+                            <c:DataGridColumn fieldName="strPlatformUrl" label="platurl" type="hidden"/>
+                            <c:DataGridColumn fieldName="strPetitionUUID" label="puuid" type="hidden"/>
+                            <c:DataGridColumn fieldName="strSynergyId" label="synergyid" type="hidden"/>
+                            <c:DataGridColumn fieldName="strContentId" label="contentid" type="hidden"/>
+                            <c:DataGridColumn fieldName="strDescription" label="description" type="hidden"/>
+                        </c:DataGrid>
+                        <aura:if isTrue="{!v.showSpinner}">
+                            <div aura:id="spinnerId" class="slds-is-relative slds-spinner_container">
+                                <div class="slds-spinner--brand  slds-spinner slds-spinner--small slds-is-relative" role="alert">
+                                    <span class="slds-assistive-text">Loading</span>
+                                    <div class="slds-spinner__dot-a"></div>
+                                    <div class="slds-spinner__dot-b"></div>
+                                </div>
+                            </div>
+                        </aura:if>
+                    </div>
+                </lightning:layoutItem>                
+            </lightning:layout>
+                <aura:set attribute="else">
+                	<h1 class="slds-text-heading_large slds-page-header_medium slds-text-align_center slds-p-around_large">
+                        No target account is associated with this petition case.
+                    </h1>
+                </aura:set>
+            </aura:if>
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>

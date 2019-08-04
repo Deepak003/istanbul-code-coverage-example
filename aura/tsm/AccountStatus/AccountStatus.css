@@ -1,0 +1,124 @@
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+.THIS .dropdown {
+    margin-top: -1px;
+    width: auto;
+    max-width: unset;
+    margin-left: 144px;
+    height: 235px;
+    overflow: scroll;
+}
+.THIS .accstatus {    
+    max-height: 12rem;   
+}
+.THIS .slds-cell-fixed{
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    top: 10px;
+    min-height: 0rem;
+}
+.THIS .slds-table_header-fixed_container .slds-table--header-fixed_container {
+    position: relative;
+    padding-top: 1.8rem;
+    background-color: rgb(250, 250, 249);
+    overflow: hidden;
+}
+.THIS .headerColor {
+    background-color: rgb(255, 255, 255); 
+}
+.THIS .accstatuss::-webkit-scrollbar-track {    
+	background-color: #ffffff;
+}
+.THIS .accstatus::-webkit-scrollbar {
+	width: 12px;
+    background-color: #ffffff;
+}
+.THIS .accstatus::-webkit-scrollbar-thumb {
+	border-radius: 6px;
+    background-color: #e0dfdf;
+}
+.THIS .slds-combobox__input{
+    height: 2.3rem;
+}
+.THIS .slds-table td {
+    overflow: hidden;
+}
+.THIS .typeAheadVal{
+    color: rgb(0, 95, 178);
+}
+.THIS .hideHeader{
+    display: none;
+}
+.THIS .mySpinner{
+    height: 50px;
+    width: 10px;
+    margin: auto;
+}
+.THIS .tableHeading{
+   margin-left:2em;
+}
+.THIS .rowFields{
+    padding-left: 24px;
+}
+.THIS .dataNotFound{
+    margin-left: 22em;
+}
+.THIS .typeAheadVal:after{ 
+    content: " \00b7"; 
+}
+.THIS .ACTIVE {
+    background-color: #5DC93C;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .BANNED {
+    background-color: #3A3B3B;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .SUSPENDED {
+    background-color: #E21A4F;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .PENDING {
+    background-color: #54698D;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .DISABLED {
+    background-color: #7C7C7C;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .DEACTIVATED{
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .WARNED {
+    background-color: #FFA600;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .sanctionSearch {
+   margin-top: 5px;
+}
+/*add on click (show and hide) for the parent and sibling of products
+ */

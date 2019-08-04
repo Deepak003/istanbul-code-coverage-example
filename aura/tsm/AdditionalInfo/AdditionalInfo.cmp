@@ -1,0 +1,51 @@
+<aura:component controller="ProductAuraController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="platform" type="Object" />
+    <aura:attribute name="category" type="Object" />
+    <aura:attribute name="allProducts" type="String"/>
+    <aura:attribute name="product" type="Object" />
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="selectedPersonaIdforgame" type="Object"/>
+    <aura:attribute name="clubs" type="List"/>
+    <aura:attribute name="caseId" type="Id" access="public"  />
+    <aura:attribute name="accountId" type="Id" access="public"  />
+    <!-- <aura:registerEvent name="cmpEvent" type="c:ProductSnapshotPersona"/> -->
+    <aura:attribute name="gameStatsData" type="Object" />
+    <aura:attribute name="showClubs" type="Boolean" default="false" />
+    <aura:attribute name="historyStats" type="Object" />
+    
+    <!-- Config UI values -->
+    <aura:attribute name="configUIData" type="Object" />
+    <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>
+    <aura:attribute name="isStatsExist" type="boolean" default="false"/>
+    <aura:attribute name="isSocialTrackerExist" type="boolean" default="false"/>
+    <aura:attribute name="isClubTrackerExist" type="boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />
+    <aura:handler name="change" value="{!v.selectedPersonaIdforgame}" action="{!c.doinit}" />
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <div class="c-container slds-is-relative slds-p-bottom_x-large">
+        <div aura:id="stat-container" class="slds-m-bottom_medium">
+            <aura:if isTrue="{!v.isStatsExist}">
+                <c:GameStats gameStatsData = "{!v.gameStatsData}" allProducts="{!v.allProducts}" prodname= "{!v.product}" personaId="{!v.selectedPersonaId}" gamerId="{!v.selectedPersonaIdforgame}" platformname="{!v.platform}"  category="{!v.selectedCategory}" nucleusId="{!v.nucleusId}"  customerProduct="{!v.customerProduct}" />
+            </aura:if>
+            </div>
+        <div aura:id="club-container" class="slds-m-bottom_medium">
+            <aura:if isTrue="{! and(v.showClubs, v.isClubTrackerExist) }">
+                <!--<c:ClubsTracker nucleusId="{!v.nucleusId}" personaId="{!v.selectedPersonaId}" product="{!v.product}" platform="{!v.selectedPlatform}" clubsData="{!v.clubsData}"/>-->
+                <!--<c:ClubsTracker selectedPersona="{!v.selectedPersonaIdforgame}" nucleusId="{!v.nucleusId}" product="{!v.product}" platform="{!v.selectedPlatform}"/>-->
+                <c:ClubsTracker  productMaskingData="{!v.productMaskingData}" historyStats="{!v.historyStats}" selectedPersona="{!v.selectedPersonaIdforgame}" nucleusId="{!v.nucleusId}" product="{!v.product}" caseId="{!v.caseId}" accountId="{!v.accountId}"/>
+            </aura:if>
+        </div>
+        <div aura:id="persona-container" class="slds-m-bottom_medium">
+        </div>
+         <aura:if isTrue="{!v.isSocialTrackerExist}">
+             <div aura:id="social-container" class="slds-m-bottom_medium">
+                 <c:SocialTracker selectedProduct="{!v.product}" nucleusId="{!v.nucleusId}" />
+             </div>
+        </aura:if>
+    </div>    
+</aura:component>

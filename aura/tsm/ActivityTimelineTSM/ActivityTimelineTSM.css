@@ -1,0 +1,43 @@
+.THIS .slds-timeline__item_task:before {
+    height: 50%;
+    left: 0.8rem;
+    top: 2rem;
+    margin-left: 0px;
+    background-color: #95aec5;
+}
+.THIS .activity .subject {
+    color: #2C2927;
+    font-weight: 600;
+}
+.THIS .activity .advisor {
+    color: #2B446B;
+    font-weight: 600;
+}
+.THIS .activity:last-child .slds-timeline__item_task:before {
+    height: 0;
+}
+.THIS .activity .slds-media__figure .slds-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    fill: rgb(255, 255, 255);
+    background: #95aec5;
+    border-radius: .2rem;
+    line-height: 1.4rem;
+    padding: 0 .25rem .1rem .1rem;
+    overflow: hidden;
+}
+.THIS .activity .slds-media__figure.escalated .slds-icon {
+   
+}
+.THIS .activity .slds-media__figure .slds-icon-standard-recent svg {
+	padding: 0;
+}
+
+.THIS .slds-icon-standard-note{
+    background-color:#AAB6C7;
+}
+
+.THIS .advisorName{
+    color:navy;
+    font-weight:bold;
+}

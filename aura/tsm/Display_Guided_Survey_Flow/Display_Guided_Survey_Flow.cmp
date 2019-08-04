@@ -1,0 +1,39 @@
+<aura:component implements="force:hasRecordId" Controller="FlowController">
+    <!-- These attributes are sent by parent -->
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="flowType" type="String"/>
+    <aura:attribute name="flowObject" type="Lightning_Flow_Mapping__c"/>
+    <!-- These attributes are sent by parent -->
+    
+    <!-- These attributes are fetch on load -->
+    <aura:attribute name="caseIntFlow" type="String"/>
+    <!-- These attributes are fetch on load -->
+    
+    <aura:attribute name="isDynamicFlowCompleted" type="Boolean" default="False"/>
+    <aura:attribute name="isWorkflowCompleted" type="Boolean" default="False"/>
+    <aura:handler name="init" value="{!this}" action="{!c.startFlow}"/>
+    <aura:if isTrue="{!v.flowType=='Dynamic'}">
+        <aura:if isTrue="{!v.isDynamicFlowCompleted=='TRUE'}">
+            <div class="slds-box slds-m-top_x-small" >
+                <P>Guided Flow is already completed for this case interaction, please check Case Summary section for the summary</P>
+            </div>
+            <aura:set attribute="else">
+                <div class="slds-text-heading_small c-heading">
+                    <lightning:flow aura:id="StartFlow" onstatuschange="{!c.handleStatusChange}" />
+                </div>
+            </aura:set>
+        </aura:if>
+    </aura:if> 
+    <aura:if isTrue="{!v.flowType=='Workflow'}">
+        <aura:if isTrue="{!v.isWorkflowCompleted=='TRUE'}">
+            <div class="slds-box slds-m-top_x-small" >
+                <P>Workflow is already completed for this case interaction, please check Case Summary section for the summary</P>
+            </div>
+            <aura:set attribute="else">
+                <div class="slds-text-heading_small c-heading">
+                    <lightning:flow aura:id="StartFlow" onstatuschange="{!c.handleStatusChange}" />
+                </div>
+            </aura:set>
+        </aura:if>
+    </aura:if>  
+</aura:component>

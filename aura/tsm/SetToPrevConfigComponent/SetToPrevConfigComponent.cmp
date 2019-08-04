@@ -1,0 +1,50 @@
+<aura:component controller="FraudAdminToolController">
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+   
+    <aura:attribute name="historyData" type="Object[]"/>
+    <aura:attribute name="clickedIndex" type="integer"/>
+    <aura:attribute name="historyRulesLength" type="integer"/>
+    <aura:attribute name="allRulesLength" type="integer"/>
+    <aura:attribute name="newRulesSet" type="List"/>
+    <aura:attribute name="riskCriteriaObj" type="Object[]"/>
+    <aura:attribute name="historyRulesName" type="Object[]"/>
+    <aura:attribute name="newRulesNames" type="Object[]"/>
+    <aura:registerEvent name="prevHistoryDetailsEvt" type="c:PreviousHistoryDetails"/>
+
+  
+    <div class="slds-m-around_xx-large action-button">
+ 		<div class="set-prev-action">
+        <lightning:button class="save-history"
+                          label="Save this algorithm Configuration"
+                          title="Save this algorithm Configuration"
+                          onclick="{! c.onClickSave }"/></div>
+        <aura:if isTrue="{!v.isOpen}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_small slds-hyphenate"><b>Are you sure you want to save this configuration?</b></h2>
+                    </header>
+                            <aura:if isTrue="{!(v.historyRulesLength lt v.allRulesLength-1)}">
+                            	<div class="slds-modal__content new-rules" id="modal-content-id-1">
+                                   The follow rules are new and will be set to zero:
+                                    <aura:iteration items="{!v.newRulesSet}" var="rule">
+                                    	<li>{!rule}</li>
+                                    </aura:iteration>    
+                                </div>
+                            </aura:if>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" 
+                                          label="Confirm"
+                                          title="Confirm"
+                                          onclick="{! c.onClickConfirm }"/>
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModel }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>  
+        </aura:if>
+    </div>
+</aura:component>

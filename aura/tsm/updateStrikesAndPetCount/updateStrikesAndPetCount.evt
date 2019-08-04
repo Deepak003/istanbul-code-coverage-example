@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Update strikes and petition count event">
+    <aura:attribute name="targetID" type="String"/>
+    <aura:attribute name="eventType" type="String"/>
+</aura:event>

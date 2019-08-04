@@ -1,0 +1,86 @@
+.THIS .top-spacing-medium {
+    padding-top : t(spacingMedium)
+}
+
+.THIS .bottom-spacing-medium {
+    padding-bottom : t(spacingMedium)
+}
+.THIS .prodCSS{
+    font-size: 18px; font-weight: bold;text-transform:uppercase;
+}
+.THIS .top-spacing-xxsmall {
+    padding-top : t(spacingXxSmall)
+}
+.THIS [role=combobox] input[readonly]{
+    color: #706e6b;
+}
+
+.THIS .header {
+    color: #706e6b;
+}
+
+.THIS .margin-top-less {
+    margin-top : -3px;
+}
+
+.THIS .fontSize1 {
+    font-size : 10px
+}
+
+.THIS .fontSize2 {
+    font-size : 12px
+}
+
+.THIS .fontSize3 {
+    font-size : 13px
+}
+
+.THIS .fontSize4 {
+    font-size : 14px
+}
+
+.THIS .select .slds-form-element__label {
+    font-size : 10px;
+    color: #706e6b;
+}
+
+.THIS .product-image {
+    width: 84px; 
+    height: 120px; 
+    float: left;
+}
+.THIS .personacombo {
+    width: 500px; 
+}
+.THIS .gamerIDcombo {
+    width: 240px; 
+}
+
+.THIS .gamemodecombo {
+    width: 96px; 
+}
+.THIS .product-image img {
+    border-radius: 5px;
+}
+
+.THIS .action-container {
+    text-align: right;
+}
+
+.THIS .platform-status {
+    font-weight: bold;
+}
+
+.THIS .No {    
+    font-weight: normal !important;
+}
+.THIS .UP {    
+    color: #03c503;
+}
+
+.THIS .DOWN {
+    color : red;
+}
+.THIS .addBtn{
+    float:right;
+}

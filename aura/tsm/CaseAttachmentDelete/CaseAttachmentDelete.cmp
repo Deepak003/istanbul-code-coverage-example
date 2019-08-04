@@ -1,0 +1,29 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" controller="CaseManagementAuraController">
+    
+    <aura:attribute name="caseId" type="String" />
+    <aura:attribute name="contentDocumentId" type="String" />
+    <aura:attribute name="lockStatus" type="boolean"/>
+	<aura:registerEvent name="refreshAttachment" type="c:RefreshAttachments"/>
+    
+    <aura:attribute name="confirmStatus" type="String" default=""/>
+    <aura:attribute name="isOpen" type="Boolean" default="false"/>
+    <aura:handler name="change" value="{! v.confirmStatus }" action="{!c.handleConfirmation}"/>
+    
+    <c:ConfirmationDialogBox 
+                             headerText="Delete Confirmation"
+                             bodyText="Are you sure you want to delete the attachment? Deleting the attachment will permanently remove it from the system."
+                             confirmStatus="{! v.confirmStatus }"
+                             isOpen="{! v.isOpen }"/>
+    
+    
+    <!--<aura:if isTrue="{!v.lockStatus}"> 
+        <lightning:icon iconName="utility:delete" size="xx-small" />
+        <aura:set attribute="else">-->
+            <lightning:buttonIcon iconName="utility:delete"  
+                          size="medium" disabled="{!v.lockStatus}" variant="bare" alternativeText="View More" 
+                          onclick="{! c.openConfirmModal }"/>
+       <!-- </aura:set>
+    </aura:if>-->
+   
+    
+</aura:component>

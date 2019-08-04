@@ -1,0 +1,15 @@
+.THIS {
+}
+
+.THIS.case-updates-attachement-expand-container {
+    /*line-height: 33px;*/
+}
+
+.THIS .case-attachement-title {
+    font-size : 12px;
+    color : #3E3E3C;
+}
+
+.THIS img.attachment-img {
+    max-width: 500px;
+}

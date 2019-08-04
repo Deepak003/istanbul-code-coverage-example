@@ -1,0 +1,58 @@
+<aura:component>    
+    <aura:attribute name="paymentAccount" type="Object" access="public"/>    
+    <div class="slds-card borderStyle">
+        <div class="slds-grid slds-m-top_small slds-m-bottom_small">                         
+            <div class="slds-col slds-m-left_large lineHeight">
+                <div class="slds-p-right_large" style="float: left;">
+                    <c:BillingIcons class="billingIconSize" type="{!v.paymentAccount.iconType}" />
+                </div>
+                <div class="slds-truncate">
+                    <div class="fontStyle">
+                        {!v.paymentAccount.title}
+                    </div>
+                    <aura:if isTrue="{! and(v.paymentAccount.expirationMonth, v.paymentAccount.expirationYear) }">        
+                        <div class="{! join(' ',
+                                    'smallFontStyle',
+                                    if(v.paymentAccount.isExpired, 'disabled-text')
+                                    )}">
+                            Exp {! v.paymentAccount.expirationMonth + '/' + v.paymentAccount.expirationYear }
+                        </div>
+                    </aura:if> 
+                    <!--
+                    <aura:if isTrue="{! v.paymentAccount.cardStatus }">        
+                        <div class="smallFontStyle">
+                            {! v.paymentAccount.cardStatus }
+                        </div>
+                    </aura:if>
+     				-->
+                    <aura:if isTrue="{! v.paymentAccount.amount }">        
+                        <div class="smallFontStyle">
+                            Balance: {! v.paymentAccount.amount }&nbsp;{! v.paymentAccount.currency}
+                        </div>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{! v.paymentAccount.cardStatus }">        
+                                <div class="smallFontStyle">
+                                    {! v.paymentAccount.cardStatus }
+                                </div>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>                      
+                    <aura:if isTrue="{! v.paymentAccount.email }">
+                        <div class="smallFontStyle"> {!v.paymentAccount.email}</div>
+                    </aura:if>
+                </div>
+            </div>
+            <div class="slds-col slds-m-right_large align-center">
+                <aura:if isTrue="{!not(empty(v.paymentAccount.cardNumber))}">
+                    <span class="fontStyle">{!v.paymentAccount.cardNumber}</span>
+                    <aura:set attribute="else">
+                        <span class="fontStyle">{!v.paymentAccount.name}</span>
+                    </aura:set>
+                </aura:if>
+                <aura:if isTrue="{!and(not(empty(v.paymentAccount.otherCardEmail)),(v.paymentAccount.title =='PayPal'))}">
+                    <span class="fontStyle">{!v.paymentAccount.otherCardEmail}</span>
+                </aura:if>
+            </div>
+        </div>
+    </div>
+</aura:component>

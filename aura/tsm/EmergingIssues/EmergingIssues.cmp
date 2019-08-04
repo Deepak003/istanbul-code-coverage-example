@@ -1,0 +1,77 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" controller="KnowledgeBaseAuraCtl" access="global">
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded ="{!c.doInit}"/>
+    <aura:attribute name="newEmergingIssues" type="List" default="[]"/>
+    <aura:attribute name="recentEmergingIssues" type="List" default="[]"/>
+    <aura:attribute name="isData" type="Boolean" default="false" />
+    <aura:attribute name="refreshDateTime" type="String"/>
+    <aura:attribute name="timeCount" type="Integer" default="0"/>
+    <aura:attribute name="loaded" type="Boolean" default="false" />
+    
+    <!--Handlers-->
+    <!--aura:handler name="init" value="{!this}" action="{!c.doInit}" /-->
+    
+    <!--Component Start-->
+    <div class="p-container slds-box emergingIssues">
+        <lightning:layout class="slds-grid marginTop" >
+            <div class='icon-container'>
+                <lightning:icon iconName="standard:feed" class="bColor" title="Emerging Issues"/> 
+                <span class="slds-p-left_x-small slds-text-title_bold">Emerging Issues</span>
+            </div>
+            <div class="slds-col_bump-left colorCss" >
+                <lightning:buttonIcon iconName="utility:refresh" size="medium"  variant="bare" onclick="{! c.refreshEmergingIssues }" alternativeText="refersh" />
+                <span class="slds-p-left_x-small"> {!v.timeCount} Minutes ago </span>
+            </div>
+        </lightning:layout>
+        
+        <aura:if isTrue="{!v.isData == true}"> 
+            <div class="slds-align_absolute-left colorCss slds-p-bottom--xx-small slds-text-body_regular">Trending Known Issues</div>
+            <lightning:layout class="slds-gutters_xx-small" multipleRows="true">
+                <aura:iteration items="{!v.newEmergingIssues}" var="item" indexVar="idx" end="4">
+                    <lightning:layoutItem size="6" class="slds-col slds-p-vertical_xx-small">
+                        <div data-value="{!idx}" class="slds-m-top-xx-small" onclick="{!c.selectArticleCard}">
+                            <lightning:card aura:id="foundArticles" class="card-details">
+                                <div data-value="{!idx}" title="{!item.fields.title}" class="slds-text-body_small slds-p-left--small slds-truncate bold">{!item.fields.title}</div>
+                                <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                    <div data-value="{!idx}" class="slds-p-horizontal_small slds-p-top_xx-small edit-field-label body-text-small dateField">
+                                        <span data-value="{!idx}">Last updated {!item.fields.last_modified_at}</span>
+                                    </div>
+                                </aura:if>
+                            </lightning:card>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>
+            <!-- To oopen KNowledge Base window-->
+            <p><a class="slds-align_absolute-center slds-p-bottom--medium slds-p-top--small" onclick="{!c.openKnowledgeBaseArticles}">Go To Knowledge Base</a></p>
+            <span class="slds-align_absolute-left colorCss slds-text-body_regular" >Recently Edited</span>
+            
+            
+            <lightning:layout horizontalAlign="space" verticalAlign="center" multipleRows="true">
+                <aura:iteration items="{!v.recentEmergingIssues}" var="item" indexVar="indx" end="3">
+                    <lightning:layoutItem size="12">
+                        <div data-value="{!indx}" class="slds-m-top_x-small" onclick="{!c.selectRecentIssues}">
+                            <lightning:card aura:id="foundArticles" class="card-details2">
+                                <div data-value="{!indx}" title="{!item.fields.title}" class="slds-text-body_small slds-p-left--small bold">{!item.fields.title}</div>
+                                <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                    <div data-value="{!indx}" class="slds-p-horizontal_small slds-p-top_xx-small edit-field-label body-text-small dateField">
+                                        <span data-value="{!indx}">Last updated {!item.fields.last_modified_at}</span>
+                                    </div>
+                                </aura:if>
+                                <p data-value="{!indx}" title="{!item.fields.summary}" class="slds-p-horizontal_small slds-m-top--small slds-truncate textField">
+                                    {!item.fields.summary}
+                                </p>
+                                <aura:if isTrue="{!not(empty(item.fields.helpful_votes))}">
+                                    <span style="float: right;padding-right: 10px;">
+                                       {!item.fields.helpful_votes} found helpful
+                                    </span>
+                                </aura:if>
+                                
+                            </lightning:card>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>            
+        </aura:if>
+    </div>
+</aura:component>

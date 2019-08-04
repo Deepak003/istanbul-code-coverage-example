@@ -1,0 +1,7 @@
+<aura:component extensible="true" implements="lightning:isUrlAddressable" access="global">
+    <aura:attribute name="caseId" type="Id" />
+    <aura:attribute name="caseNumber" type="String" />
+    <aura:attribute name="isArchiveCase" type="Boolean" />
+           
+	{! v.body }
+</aura:component>

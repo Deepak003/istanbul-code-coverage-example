@@ -1,0 +1,19 @@
+<aura:documentation>
+    <aura:description>
+        <h4 style="font-weight:bold;">History Search Component</h4>
+        <p>This is the initilization part for the History Tab component which take the load of handeling the Transactions, Modes and Login History for the user.</p>
+        <p>Comparisiion with current omega</p>
+        <ul>
+            <li>Modes in TSM - Sets, Drafts, Events and Challenges in Omega</li>
+            <li>Transactions in TSM - Inventory History in Omega</li>
+            <li>Login in TSM - Login History in Omega</li>     
+            <li>TSM can do multi select, as in selection multiple option from Modes, Transactions and Login where as omega has single select</li>
+        </ul>
+        <h5>Key Functions used</h5>
+        <p> The most tricky part of the implementation is the ability to open miltiple options at the same time (To see the journey of the player)</p>
+        <p>getItemTransactionLogHistory, getModeHistory, getCurrentModeData, getLoginData are the vitral functions to loop through multiple responses and give the response for the multi select</p>
+        <p>publishDataToHistoryTab function published the data to the HistoyTable compoent which helps in the data visualization</p>
+        <p>Note: Promises are not used in the JS because of overriding issue in the backend side, the approach is we wait for the response and load the next one.</p>        
+    </aura:description>
+    
+</aura:documentation>

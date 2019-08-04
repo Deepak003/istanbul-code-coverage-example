@@ -1,0 +1,67 @@
+<aura:component controller="QueueListAuraCtl">
+	<!-- attributes -->      
+    <aura:attribute name="aht" type="String"/>  
+    <aura:attribute name="performToday" type="String"/>
+    <aura:attribute name="presenceStatus" type="String" default="Offline"/>
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="lightning:omniChannelStatusChanged" action="{! c.setPresenceStatus }"/>
+    <aura:handler event="lightning:omniChannelLoginSuccess" action="{! c.setPresenceStatus }"/>
+    <aura:handler event="lightning:omniChannelLogout" action="{! c.onLogout }"/>
+    <aura:handler event="force:showToast" action="{!c.omniDisconnectedToastHandler}" />
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+
+	<div class="badge-holder">
+        <div class="slds-grid">
+            <!--Omni Channel Presence-->
+            <div class="slds-col slds-p-around_small">
+                <div class="slds-media">  
+                    <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small" 
+                         style="padding-top: 1.2rem;">
+                        <span class="{!v.presenceStatus == 'Available' ? 'available-indicator':
+                                     v.presenceStatus== 'Offline' ? 'offline-indicator': 
+                                     'common-indicator'}" >
+                        </span>   
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-p-left_small label">Presence</div>                      
+                        <div class="slds-is-relative">
+                           
+                            <span aura:id="presence" class="slds-p-left_small">{!v.presenceStatus}</span>                   
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Omni Channel Presence End-->
+        	<div class="slds-col slds-p-around_small">
+                <div class="slds-media">                    
+                    <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small">
+                        <lightning:icon class="ahtIcon" iconName="utility:connected_apps" size="small" />
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-p-left_small label">Your AHT This Week</div>
+                        <div class="slds-is-relative">
+                        	<span aura:id="ahtTime" class="slds-p-left_small">{!v.aht} </span>
+                        	<lightning:spinner class="slds-hide aht-spinner slds-is-absolute" aura:id="spinnerAHT" variant="brand" size="small"/>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-p-around_small">
+                <div class="slds-media">                    
+                    <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small">
+                        <lightning:icon class="ahtIcon" iconName="utility:favorite" size="small" />
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-p-left_small label">Performance Today</div>
+                        <div class="slds-is-relative">
+                            <span aura:id="totalPetition" class="slds-p-left_small">{!v.performToday} </span>
+                            <lightning:spinner class="slds-hide aht-spinner slds-is-absolute" aura:id="spinnerAHT" variant="brand" size="small"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</aura:component>

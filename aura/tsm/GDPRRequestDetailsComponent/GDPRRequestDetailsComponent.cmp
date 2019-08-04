@@ -1,0 +1,191 @@
+<aura:component controller="GDPRRequestDetailsController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <!-- Imports -->
+    <ltng:require styles="{!$Resource.GDPRTool}" />
+    <!-- attributes -->
+    <aura:attribute name="currentDate" type="Date"/>
+    <aura:attribute name="dueDateResend" type="Date"/>
+    <aura:attribute name="resendFlag" type="Boolean" default="false"/>
+    <aura:attribute name="downloadFlag" type="Boolean" default="false"/>
+    <aura:attribute name="primaryIdType" type="String"/>
+    <aura:attribute name="dataAvailable" type="Boolean" default="false"/>
+    <aura:attribute name="downloadUrls" type="List"/>
+    <aura:attribute name="clients" type="List"/>
+    <aura:attribute name="requestId" type="String"/>
+    <aura:attribute name="activityFlag" type="String"/>
+    <aura:attribute name="userProfile" type="String"/>
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="primaryId" type="String"/>
+    <aura:attribute name="secondaryIds" type="List"/>
+    <aura:attribute name="transactionId" type="String"/>
+    <aura:attribute name="submittedBy" type="String"/>
+    <aura:attribute name="creationDate" type="Date"/>
+    <aura:attribute name="dueDate" type="Date"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="total" type="integer" description="total records count store "/>
+    <aura:attribute name="refreshTime" type="String" default="Just now" />
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <!--aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/-->
+    
+    <!-- Header-->
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        
+                        <lightning:icon iconName="standard:event" alternativeText="Event" />
+                        
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                    <span class="slds-page-header__title slds-truncate" title="GDPR Requests">GDPR Requests</span>
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                    <aura:if isTrue="{! v.userProfile != 'GDPR-Read Only'}">
+                        <div class="slds-form-element">
+                            <aura:if isTrue="{!v.downloadFlag}">
+                                <ui:button class="slds-button slds-button_neutral" press="{!c.downloadPlayerData}" label="Download Player Data" />
+                            </aura:if>
+                            <aura:if isTrue="{! v.resendFlag}">
+                                <ui:button class="slds-button slds-button_neutral" press="{!c.resendRequest}" label="Resend Request" />
+                            </aura:if>
+                        </div>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+        <div class="slds-page-header__row" style="margin-top:10px;">
+            <div class="slds-page-header__col-meta">
+                <p class="slds-page-header__meta-text">{!v.total} Subscribers • Last refreshed: {!v.refreshTime}</p>
+            </div>
+            <div class="slds-page-header__col-controls">
+                <div class="slds-page-header__controls">
+                    
+                    <div class="slds-page-header__control">
+                        <button class="slds-button slds-button_icon slds-button_icon-border-filled" onclick="{! c.init}" title="Refresh List">
+                            <lightning:icon iconName="utility:loop" size="x-small" alternativeText="Refresh List"/>
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <div class="slds-page-header__row" style="margin-top:20px;margin-left:40px;">
+        <div class="slds-page-header__col-meta">
+            <p style="font-size:15px;" class="slds-page-header__meta-text"><b>Request Details</b></p>
+        </div>
+        
+    </div>
+    
+    <div class="slds-grid slds-gutters" style="width:75%; margin-left:30px; margin-top:10px;">
+        <div class="slds-col">
+            <dl>
+                <dt>Primary ID</dt>
+                <dd><b>{!v.primaryIdType} - {!v.primaryId}</b></dd>
+                <br/>
+                <dt>Secondary IDs</dt>
+                <aura:if isTrue="{!v.secondaryIds.length > 0}" >
+                    <aura:iteration items="{!v.secondaryIds}" var="item">
+                        <dd><b>{!item.SecondaryIdType__c} - {!item.SecondaryId__c}</b></dd>
+                    </aura:iteration>
+                </aura:if>
+                <aura:if isTrue="{!v.secondaryIds.length == 0}" >
+                        <dd><b>NA</b></dd>
+                </aura:if>
+            </dl>
+        </div>
+        <div class="slds-col">
+            <dl>
+                <dt>Transaction ID</dt>
+                <dd><b>{!v.transactionId}</b></dd>
+                <br/>
+                <dt>Submitted By</dt>
+                <dd><b>{!v.submittedBy}</b></dd>
+            </dl>
+        </div>
+        <div class="slds-col">
+            <dl>
+                <dt>Creation Date</dt>
+                <dd><b>{!v.creationDate}</b></dd>
+                <br/>
+                <dt>Due Date</dt>
+                <dd><b>{!v.dueDate}</b></dd>
+            </dl>
+        </div>
+        <div class="slds-col">
+            <dl>
+                <dt>Activity Flag</dt>
+                <dd><b>{!v.activityFlag}</b></dd>
+                
+            </dl>
+        </div>
+        <aura:if isTrue="{!v.resendFlag}">
+        <div class="slds-col">
+            <dl>
+                <dt>Please select a due date</dt>
+                <div style="margin:0px;padding:0px;">
+                <dd><lightning:input type="date" min="{!v.currentDate}" value="{! v.dueDateResend}" label="" /></dd>
+                </div>
+            </dl>
+            
+        </div>
+         </aura:if>
+    </div>
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end-->   
+    
+    <!-- the container element determine the height of the datatable -->
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_3-of-5">
+            <div style="margin: 20px 50px;">
+                <p>SUBSCRIBERS</p>
+                <br/>
+                <lightning:datatable
+                                     keyField="Id"
+                                     data="{! v.data }"
+                                     columns="{! v.columns }"
+                                     hideCheckboxColumn="true"/>
+            </div>
+        </div>
+        <div class="slds-col slds-size_2-of-5">
+            <aura:if isTrue="{!v.dataAvailable}">
+                <div style="margin: 20px 50px;">
+                    <lightning:icon iconName="utility:download" size="x-small" alternativeText="Download"/>&nbsp;&nbsp;<span>DOWNLOAD LINKS:</span>
+                    <br/>
+                    <ul class="slds-list_dotted">
+                        <aura:iteration items="{!v.downloadUrls}" var="item" indexVar="index">
+                            <aura:if isTrue="{!item.url.length == 1}">
+                                <li><a href="{!item.url}" target="_blank" download="playerData">{!item.clientName}</a></li>
+                            </aura:if>
+                            <aura:if isTrue="{!item.url.length > 1}">
+                                <aura:iteration items="{!item.url}" var="urls" indexVar="urlIndex">
+                                    <li><a href="{!urls}" target="_blank" download="playerData">{!item.clientName}-{!urlIndex+1}</a></li>
+                                </aura:iteration>
+                            </aura:if>
+                        </aura:iteration>
+                    </ul>
+                </div>
+            </aura:if>
+        </div>
+    </div>
+    
+    
+</aura:component>

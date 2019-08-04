@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION">
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="caseData" type="Object"/>
+</aura:event>

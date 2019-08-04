@@ -1,0 +1,151 @@
+<aura:component access="global" controller="CaseDetailAuraCtl">
+    <aura:attribute name="simpleCase" type="Object"/>
+    <aura:attribute name="imageBaseData" type="String"/>
+    <aura:attribute name="chatData" type="String" default=""/>
+    <aura:attribute name="contentType" type="string" default="" />
+    <aura:attribute name="contentData" type="string" default="" />
+    <aura:attribute name="urlRedirect" type="Boolean" default="false" />
+    <aura:attribute name="isChat" type="Boolean" default="false" />
+    <aura:attribute name="displayCaseDesc" type="Boolean" default="false" />
+    <aura:attribute name="caseDescData" type="String" default=""/>
+    <aura:attribute name="urlProfileImg" type="Boolean" default="false" />
+    <aura:attribute name="lstDescription" type="list"/>
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+
+    <aura:method name="getContentViewDetails" 
+                 action="{!c.getContentViewDetails}" 
+                 access="PUBLIC"
+                 description="call the get acc Note method" />
+
+    <aura:if isTrue="{!v.simpleCase}">
+        <div class="ugc-container-main">            
+            <aura:if isTrue="{!v.contentType=='chat'}">
+                <aura:if isTrue="{!v.contentData.length > 0}">
+                	<div onclick="{!c.handleShowModal}" class="ugc-container chat-log-container slds-p-left_x-small slds-p-right_x-small">
+                        <aura:iteration items="{!v.contentData}" var="item" indexVar="i">        					
+                            <aura:if isTrue="{!i == 0}">
+                                <div class="petitioner-chat-log slds-m-bottom_xx-small">
+                                    <ui:outputText value="PETITIONER"/>
+                                    <div class="petitioner-msg slds-p-left_medium slds-p-right_medium slds-p-top_medium slds-p-bottom_medium">
+                                        <div class="date-user">
+                                            <lightning:formattedDateTime value="{!item.dateTime}" year="numeric" month="numeric" day="numeric" />
+                                            <span>{!item.userName}</span>
+                                        </div>
+                                        <div class="msg"><span><ui:outputText value="{!item.text}"/></span></div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!i == 1}">
+                                <div class="target-container slds-m-bottom_small">
+                                    <div class="target-chat-log slds-m-bottom_small slds-p-left_medium slds-text-align_right">
+                                        <ui:outputText value="TARGET"/>
+                                        <div class="target-msg slds-p-left_medium slds-p-right_medium slds-p-top_medium slds-p-bottom_medium">
+                                            <div class="date-user">
+                                                <lightning:formattedDateTime value="{!item.dateTime}" year="numeric" month="numeric" day="numeric" />
+                                                <span>{!item.userName}</span>
+                                            </div>
+                                            <div class="msg"><span><ui:outputText value="{!item.text}"/></span></div>
+                                        </div>
+                                    </div>
+                                </div>                            
+                            </aura:if>                        
+                       </aura:iteration>
+                    </div>
+                    <span class="expand-reportcontent">
+                        <lightning:icon iconName="utility:expand_alt" size="small" title="" />
+                    </span>                    
+                </aura:if>                                                                        
+            </aura:if>
+			<aura:if isTrue="{!v.contentType=='image'}">
+                <div class="ugc-content" aura:id="ugcSec">
+                    <div class="slds-hide" onclick="{!c.handleShowModal}" aura:id="imageCont">
+                        <img src="{!v.imageBaseData}"  alt="Image"/>                    
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.contentType=='text/html'}">
+                <div class="ugc-content" aura:id="ugcSec">
+                    <div class="slds-hide" aura:id="ugcContent">
+                        <aura:unescapedHtml value="{!v.contentData}" />                    
+                    </div>
+                </div>
+            </aura:if>
+            
+            <aura:if isTrue="{!v.contentType=='application/json'}">
+                <div class="ugc-content" aura:id="ugcSec">
+                    <div class="slds-hide" aura:id="ugcContent">
+                        {!v.chatData}
+                        <br/>
+                        
+                            <aura:iteration items="{!v.contentData}" var="item" indexVar="i"> 
+                                
+                               <aura:if isTrue="{!i==0}">
+                                    <div class="slds-text-align_left" style="width: 50%;float: left;">
+                                        <label class="slds-form-element__label">
+                                            <span class="preview-label">{!item.key}</span>
+                                            <h3><ui:outputText value="{!item.value}"/></h3>
+                                        </label>
+                                    </div>
+                                </aura:if>
+                                
+                                <aura:if isTrue="{!i==1}">
+                                    <div class="slds-text-align_left" >
+                                        <label class="slds-form-element__label">
+                                            <span class="preview-label">{!item.key}</span>
+                                            <h3><ui:outputText value="{!item.value}"/></h3>
+                                        </label>
+                                    </div>
+                                </aura:if>
+                                
+                                
+                                
+                                
+                                
+                                
+                            </aura:iteration>
+                          
+                    </div>
+                </div>
+            </aura:if>
+            
+            
+            <aura:if isTrue="{!v.contentType=='text'}">
+                
+                <div class="ugc-content slds-truncate" aura:id="ugcSec">                    
+                    <div class="slds-hide" aura:id="ugcContent" title="{!v.contentData}"> 
+                        <aura:if isTrue="{!v.urlRedirect}">
+                        	<a href="{!v.contentData}" target="_blank">{!v.contentData}</a>
+                            <aura:set attribute="else">
+                            	{!v.contentData}
+                            </aura:set>
+                        </aura:if>                         
+                    </div>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!v.isChat}">
+            	<div onclick="{!c.handleShowModal}" class="ugc-content" aura:id="ugcSec">                    
+                    <span aura:id="ugcContent" title="{!v.chatData}"> 
+                        <aura:unescapedHtml value="{!v.chatData}"/> 
+                    </span>
+                </div>
+            </aura:if>
+            <!-- THOR 1400-->
+            <aura:if isTrue="{!v.displayCaseDesc}">
+            	<div  class="ugc-content" aura:id="ugcSec">                    
+                    <span aura:id="ugcContent" title="{!v.caseDescData}"> 
+                        <aura:if isTrue="{!v.urlProfileImg}">
+                        	<a href="{!v.caseDescData}" target="_blank">{!v.caseDescData}</a>
+                            <aura:set attribute="else">
+                            	<aura:unescapedHtml value="{!v.caseDescData}"/> 
+                            </aura:set>
+                        </aura:if>    
+                    </span>
+                </div>
+            </aura:if>
+            
+            <lightning:spinner class="slds-hide" aura:id="ugcSpinner" variant="brand" size="small"/>        
+        </div>
+    </aura:if>
+</aura:component>

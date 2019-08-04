@@ -1,0 +1,315 @@
+<aura:component controller="CaseDetailAuraCtl"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId"
+                access="global">  
+    <aura:attribute name="simpleCase" type="Object" default="" />
+    <aura:attribute name="objCase" type="Case" default="" />    
+    <aura:attribute name="products" type="List" />
+    <aura:attribute name="platforms" type="List" default="[]" />
+    <aura:attribute name="categories" type="List" default="[]" />    
+    <aura:attribute name="contentTypes" type="List" default="[]" />
+    <aura:attribute name="contentTypeVal" type="String" default="" />
+    <aura:attribute name="productVal" type="String" default="" />
+    <aura:attribute name="targetAccountID" type="String" default="" />
+    <aura:attribute name="targetAccountSFId" type="String" default="" />
+    <aura:attribute name="targetCaseID" type="String" default="" />
+    <aura:attribute name="platformVal" type="String" default="" />
+    <aura:attribute name="categoryVal" type="String" default="" />
+    <aura:attribute name="playerAccData" type="Object"/>
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+	<aura:attribute name = "productList" type="Object[]"/>
+    <aura:attribute name = "franchiseList" type="Object[]"/>
+    <aura:attribute name ="isWorkOnCase" type="boolean" default="false"/>	
+    <aura:attribute name="togglePetition" type="Boolean"  default="true" />    
+    <aura:registerevent name="UpdateCaseObjectAppEvt" type="c:UpdateCaseObjectAppEvt"/>
+    <aura:registerevent name="updateStrikesAndPetCount" type="c:updateStrikesAndPetCount"/>																				   
+    <aura:method name="getPetitionDetails" 
+                 action="{!c.getPetitionDetails}" 
+                 access="PUBLIC"
+                 description="call the get acc Note method" />
+    <aura:method name="getStrikesDetails" 
+                 action="{!c.getStrikesDetails}" 
+                 access="PUBLIC"
+                 description="call the get strikes method" />
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{!v.contentTypeVal}" action="{!c.caseObjChanges}"/>
+    <aura:handler name="change" value="{!v.productVal}" action="{!c.caseObjChanges}"/>
+    <aura:handler name="change" value="{!v.platformVal}" action="{!c.caseObjChanges}"/>
+    <aura:handler name="change" value="{!v.categoryVal}" action="{!c.caseObjChanges}"/>
+    <aura:handler event="c:AccountNotesAppEvent" action="{!c.accountNotesHandler}" />    
+    
+    <lightning:layout multipleRows="true">
+        <lightning:layoutItem flexibility="auto" size="12">
+            <lightning:layout >
+                <lightning:layoutItem flexibility="auto" size="3" class="detail-container">
+                    <div class="slds-p-top_large slds-p-right_large petitionDetails">
+                        <h1 class="slds-page-header__title slds-truncate slds-align-left">
+                            Petition details
+                        </h1>
+                        <div class="slds-m-top_medium">
+                            <div class="slds-text-body_small">Reported Content</div>
+                            <c:UserGeneratedContent aura:id="userGeneratedContentCmp" simpleCase="{!v.simpleCase}" />
+                        </div>
+                        <aura:if isTrue="{!v.togglePetition}">
+                            <div class="slds-m-top_medium slds-grid">
+                                <div class="slds-border_bottom case-id-container slds-m-right_small slds-col">
+                                    <div class="edit-field-label slds-text-body_small slds-m-bottom_x-small">
+                                        Case Number
+                                    </div>
+                                    <div class="slds-m-bottom_xx-small">
+                                        {!v.simpleCase.CaseNumber}
+                                    </div>
+                                </div>
+                                <aura:if isTrue="{!v.simpleCase.RecordType.Name == 'Petition'}">
+                                    <div class="{!v.isWorkOnCase ? 'slds-col' : 'thor-line-height slds-col'}">
+                                        <div class="edit-field-label slds-text-body_small ">
+                                            Content Type
+                                        </div>
+                                        <div aura:id = "contentType" class="slds-m-bottom_xx-small slds-is-relative">
+                                            <aura:if isTrue="{!v.isWorkOnCase}"> 
+                                            	{!v.simpleCase.Petition_Details__r.Content_Type__c}
+                                                <aura:set attribute="else">
+                                                	<c:Lookup objectAPIName="getContentTypes" 
+                                                      IconName="standard:account"
+                                                      listOfSearchRecords="{!v.contentTypes}"
+                                                      selectedRecord="{!v.simpleCase.Petition_Details__r.Content_Type__c}" 
+                                                      SearchKeyWord="{!v.contentTypeVal}"
+                                                      placeHolder="Choose a User Content Type(Optional)"
+                                                      eventType="contentType"
+                                                      aura:id="createCaseContentType"/>
+                                            		<lightning:spinner class="slds-hide" aura:id="ctSpiner" variant="brand" size="small"/>
+                                                </aura:set>
+                                            </aura:if>                                            
+                                        </div>
+                                    </div>
+                                </aura:if>
+                                <div class="c-icon-container">
+                                    <!--lightning:icon iconName="utility:edit" class="slds-m-bottom_xx-small" size="x-small" /-->
+                                </div>
+                            </div>
+                            <div class="{!v.isWorkOnCase ? 'slds-m-top_medium' : 'thor-line-height slds-m-top_medium'}">
+                                <div class="edit-field-label slds-text-body_small ">
+                                    Product
+                                </div>
+                                <div aura:id = "product" class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                                    <aura:if isTrue="{!v.isWorkOnCase}"> 
+                                    	{!v.simpleCase.ProductLR__r.Name}
+                                        <aura:set attribute="else">
+                                            <c:Lookup objectAPIName="getProducts" 
+                                              IconName="standard:account"
+                                              listOfSearchRecords="{!v.products}"
+                                              selectedRecord="{!v.simpleCase.ProductLR__c}"
+                                              SearchKeyWord="{!v.productVal}"
+                                              placeHolder="Select a Product"
+                                              required="true"
+                                              eventType="product"
+                                              aura:id="createCaseProduct"/>
+                                    		<lightning:spinner class="slds-hide" aura:id="productSpiner" variant="brand" size="small"/>
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                                <!--lightning:icon iconName="utility:edit" size="x-small" /-->
+                            </div>
+                            <div class="{!v.isWorkOnCase ? 'slds-m-top_medium' : 'thor-line-height slds-m-top_medium'}">
+                                <div class="edit-field-label slds-text-body_small ">
+                                    Platform
+                                </div>
+                                <div class="c-inline slds-m-bottom_xx-small">
+                                    <aura:if isTrue="{!v.isWorkOnCase}"> 
+                                        {!v.simpleCase.PlatformLR__r.Name}
+                                        <aura:set attribute="else">
+                                            <c:Lookup objectAPIName="getPlatformsByProduct" 
+                                              IconName="standard:account"
+                                              listOfSearchRecords="{!v.platforms}"
+                                              selectedRecord="{!v.simpleCase.PlatformLR__c}" 
+                                              SearchKeyWord="{!v.platformVal}"
+                                              placeHolder="Select a Platform"
+                                              required="true"
+                                              eventType="platform"
+                                              dependentEVType="product"
+                                              aura:id="createCasePlatform"/>
+                                        </aura:set>
+                                    </aura:if>                                    
+                                </div>
+                                <!--lightning:icon iconName="utility:edit" size="x-small" /-->
+                            </div>
+                            <div class="{!v.isWorkOnCase ? 'slds-m-top_medium' : 'thor-line-height slds-m-top_medium'}">
+                                <div class="edit-field-label slds-text-body_small ">
+                                    Category
+                                </div>
+                                <div aura:id="category" class="c-inline slds-m-bottom_xx-small">
+                                    <aura:if isTrue="{!v.isWorkOnCase}"> 
+                                        {!v.simpleCase.Case_Category__r.Name}
+                                        <aura:set attribute="else">
+                                        	<c:Lookup objectAPIName="getTosCategoriesByProduct" 
+                                              IconName="standard:account"
+                                              listOfSearchRecords="{!v.categories}"
+                                              selectedRecord="{!v.simpleCase.Case_Category__c}" 
+                                              SearchKeyWord="{!v.categoryVal}"
+                                              placeHolder="Choose a Category"
+                                              required="true"
+                                              eventType="category"
+                                              dependentEVType="product"
+                                              aura:id="createCaseCategory"/>
+                                        </aura:set>
+                                    </aura:if>                                    
+                                </div>
+                                <!--lightning:icon iconName="utility:edit" size="x-small" /-->
+                            </div>
+                        </aura:if>
+                        <!-- THOR 1398 start-->
+                        <div class="slds-m-top_medium">
+                                <div class="edit-field-label slds-text-body_small ">
+                                    Location
+                                </div>
+                                <div class="c-inline slds-m-bottom_xx-small">
+                                    {!v.simpleCase.Petition_Details__r.Location__c}
+                                </div>                            
+                            </div>
+                        <!-- THOR 1398 end-->
+                        <aura:if isTrue="{!v.simpleCase.RecordType.Name == 'Petition'}">
+                            <div class="slds-m-top_medium">
+                                <div class="edit-field-label slds-text-body_small ">
+                                    Petition UUID
+                                </div>
+                                <div class="c-inline slds-m-bottom_xx-small">
+                                    {!v.simpleCase.Petition_Details__r.PetitionUUID__c}
+                                </div>                            
+                            </div>
+                        </aura:if>                                             
+                        <h1 class="slds-text-heading_small slds-m-top_large slds-m-bottom_small">Past Activity</h1> 
+                        <!-- THOR 1336 -->
+						<aura:if isTrue="{! and(v.simpleCase.Id != undefined, v.simpleCase.caseComments != undefined)}">
+                            <c:ActivityTimeline aura:id="actlCmp" caseId="undefined" activity="{!v.simpleCase.caseComments}"/>
+                        </aura:if>
+                        <aura:if isTrue="{! and(v.simpleCase.Id != undefined, v.simpleCase.caseComments == undefined)}">
+                            <c:ActivityTimeline aura:id="actlCmp" caseId= "{!v.simpleCase.Id}"/>
+                        </aura:if>
+                    </div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto" size="9">
+                    <div class="slds-p-top_large slds-p-right_large slds-p-left_large">
+                        <div class="target-player-container">
+                            <h1 class="slds-page-header__title slds-truncate slds-align-left slds-m-bottom_medium">
+                                Target Player
+                            </h1>
+                            <lightning:layout pullToBoundary="medium">
+                                <lightning:layoutItem flexibility="auto" padding="horizontal-medium">
+                                    <div class="slds-text-body_small slds-m-bottom_xxx-small">
+                                        Target Persona
+                                    </div>
+                                    <div class="c-inline slds-m-bottom_xx-small">                                        
+                                        {!v.simpleCase.Petition_Details__r ? v.simpleCase.Petition_Details__r.Target_Persona_Id__c : v.simpleCase.Account.Name}
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem flexibility="auto" padding="horizontal-medium">
+                                    <div class="slds-text-body_small slds-m-bottom_xxx-small">
+                                        Target ID
+                                    </div>
+                                    <div class="c-inline slds-m-bottom_xx-small">
+                                        {!v.simpleCase.Petition_Details__r ? v.simpleCase.Petition_Details__r.Target_Account__r.Nucleus_ID__c : v.simpleCase.Account.Nucleus_ID__c}
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem flexibility="auto" padding="horizontal-medium">
+                                    <div class="slds-text-body_small slds-m-bottom_xxx-small">
+                                        Target Login ID
+                                    </div>
+                                    <div class="c-inline slds-m-bottom_xx-small">
+                                        {!v.simpleCase.Petition_Details__r ? v.simpleCase.Petition_Details__r.Target_Account__r.PersonEmail : v.simpleCase.Account.PersonEmail}
+                                    </div>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            <div aura:id ="accountStatus" class="">
+                            <lightning:layout pullToBoundary="large">
+                                 <lightning:layoutItem flexibility="auto">
+                    				<c:AccountStatus targetAccountID="{!v.targetAccountID}" aura:id="accStatusCmp" recordId="{!v.targetAccountSFId}" productsToDisplay = "{!v.productList}" franchiseForProducts = "{!v.franchiseList}"/>
+               					 </lightning:layoutItem>
+                            </lightning:layout>			  
+                            </div>
+                            <!--lightning:button variant="neutral" class="slds-m-top_medium slds-m-bottom_large" label="View more details" title="View more details" /-->
+                        </div>
+                        
+                        <div class="target-account-notes slds-border_top slds-border_bottom">
+                           <c:AccountNotes aura:id="accNotes" isWorkOn="{!v.isWorkOnCase}" caseObj="{!v.simpleCase}" caseId = "{!v.simpleCase.Id}" targetAccountID="{!v.simpleCase.Petition_Details__r ? v.simpleCase.Petition_Details__r.Target_Account__r.Nucleus_ID__c : v.simpleCase.Account.Nucleus_ID__c}"
+                                           targetAccountEmail="{!v.simpleCase.Petition_Details__r ? v.simpleCase.Petition_Details__r.Target_Account__r.PersonEmail : v.simpleCase.Account.PersonEmail}"/>                           
+                        </div>
+
+                        <div class="slds-border_top slds-m-bottom--medium"></div>
+                        <!-- Petinior Persona Section-->
+                        <div class="slds-page-header__title slds-m-bottom--mediums">Player Personas</div>
+                        
+                        <lightning:layout>
+                            <lightning:layoutItem size="4" padding="around-small">
+                                <div>
+                                    <section class="slds-clearfix"  style="margin-left: -16px;">
+                                        <div class="slds-float--left" onclick="{!c.expandClick}" style="cursor: pointer; position: relative; right: 5px;"> 
+                                            <lightning:buttonIcon class="slds-show" aura:id="expandPetition" iconName="utility:chevronright" variant="bare"  alternativeText="Indicates add"/>
+                                            <lightning:buttonIcon class="slds-hide" aura:id="expandPetition" iconName="utility:chevrondown" variant="bare"  alternativeText="Indicates dash"/>
+                                        </div>
+                                        <div class="slds-text-body_small">Petitioner Persona</div>
+                                    </section>
+                                </div>
+                                <div class="slds-text-body_regular slds-text-link" onclick="{!c.accountTabOpen}">{!v.simpleCase.PersonaIdOnCase__c}</div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="4" padding="around-small">
+                                <div class="slds-text-body_small">Petitioner ID</div>
+                                <div class="slds-text-body_regular">{!v.simpleCase.Account.Nucleus_ID__c}</div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="4" padding="around-small">
+                                <div class="slds-text-body_small">Petitioner Login ID</div>
+                                <div class="slds-text-body_regular">{!v.simpleCase.Account.PersonEmail}</div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        
+                        <div class="slds-hide slds-p-around--medium" id="expandPetitionDetail" aura:id="expandPetitionDetail">
+                            
+                            <lightning:layout>
+                                
+                            <div class="slds-text-align_center">
+                                <aura:if isTrue="{!v.showSpinner}">
+                                    <div aura:id="spinnerId" class="slds-spinner_container" style="margin:55rem 0rem 10rem 13rem;">
+                                        <div class="slds-spinner--brand  slds-spinner slds-spinner--small slds-is-relative" role="alert">
+                                            <span class="slds-assistive-text">Loading1</span>
+                                            <div class="slds-spinner__dot-a"></div>
+                                            <div class="slds-spinner__dot-b"></div>
+                                        </div>
+                                    </div>
+                                </aura:if>
+                            </div>
+                                <lightning:layoutItem size="4" padding="around-small">
+                                    <div class="slds-text-body_small">Display Name</div>
+                                    <div class="slds-text-body_regular">{!v.playerAccData.displayName}</div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="4" padding="around-small">
+                                    <div class="slds-text-body_small">NameSpace</div>
+                                    <div class="slds-text-body_regular">{!v.playerAccData.namespaceName}</div>
+                                </lightning:layoutItem> 
+                                <lightning:layoutItem size="4" padding="around-small">
+                                    <div class="slds-text-body_small">Status</div>
+                                    <!--<div class="slds-text-body_regular">{!v.simpleCase.Status}</div>-->
+                                    <span class="{!v.playerAccData.status == 'ACTIVE' ? 'slds-m-right_x-small active-indicator': v.playerAccData.status== 'BANNED' ? 'slds-m-right_x-small banned-indicator': v.playerAccData.status== 'DISABLED' ? 'slds-m-right_x-small disabled-indicator': v.playerAccData.status== 'DEACTIVATED' ? 'slds-m-right_x-small deactivate-indicator': 'slds-m-right_x-small suspended-indicator'}" >
+                                    </span>
+                                    {!v.playerAccData.status}
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                            
+                            <lightning:layout>
+                                <lightning:layoutItem size="4" padding="around-small">
+                                    <div class="slds-text-body_small">Date Created</div>
+                                    <div class="slds-text-body_regular">{!v.playerAccData.dateCreated}</div>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </div>
+                        <!-- Supporting Petitions-->
+                        <aura:if isTrue="{!and(v.simpleCase.Id != undefined, v.simpleCase.RecordType.Name == 'Petition')}">
+                            <div class="supporting-petitions" id="supportingPetitions">
+                                <c:SupportingPetitions aura:id="supportingPetitions" petitionUuid = "{!v.simpleCase.Petition_Details__r.PetitionUUID__c}" />
+                            </div>
+                        </aura:if>
+                    </div>
+                </lightning:layoutItem>                
+            </lightning:layout>
+        </lightning:layoutItem>            
+    </lightning:layout>
+    <lightning:spinner class="slds-hide account-open-spin" alternativeText="loader" aura:id="accountOpenSpinner" variant="brand" size="small"/>
+</aura:component>

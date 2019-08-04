@@ -1,0 +1,44 @@
+.THIS .c-layoutBackground{
+    background-color:#FAFAF9;
+}
+
+.THIS .tsm-scrollable {
+    max-height: calc(100vh - 200px);
+    overflow-y: hidden;
+    padding: 0;
+}
+.THIS .knowledge-base{
+    float: right;
+    background-color: transparent;
+    border: 0;
+    z-index:1;
+}
+.THIS.job-role .slds-modal {
+    top: 0%;
+    height: 100%;
+    left:0%;
+}
+.THIS.job-role .slds-modal__container {
+    left: 0%;
+}
+
+.THIS.job-role .slds-modal {
+    left: 0;
+}
+.THIS .wrapper-min-height .slds-tabs_default{
+    min-height: calc(100vh - 173px);
+	padding: 0 .5rem;
+}
+.THIS .overview-tab {
+    min-height: calc(100vh - 173px);
+}
+.THIS .middle-section-wrapper .slds-tabs_default__content{
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.THIS .slds-backdrop{
+    left:25%;
+}
+.THIS .slds-modal{
+    left:25%;
+}

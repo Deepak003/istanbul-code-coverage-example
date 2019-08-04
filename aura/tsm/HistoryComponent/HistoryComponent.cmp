@@ -1,0 +1,528 @@
+<aura:component controller="FraudAdminToolController">
+    <aura:registerEvent name="localeEvent" type="c:localeEvent"/>
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:attribute name="historyConfig" type="Object"/>
+    <aura:attribute name="fraudDataList" type="Object[]"/>
+    <aura:attribute name="totalCount" type="Integer"/>
+    <aura:attribute name="pageNumber" type="Integer" default="1" />   
+    <aura:attribute name="shouldGetPageData" type="Boolean" default="false"/>   
+    <aura:attribute name="PaginationList" type="list"/> 
+    <aura:attribute name="startPage" type="Integer" />
+    <aura:attribute name="numberOfMinNewVal" type="Integer" />
+    <aura:attribute name="numberOfMinOldVal" type="Integer" />
+    <aura:attribute name="numberOfDaysNewVal" type="Integer" />
+    <aura:attribute name="numberOfDaysOldVal" type="Integer" />
+    <aura:attribute name="numberOfWeeksNewVal" type="Integer" />
+    <aura:attribute name="numberOfWeeksOldVal" type="Integer" />
+    <aura:attribute name="numberOfTOSContactsDaysNewVal" type="Integer" />
+    <aura:attribute name="numberOfTOSContactsDaysOldVal" type="Integer" />
+    <aura:attribute name="numberOfDaysFailureNewVal" type="Integer" />
+    <aura:attribute name="numberOfDaysFailureOldVal" type="Integer" />
+    <aura:attribute name="index" type="Integer" />
+    <aura:attribute name="endPage" type="Integer"/>
+    <aura:attribute name="pageSize" type="Integer" default="10"/>
+    <aura:attribute name="totalPagesCount" type="integer"/>
+    <aura:attribute name="localeList" type="Object[]"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <div class="slds-m-around_xx-large action-button">
+                     <div class="history-action">
+                    <lightning:button 
+                                      label="View Change History"
+                                      title="View Change History"
+                                      onclick="{! c.openModel }" /></div>             
+                    <aura:if isTrue="{!v.isOpen}">
+                        
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container history-modal">
+                                <aura:if isTrue="{!v.Spinner}">
+                                    <div aura:id="spinnerId" class="slds-spinner_container">
+                                       <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                                         <span class="slds-assistive-text">Loading</span>
+                                         <div class="slds-spinner__dot-a"></div>
+                                         <div class="slds-spinner__dot-b"></div>
+                                       </div>
+                                    </div>
+                                 </aura:if>
+                                <header class="slds-modal__header">
+                                    <lightning:buttonIcon iconName="utility:close"
+                                                          onclick="{! c.closeModel }"
+                                                          alternativeText="close"
+                                                          variant="bare-inverse"
+                                                          class="slds-modal__close"/>
+                                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate"><b>Change History</b></h2>
+                                </header>
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                   
+								    <lightning:layout multipleRows="true">
+										<lightning:layoutItem size="1"></lightning:layoutItem>            
+										<lightning:layoutItem size="3"><b>Date</b></lightning:layoutItem>            
+										<lightning:layoutItem size="2"><b>Time</b></lightning:layoutItem>
+										<lightning:layoutItem size="3"><b>Email</b></lightning:layoutItem>            
+										<lightning:layoutItem size="3"><b>ID</b></lightning:layoutItem>										
+
+        <aura:iteration items="{!v.fraudDataList}" var="fraudData" indexVar="itemIndex">
+            <lightning:layoutItem size="12">
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem size="1">
+                    <h1>
+                        <lightning:buttonIcon value="{!itemIndex}" onclick="{!c.toggle}" iconName="{!fraudData.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                    </h1>
+                    
+                </lightning:layoutItem>
+                <lightning:layoutItem size="3">{!fraudData.date}</lightning:layoutItem>
+                <lightning:layoutItem size="2">{!fraudData.time}</lightning:layoutItem>
+				<lightning:layoutItem size="3">{!fraudData.emailId}</lightning:layoutItem>
+                <lightning:layoutItem size="3">{!fraudData.id}</lightning:layoutItem>
+            </lightning:layout>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="12">
+            <aura:if isTrue="{!fraudData.expanded}">
+                    <lightning:layout>
+                        <lightning:layoutItem size="12">
+                            <div class="expandable-data">
+                                <div class="risk-criteria-container">          
+									<lightning:accordion  activeSectionName="AccountProperties">
+                                       <lightning:accordionSection name="AccountProperties" label="Account Properties">
+                                         <aura:iteration items="{!fraudData.riskCriteria}" var="riskC">
+                                                                        <aura:if isTrue="{!riskC.name =='birthdayRule'}">
+                                                                            <div class="rule-name">1 Jan Birthday</div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='accountCreatedHours'}">
+                                                                            <div class="rule-name">Account created in the last &nbsp;<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp; hours </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                         </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='zeroAccountValue'}">
+                                                                              <div class="rule-name">Zero Account Value </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='noSessionData'}">
+                                                                            <div class="rule-name">No Session data related to case </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='gibberishEmail'}">
+                                                                            <div class="rule-name">  Gibberish Email  </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                            <aura:if isTrue="{!riskC.name =='gibberishName'}">
+                                                                                <div class="rule-name">  Gibberish Name  </div>
+                                                                                <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                    <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                                </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='allAccountPropertiesScored'}">
+                                                                            <div class="rule-name">   All Account Properties Scored </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                    </aura:iteration>
+                                                                    </lightning:accordionSection>
+                                                                    </lightning:accordion>
+																<lightning:accordion  activeSectionName="Location">
+                                                                <lightning:accordionSection name="Location" label="Location">
+                                                                    <aura:iteration items="{!fraudData.riskCriteria}" var="riskC">
+                                                                        <aura:if isTrue="{!riskC.name =='changeInLocation'}">
+                                                                            <div class="rule-name"> Change in location  </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                            <aura:if isTrue="{!riskC.name =='unauthenticatedLocationMultiplier'}">
+                                                                                <div class="rule-name" style="margin-left :12px;width: 88%;">Unauthenticated Multiplier(<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                    <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                    </span>)</div>
+                                                                                     
+                                                                                <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                                </span><br></br>
+                                                                            </aura:if>
+                                                                    </aura:iteration>
+                                                                    </lightning:accordionSection>
+                                                                    </lightning:accordion>
+																<lightning:accordion  activeSectionName="ContactBehaviour">
+                                                                <lightning:accordionSection name="ContactBehaviour" label="Contact Behaviour">
+                                                                    <aura:iteration items="{!fraudData.riskCriteria}" var="riskC">
+                                                                        <aura:if isTrue="{!riskC.name =='selfServiceRule'}">
+                                                                            <div class="rule-name">Self-Service in past &nbsp;<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;days (per case)</div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='numberOfContacts'}">
+                                                                            <div class="rule-name">Contacting &nbsp;<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;times in 
+                                                                                <span class="{!(v.numberOfMinNewVal != v.numberOfMinOldVal) ? 'config-value red' : 'config-value'}">{!v.numberOfMinNewVal}
+                                                                                <aura:if isTrue="{!(v.numberOfMinNewVal != v.numberOfMinOldVal)}"><span class="old-value"> Old Value : {!v.numberOfMinOldVal}</span></aura:if>
+                                                                                </span>
+                                                                                min</div> 
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                         </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='numberOfContactsDays'}">
+                                                                            <div class="rule-name">Contacting &nbsp;<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;times in 
+                                                                                <span class="{!(v.numberOfDaysNewVal != v.numberOfDaysOldVal) ? 'config-value red' : 'config-value'}">{!v.numberOfDaysNewVal}
+                                                                                <aura:if isTrue="{!(v.numberOfDaysNewVal != v.numberOfDaysOldVal)}"><span class="old-value"> Old Value : {!v.numberOfDaysOldVal}</span></aura:if>
+                                                                                </span>
+                                                                                days </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='numberOfContactsInWeeks'}">
+                                                                            <div class="rule-name">Contacting &nbsp;<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;times in 
+                                                                                <span class="{!(v.numberOfWeeksNewVal != v.numberOfWeeksOldVal) ? 'config-value red' : 'config-value'}">{!v.numberOfWeeksNewVal}
+                                                                                    <aura:if isTrue="{!(v.numberOfWeeksNewVal != v.numberOfWeeksOldVal)}"><span class="old-value"> Old Value : {!v.numberOfWeeksOldVal}</span></aura:if>
+                                                                                </span>
+                                                                                weeks </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        
+                                                                        <aura:if isTrue="{!riskC.name =='tosDisputeRule'}">
+                                                                            <div class="rule-name"><span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;TOS Cases in  
+                                                                                <span class="{!(v.numberOfTOSContactsDaysNewVal != v.numberOfTOSContactsDaysOldVal) ? 'config-value red' : 'config-value'}">{!v.numberOfTOSContactsDaysNewVal}
+                                                                                <aura:if isTrue="{!(v.numberOfTOSContactsDaysNewVal != v.numberOfTOSContactsDaysOldVal)}"><span class="old-value"> Old Value : {!v.numberOfTOSContactsDaysOldVal}</span></aura:if>
+                                                                                </span>&nbsp;
+                                                                             days</div> 
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <!-- VBR-547 Starts -->
+                                                                        <aura:if isTrue="{!riskC.name =='paymentFailureRule'}">
+                                                                            <div class="rule-name"><span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;Payment failures (per account) in  
+                                                                                <span class="{!(v.numberOfDaysFailureNewVal != v.numberOfDaysFailureOldVal) ? 'config-value red' : 'config-value'}">{!v.numberOfDaysFailureNewVal}
+                                                                                <aura:if isTrue="{!(v.numberOfDaysFailureNewVal != v.numberOfDaysFailureOldVal)}"><span class="old-value"> Old Value : {!v.numberOfDaysFailureOldVal}</span></aura:if>
+                                                                                </span>&nbsp;
+                                                                             days</div> 
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <!-- VBR-547 Ends -->
+                                                                        <aura:if isTrue="{!riskC.name =='fraudCaseCount'}">
+                                                                            <div class="rule-name">  Past high fraud cases (per case) </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='customerFlag'}">
+                                                                                <div class="rule-name">  Fraud Flag selected  </div>
+                                                                                <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                                </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='vogPhishing'}">
+                                                                            <div class="rule-name">    VOG phishing cases (per case) </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='allContactBehaviorScored'}">
+                                                                            <div class="rule-name"> All Contact Behavior Scored </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if></span><br></br>
+                                                                            </aura:if>
+                                                                    </aura:iteration>
+                                                                    </lightning:accordionSection>
+                                                                    </lightning:accordion>
+																<lightning:accordion  activeSectionName="FIFARules">
+                                                                <lightning:accordionSection name="FIFARules" label="FIFA Rules">
+                                                                    <aura:iteration items="{!fraudData.riskCriteria}" var="riskC">
+                                                                        <aura:if isTrue="{!riskC.name =='winLossRatio'}">
+                                                                            <div class="rule-name">     W/L Record of 0:10 </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='clubDeletion'}">
+                                                                            <div class="rule-name"><span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>+ FUT Club Deletions</div>
+                                                                                 
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                         </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='winLossAndClubDeletion'}">
+                                                                                  <div class="rule-name">  W/L + Club Deletions<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                      <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                      </span></div>
+                                                                                  
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='multiplePersonasCriteria'}">
+                                                                            <div class="rule-name"><span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp;  + Personas </div>
+                                                                                  
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='multipleGrantCriteria'}">
+                                                                            <div class="rule-name"><span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp; + Grants </div>
+                                                                                    
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                            <aura:if isTrue="{!riskC.name =='franchiseBanCriteria'}">
+                                                                                <div class="rule-name">Active FIFA Ban  </div>
+                                                                                <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                                </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='allFIFAScored'}">
+                                                                            <div class="rule-name">   All FIFA Scored </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                    </aura:iteration>
+                                                                    </lightning:accordionSection>
+                                                                    </lightning:accordion>
+																<lightning:accordion  activeSectionName="MasterRules">
+                                                                <lightning:accordionSection name="MasterRules" label="MasterRules">
+                                                                    <aura:iteration items="{!fraudData.riskCriteria}" var="riskC">
+                                                                        <aura:if isTrue="{!riskC.name =='completeSet'}">
+                                                                            <div class="rule-name">
+                                                                                <span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                	<aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp; or more complete set  </div>
+                                                                                 
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                                <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                        </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='customerValue'}">
+                                                                            <div class="rule-name">  Customer Value - Platinum </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                         </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='coolDown'}">
+                                                                            <div class="rule-name">Cool Down for<span class="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.customVarValue.newValue}
+                                                                                <aura:if isTrue="{!(riskC.customVarValue.newValue != riskC.customVarValue.oldValue)}"><span class="old-value"> Old Value : {!riskC.customVarValue.oldValue}</span></aura:if>
+                                                                                </span>&nbsp; days  </div>
+                                                                                   
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>
+                                                                        <aura:if isTrue="{!riskC.name =='autoFraudFlag'}">
+                                                                            <div class="rule-name">   Turn on the Fraud Flag after number of Fraud Cases </div>
+                                                                            <span class="{!(riskC.weight.newValue != riskC.weight.oldValue) ? 'config-value red' : 'config-value'}">{!riskC.weight.newValue}
+                                                                            <aura:if isTrue="{!(riskC.weight.newValue != riskC.weight.oldValue)}"><span class="old-value"> Old Value : {!riskC.weight.oldValue}</span></aura:if>
+                                                                            </span><br></br>
+                                                                            </aura:if>            
+                                                                    </aura:iteration>
+                                                                         </lightning:accordionSection>
+                                                                        </lightning:accordion> </div>
+                                                                <div class="risk-type-container">
+                                                                  <div class="risk-type-config">
+                                                                    <div class="selected-locale">
+                                                                       <lightning:select aura:id="LocaleSelectComponent" name="locale" class="select-locale" label="Locale: " onchange="{!c.onChangeLocale}">
+                                                                            <aura:iteration var="option" items="{! v.localeList}">
+                                                                                <option value="{!option}" selected="{!(option==fraudData.changedLocale)}">
+                                                                                    <aura:if isTrue="{!fraudData.changedLocale != null}">{!option}
+                                                                                        <aura:set attribute="else">en_US
+                                                                                        </aura:set>
+                                                                                    </aura:if>
+                                                                                </option>
+                                                                            </aura:iteration>
+                                                                        </lightning:select>
+                                                                    </div>
+                                                                   <aura:iteration items="{!fraudData.riskType}" var="riskT">
+                                                                       <aura:if isTrue="{!(riskT.locale == fraudData.changedLocale)}">
+                                                                           <aura:if isTrue="{!riskT.name == 'NORMAL'}">
+                                                                    <div class="label-config">
+                                                                        <div class="label">
+                                                                            <div>
+                                                                                <label>Normal(<span class="{!(riskT.active.newValue != riskT.active.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.active.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.active.newValue != riskT.active.oldValue)}"><span class="old-value"> Old Value : {!riskT.active.oldValue}</span></aura:if>
+                                                                                </b></span>)</label>
+                                                                            </div>
+                                                                            <div class="mt-2">
+                                                                                <span class="h4 config-value "><b>0&nbsp;&nbsp; -</b></span>
+                                                                                <span class="{!(riskT.maxValue.newValue != riskT.maxValue.oldValue) ? 'h4 config-value red' : 'h4 config-value'}"><b>{!riskT.maxValue.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.maxValue.newValue != riskT.maxValue.oldValue)}"><span class="old-value"> Old Value : {!riskT.maxValue.oldValue}</span></aura:if></b></span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="routing-options">
+                                                                           <div class="input-group">
+                                                                               <div class="h4">
+                                                                                   <label class="normalAuthenticated">Authenticated&nbsp;:&nbsp;</label>
+                                                                               </div>
+                                                                               <span class="{!(riskT.authActive.newValue != riskT.authActive.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.authActive.newValue}
+                                                                                   <aura:if isTrue="{!(riskT.authActive.newValue != riskT.authActive.oldValue)}"><span class="old-value"> Old Value : {!riskT.authActive.oldValue}</span></aura:if>
+                                                                                   </b></span>
+                                                                            </div>
+                                                                            <div class="input-group">
+                                                                                <div class="input-group-prepend">
+                                                                                    <label class="h4" for="normalUnauthenticated">Unauthenticated&nbsp;:&nbsp;</label>
+                                                                                </div><span class="{!(riskT.unauthActive.newValue != riskT.unauthActive.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.unauthActive.newValue}
+                                                                                <aura:if isTrue="{!(riskT.unauthActive.newValue != riskT.unauthActive.oldValue)}"><span class="old-value"> Old Value : {!riskT.unauthActive.oldValue}</span></aura:if>
+                                                                                </b></span>
+                                                                            </div>
+                                                                        	<div style="width: 90%;"><label class="h4" for="normal">Show score details in case notes(<span class="{!(riskT.showCriteriaRuleInOmega.newValue != riskT.showCriteriaRuleInOmega.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.showCriteriaRuleInOmega.newValue}
+                                                                                <aura:if isTrue="{!(riskT.showCriteriaRuleInOmega.newValue != riskT.showCriteriaRuleInOmega.oldValue)}"><span class="old-value"> Old Value : {!riskT.showCriteriaRuleInOmega.oldValue}</span></aura:if>
+                                                                            	</b></span>)</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                           </aura:if>
+                                                                           <aura:if isTrue="{!riskT.name == 'LRF'}">
+                                                                    <div class="label-config">
+                                                                        <div class="label">
+                                                                            <div>
+                                                                                <label>Low Risk(<span class="{!(riskT.active.newValue != riskT.active.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.active.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.active.newValue != riskT.active.oldValue)}"><span class="old-value"> Old Value : {!riskT.active.oldValue}</span></aura:if></b></span>)
+                                                                                </label>
+                                                                            </div>
+                                                                            <div class="mt-2">
+                                                                                <span class="{!(riskT.minValue.newValue != riskT.minValue.oldValue) ? 'h4 config-value red' : 'h4 config-value'}"><b>{!riskT.minValue.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.minValue.newValue != riskT.minValue.oldValue)}"><span class="old-value"> Old Value : {!riskT.minValue.oldValue}</span></aura:if>
+                                                                                    &nbsp;&nbsp; - </b></span>
+                                                                                <span class="{!(riskT.maxValue.newValue != riskT.maxValue.oldValue) ? 'h4 config-value red' : 'h4 config-value'}"><b>{!riskT.maxValue.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.maxValue.newValue != riskT.maxValue.oldValue)}"><span class="old-value"> Old Value : {!riskT.maxValue.oldValue}</span></aura:if>
+                                                                                    </b></span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="routing-options">
+                                                                           <div class="input-group">
+                                                                               <div class="h4">
+                                                                                   <label class="lrfAuthenticated">Authenticated&nbsp;:&nbsp;</label>
+                                                                               </div>
+                                                                               <span class="{!(riskT.authActive.newValue != riskT.authActive.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.authActive.newValue}
+                                                                                 <aura:if isTrue="{!(riskT.authActive.newValue != riskT.authActive.oldValue)}"><span class="old-value"> Old Value : {!riskT.authActive.oldValue}</span></aura:if>
+                                                                                   </b></span>
+                                                                            </div>
+                                                                            <div class="input-group">
+                                                                                <div class="input-group-prepend">
+                                                                                    <label class="h4" for="lrfUnauthenticated">Unauthenticated&nbsp;:&nbsp;</label>
+                                                                                </div><span class="{!(riskT.unauthActive.newValue != riskT.unauthActive.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.unauthActive.newValue}
+                                                                                <aura:if isTrue="{!(riskT.unauthActive.newValue != riskT.unauthActive.oldValue)}"><span class="old-value"> Old Value : {!riskT.unauthActive.oldValue}</span></aura:if>
+                                                                                </b></span>
+                                                                            </div>
+                                                                            <div style="width: 90%;"><label class="h4" for="lrf">Show score details in case notes(<span class="{!(riskT.showCriteriaRuleInOmega.newValue != riskT.showCriteriaRuleInOmega.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.showCriteriaRuleInOmega.newValue}
+                                                                                <aura:if isTrue="{!(riskT.showCriteriaRuleInOmega.newValue != riskT.showCriteriaRuleInOmega.oldValue)}"><span class="old-value"> Old Value : {!riskT.showCriteriaRuleInOmega.oldValue}</span></aura:if>
+                                                                                </b></span>)</label>
+                                                                            </div>
+                                                                        </div>
+                                                                               </div></aura:if>
+                                                                               <aura:if isTrue="{!riskT.name == 'HRF'}">
+                                                                    <div class="label-config">
+                                                                        <div class="label">
+                                                                            <div>
+                                                                                <label>High Risk(<span class="{!(riskT.active.newValue != riskT.active.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.active.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.active.newValue != riskT.active.oldValue)}"><span class="old-value"> Old Value : {!riskT.active.oldValue}</span></aura:if></b></span>)</label>
+                                                                            </div>
+                                                                            <div class="mt-2">
+                                                                                <span class="{!(riskT.minValue.newValue != riskT.minValue.oldValue) ? 'h4 config-value red' : 'h4 config-value'}"><b>{!riskT.minValue.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.minValue.newValue != riskT.minValue.oldValue)}"><span class="old-value"> Old Value : {!riskT.minValue.oldValue}</span></aura:if>
+                                                                                    &nbsp;&nbsp; -</b> </span>
+                                                                                <span class="{!(riskT.maxValue.newValue != riskT.maxValue.oldValue) ? 'h4 config-value red' : 'h4 config-value'}"><b>{!riskT.maxValue.newValue}
+                                                                                    <aura:if isTrue="{!(riskT.maxValue.newValue != riskT.maxValue.oldValue)}"><span class="old-value"> Old Value : {!riskT.maxValue.oldValue}</span></aura:if>
+                                                                                    </b></span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="routing-options">
+                                                                           <div class="input-group">
+                                                                               <div class="h4">
+                                                                                   <label class="hrfAuthenticated">Authenticated&nbsp;:&nbsp;</label>
+                                                                               </div>
+                                                                               <span class="{!(riskT.authActive.newValue != riskT.authActive.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.authActive.newValue}
+                                                                                   <aura:if isTrue="{!(riskT.authActive.newValue != riskT.authActive.oldValue)}"><span class="old-value"> Old Value : {!riskT.authActive.oldValue}</span></aura:if>
+                                                                                   </b></span>
+                                                                            </div>
+                                                                            <div class="input-group">
+                                                                                <div class="input-group-prepend">
+                                                                                    <label class="h4" for="hrfUnauthenticated">Unauthenticated&nbsp;:&nbsp;</label>
+                                                                                </div><span class="{!(riskT.unauthActive.newValue != riskT.unauthActive.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.unauthActive.newValue}
+                                                                                <aura:if isTrue="{!(riskT.unauthActive.newValue != riskT.unauthActive.oldValue)}"><span class="old-value"> Old Value : {!riskT.unauthActive.oldValue}</span></aura:if>
+                                                                                </b></span>
+                                                                            </div>
+                                                                            <div style="width: 90%;"><label class="h4" for="hrf">Show score details in case notes(<span class="{!(riskT.showCriteriaRuleInOmega.newValue != riskT.showCriteriaRuleInOmega.oldValue) ? 'config-value red' : 'config-value'}"><b>{!riskT.showCriteriaRuleInOmega.newValue}
+                                                                                <aura:if isTrue="{!(riskT.showCriteriaRuleInOmega.newValue != riskT.showCriteriaRuleInOmega.oldValue)}"><span class="old-value"> Old Value : {!riskT.showCriteriaRuleInOmega.oldValue}</span></aura:if>
+                                                                                </b></span>)</label>
+                                                                            </div>    
+                                                                        </div>
+                                                                      </div>
+                                                                           </aura:if>
+                                                                     </aura:if>
+                                                                    </aura:iteration>
+                                                                    </div>
+                                                                    <c:SetToPrevConfigComponent clickedIndex= "{!v.index}" historyData="{!v.fraudDataList}"/>
+                                                                  </div>
+                                                                </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+            </aura:if>     
+            </lightning:layoutItem>
+        </aura:iteration>
+    </lightning:layout>
+                                    <div class="slds-align_absolute-center pagination-footer">         
+                            <lightning:button label="Previous"
+                                              disabled="{!v.pageNumber == 1}"  
+                                              onclick="{!c.openModel}"
+                                              variant="brand"
+                                              iconName="utility:back"
+                                              name="previous"/>
+                            
+                            <span class="slds-badge slds-badge_lightest" onkeypress="{!c.keyCheck}" style="margin-right: -78px;border: none;display: inline-flex;">
+                                <div class="pagination-label">Page</div> 
+                                <lightning:input type="number" name="number" value="{!v.pageNumber}" onchange = "{!c.changePageNumber}" onblur = "{!c.blurPageNumber}" style="width: 31%;margin-bottom: 17px;"/>
+                                 <div class="pagination-label">out of {!v.totalPagesCount}</div>
+                            </span>
+                            
+                            <lightning:button label="Next"
+                                              disabled="{!(v.pageNumber) >= v.totalPagesCount}" 
+                                              onclick="{!c.openModel}"
+                                              variant="brand"
+                                              iconName="utility:forward"
+                                              iconPosition="right"
+                                              name="next"/>
+                        </div> 
+                       	<div class="footer-note">
+                            <b>NOTE : Date and Time shown here in history data is in GMT.</b>
+                        </div>
+					</div>
+                </div>   
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>          
+        </aura:if>
+    </div>
+</aura:component>

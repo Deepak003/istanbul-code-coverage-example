@@ -1,0 +1,55 @@
+<aura:component controller="CaseDetailAuraCtl">
+    <aura:attribute name="caseId" type="String" />
+    <aura:attribute name="caseNotes" type="List" default="[]" />    
+    <aura:attribute name="viewAllFlag" type="Boolean" default="false" />
+    <aura:attribute name="tabViewFlag" type="String" default="" />
+    <aura:method name="getCaseNote" 
+                 action="{!c.getCaseNote}" 
+                 access="PUBLIC"
+                 description="call the get note method" />
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <div class="slds-is-relative">
+        <aura:if isTrue="{!v.tabViewFlag == 'Completed'}">
+        	<div>
+                <aura:iteration items="{!v.caseNotes}" var="note" indexVar="idx">
+                    <ui:outputDateTime value="{!note.lastModifiedDate}" format="MMM/d/Y h:ma z"/>:
+                    <span>
+                        {!note.caseNotes}
+                    </span>
+                </aura:iteration>
+            </div>
+        	<aura:set attribute="else">
+            	<aura:iteration items="{!v.caseNotes}" var="note" indexVar="idx">
+                    <div class="{!idx ? 'slds-hide' : ''}"  aura:id="caseNoteItem">
+                        <div class="field-label-data">
+                            <p>
+                                {!note.caseNotes}
+                            </p>
+                        </div>
+                        <div class="edit-field-label slds-text-body_small">
+                            Created
+                        </div>
+                        <div class="slds-m-bottom_small field-label-data">
+                            <ui:outputDateTime value="{!note.lastModifiedDate}" format="MMM/d/Y h:ma z"/>
+                        </div>
+                    </div>
+                </aura:iteration>        
+                <aura:if isTrue="{!v.caseNotes.length-1 > 0}">
+                    <aura:if isTrue="{!v.viewAllFlag == false}">
+                        <div class="slds-m-bottom_medium"><a onclick="{!c.viewNoteClick}" class="slds-m-bottom_small">+{!v.caseNotes.length-1} Notes</a></div>
+                        <aura:set attribute="else">
+                            <div class="slds-m-bottom_medium"><a onclick="{!c.collapseNoteClick}" class="slds-m-bottom_small">Collapse Notes</a></div>
+                        </aura:set>
+                    </aura:if>
+                    <aura:set attribute="else">
+                        <div class="slds-m-bottom_medium">---</div>
+                    </aura:set>            
+                </aura:if>
+            </aura:set>
+        </aura:if>
+        
+        <lightning:spinner aura:id="caseNoteSpinner" class="slds-hide" alternativeText="Loading" size="small" />
+    </div>
+</aura:component>

@@ -1,0 +1,80 @@
+<aura:component >
+    <aura:attribute name="data" type="List" access="public" description="Data from History Search component" />
+    <aura:attribute name="searchTerm" type="String" access="public" description="Search Term from smart search" />
+    <aura:attribute name="selectedProduct" type="Map" access="public" description="Selected Product from ProductSnapshort" />
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Selected Persona from ProductSnapshort"/>
+    <aura:attribute name="globalSelectionArray" type="List" default="[]" description="Getting selected items list for granting"/>
+    <aura:attribute name="caseId" type="Id" access="public" />
+    <aura:attribute name="accountId" type="String" access="public" />
+    <aura:attribute name="nucleusId" type="Id" access="public" /> 
+    
+    <!-- Private attributes -->
+    <aura:attribute name="pageNumber" type="Integer" access="private" />
+    <aura:attribute name="totalPageNumber" type="Integer" access="private" default="0" />
+    <aura:attribute name="perPage" type="Integer" default="20" access="private" />
+    <aura:attribute name="externalData" type="Map" default="{}" access="private" />
+
+    <!-- Grant UI values -->
+    <aura:attribute name="itemList" type="List"  />
+    <aura:attribute name="packList" type="List" />
+    
+    <aura:attribute name="paginatedRows" type="List" access="private" default="[]" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>   
+    <aura:handler name="change" value="{! v.data }" action="{! c.doInit }"/>
+    <aura:handler name="change" value="{! v.searchTerm }" action="{! c.handleSearchTermChange }"/>    
+    <aura:handler name="change" value="{! v.pageNumber }" action="{! c.handlePageChange }"/>
+    <aura:handler name="change" value="{! v.globalSelectionArray }" action="{! c.handleGlobalSelectionChange }"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <!-- TSM-2813 Function used to handle pagination -->
+    <aura:attribute name="paginatedNumber" type="Integer" access="public"/>
+
+    <c:DataGrid data="{!v.paginatedRows}" gridName="historyGrid" pkField="id" type="expand"
+                externalData="{! v.externalData }">
+        <!-- Primary data for HistoryTable -->
+        <c:DataGridColumn fieldName="createdOn" label="TIME UTC" class="slds-size_3-of-12" type="DATE" />
+        <c:DataGridColumn fieldName="content" label="CONTENT" class="slds-size_3-of-12" />
+        <c:DataGridColumn fieldName="action" label="ACTION" class="slds-size_2-of-12" />
+        <c:DataGridColumn fieldName="status" label="STATUS" class="slds-size_2-of-12" />
+        <c:DataGridColumn fieldName="value" label="VALUE" class="slds-size_2-of-12" />
+        
+        <!-- Supporting data for HistoryTable -->
+        <!-- description data for CONTENT column -->
+        <c:DataGridColumn fieldName="description" label="description" class="slds-hide" />
+        <!-- If Login Row is suspicious (or) not -->
+        <c:DataGridColumn fieldName="isSuspicious" label="isSuspicious" class="slds-hide" />
+        <!-- History Row Type -->
+        <c:DataGridColumn fieldName="type" label="historyType" class="slds-hide" />
+        
+        
+        <!-- Data for HistoryTable Expand Section -->      
+        <!-- Trades Key value array -->
+        <c:DataGridColumn fieldName="trades" label="trades" class="slds-hide" />
+        <!-- Reward Key value array -->
+        <c:DataGridColumn fieldName="rewards" label="rewards" class="slds-hide" />                      
+        <!-- Details Key value array -->
+        <c:DataGridColumn fieldName="details" label="details" class="slds-hide" />
+        <!-- Score Key value array -->
+        <c:DataGridColumn fieldName="scores" label="scores" class="slds-hide" />
+        <!-- Skills Key value array -->
+        <c:DataGridColumn fieldName="skills" label="skills" class="slds-hide" />
+        <!-- draftInstanceId for Draft History Row -->
+        <c:DataGridColumn fieldName="draftInstanceId" label="draftInstanceId" class="slds-hide" />
+    </c:DataGrid>
+    
+    <!-- Pagination View -->
+    <div class="{! join(' ',
+                'slds-text-align_center slds-p-vertical_medium',
+                if(lessthanorequal(div(v.totalPageNumber,v.perPage), 1), 'slds-hide')
+                )}">
+        <c:Pagination totalPages="{! div(v.totalPageNumber,v.perPage) }" activePage="{!v.pageNumber}" />
+    </div>
+    
+    <!-- EmptyState view -->
+    <aura:if isTrue="{! v.paginatedRows.length == 0 }">
+        <c:EmptyState message="{! if(v.searchTerm, 'No Result for &quot;'+ v.searchTerm + '&quot;' , 'No History Available') }"></c:EmptyState>        
+    </aura:if>
+</aura:component>

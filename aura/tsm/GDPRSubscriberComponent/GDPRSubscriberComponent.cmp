@@ -1,0 +1,131 @@
+<aura:component controller="SubscriberController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <!-- Imports -->
+    <ltng:require styles="{!$Resource.GDPRTool}" />
+    <!-- attributes -->
+    <lightning:navigation aura:id="navService"/>
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <aura:attribute name="addSuccessful" type="Boolean" default="false" />
+    <aura:attribute name="refreshTime" type="String" default="Just now" />
+    <aura:attribute name="sortingField" type="String" default="Name" />
+    <aura:attribute name="message" type="String" />
+    <aura:attribute name="type" type="String" />
+    <aura:attribute name="userProfile" type="String" />
+    <aura:attribute name="newSubscriberFlag" type="Boolean" default="false" />
+    <aura:attribute name="sortedBy" type="String" />
+    <aura:attribute name="sortedDirection" type="Boolean" default="asc" />
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="page" type="integer" description="using for storing page Number"/>
+    <aura:attribute name="pages" type="integer" description="using for storing All Pages"/>
+    <aura:attribute name="total" type="integer" description="total records count store "/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="draftValues" type="Object" default="[]"/>
+    <aura:attribute name="objGDPRSubscriber" type="GDPRSubscriber__c" default="{sobjectType : 'GDPRSubscriber__c'}" />
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:handler name="change" value="{!v.newSubscriberFlag}" action="{!c.showToast}"/>
+    <aura:handler name="change" value="{!v.addSuccessful}" action="{!c.init}"/>
+    <div style="position:absolute;">
+        <aura:if isTrue="{!v.newSubscriberFlag}">
+            <c:AddSubscriberComponent 
+                                      objGDPRSubscriber = "{!v.objGDPRSubscriber}"            
+                                      newSubscriberFlag="{!v.newSubscriberFlag}" 
+                                      type="{!v.type}"
+                                      message="{!v.message}"
+                                      addSuccessful="{!v.addSuccessful}"
+                                      />
+        </aura:if>
+        
+    </div>
+    
+    <!-- Header-->
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        
+                        <lightning:icon iconName="standard:event" alternativeText="Event" />
+                        
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                    <span class="slds-page-header__title slds-truncate" title="GDPR Requests">GDPR Subscribers</span>
+                                </h1>
+                            </div>
+                        </div>
+                        
+                    </div>
+					<aura:if isTrue="{! v.userProfile == 'System Administrator' }">
+                    <div class="slds-form-element">
+                        <ui:button class="slds-button slds-button_brand" press="{!c.addNewSubscriber}" label="Add New Subscriber" />
+                    </div>
+					</aura:if>
+                </div>
+            </div>
+        </div>
+        <div class="slds-page-header__row" style="margin-top:10px;">
+            <div class="slds-page-header__col-meta">
+                <p class="slds-page-header__meta-text">{!v.total} Items • Sorted by {!v.sortingField} • Last refreshed: {!v.refreshTime}</p>
+            </div>
+            <div class="slds-page-header__col-controls">
+                <div class="slds-page-header__controls">
+                    
+                    <div class="slds-page-header__control">
+                        <button class="slds-button slds-button_icon slds-button_icon-border-filled" onclick="{! c.refresh}" title="Refresh List">
+                            <lightning:icon iconName="utility:loop" size="x-small" alternativeText="Refresh List"/>
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end-->    
+    
+    
+    <!-- the container element determine the height of the datatable -->
+    
+    <div style="margin: 5px 10px;">
+        <div class="slds-align_absolute-center" role="">
+            
+            <p class="">{!v.total} Subscribers • Page {!v.page} / {!v.pages}</p>
+            
+        </div>
+        <lightning:datatable
+                             keyField="Id"
+                             aura:id="subscriberTable"
+                             data="{! v.data }"
+                             columns="{! v.columns }"
+                             hideCheckboxColumn="true"
+                             showRowNumberColumn="false"
+                             initialRows="{! v.recordsToDisplay}"
+                             sortedBy="{! v.sortedBy }"
+                             sortedDirection="{! v.sortedDirection }"
+                             defaultSortDirection="{! v.defaultSortDirection }"
+                             onsort="{! c.updateColumnSorting}"
+                             draftValues="{! v.draftValues }"
+                             onsave="{! c.handleSaveEdition }"
+                             />
+    </div>
+    <div class="slds-align_absolute-center">            
+        <lightning:button disabled="{!v.page == 1}" variant="neutral" label="Previous" onclick="{! c.navigate }" />            
+        <lightning:button disabled="{!v.page == v.pages}" aura:id="previousPage" variant="neutral" label="Next" onclick="{! c.navigate }" />
+    </div>
+    
+</aura:component>

@@ -1,0 +1,322 @@
+<aura:component extends="c:ParentModal" controller="AccountBillingAuraCtl">
+    <aura:attribute name="isOpen" type="Boolean" access="public" />
+    <aura:attribute name="isEditMode" type="Boolean" access="public"  />
+    <aura:attribute name="isViewMode" type="Boolean" access="public" default="true" />
+    <aura:attribute name="variant" type="String" access="public" default="default" />
+    <aura:attribute name="title" type="String" access="public" default="Payment Account Details" />   
+    <aura:attribute name="accountDetails" type="Object" access="public" />
+    <aura:attribute name="oldAccountDetailModel" type="Object" />
+    <aura:attribute name="accountDetailModel" type="Object" />
+    <aura:attribute name="formHeading" type="String" access="private" default="Details" />
+    <aura:attribute name="WWCE" type="Object" />
+    <aura:attribute name="nucleusId" type="Id" access="public"/>
+    <aura:attribute name="countryList" type="List" default="[]"/>
+    <aura:attribute name="stateList" type="List" default="[]"/>
+    <aura:attribute name="isSpinner" type="Boolean" access="private" default="false" />
+    <aura:attribute name="monthList" type="List" default="[]"/>
+    <aura:attribute name="yearList" type="List" default="[]"/>
+    <aura:attribute name="personaList" type="List" default="[]"/>
+    <aura:attribute name="selectedPersonaList" type="List" default="[]"/>
+    <aura:attribute name="statusList" type="List" default="[]"/>
+    <aura:attribute name="personas" type="String" />
+    <aura:attribute name="accountUpdaterSupported" type="String" />
+    <aura:attribute name="accountUpdaterLabel" type="String" />
+    <aura:attribute name="showStateList" type="String" />
+    <aura:attribute name="dateSeparator" type="String" default="" />
+    <aura:attribute name="accountTypeCard" type="Boolean" default="true" />
+    <aura:attribute name="showSaveButton" type="String" default=""/>
+    <aura:attribute name="cancelButtonName" type="String" default="Close"/>
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="false" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:registerEvent name="cmpEvent" type="c:PaymentUpdateEvt"/> 
+    <!-- Modal Attributes  -->
+    <aura:set attribute="outerClass" value="my-modal"/>
+    <aura:set attribute="class" value="modal-large"/>
+    <aura:set attribute="isModalOpen" value="{!v.isOpen}"/>
+    <aura:set attribute="clickClose" value="false"/>
+    
+    <!-- Modal Header Attributes -->
+    <aura:set attribute="title" value="{!v.title}"/>
+    
+    <!-- Modal Content Attributes -->
+    <aura:set attribute="showSpinner" value="{!v.isLoading}"/>
+    <aura:set attribute="content">
+        <c:PaymentAccountHeader paymentAccount="{! v.accountDetails }" />
+        <!--start-->
+        <div class="c-container slds-is-relative slds-m-top--x-small">
+            <!-- Card Info section -->
+            <lightning:layout class="slds-m-bottom--small">
+                <lightning:layoutItem size="11">
+                    <div class="slds-text-heading_medium text-bold">{!v.formHeading}</div>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="1">
+                    
+                    <div class="{! join(' ', 'accountGroupButtons',
+                                if(v.isViewMode, 'slds-show', 'slds-hide')
+                                )}">
+                        <lightning:button onclick="{!c.openEditView}" variant="base"
+                                          label="Edit" />
+                    </div>
+                    
+                </lightning:layoutItem>
+            </lightning:layout>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_6-of-12">
+                    <div class="slds-text-heading_small text-bold">Basic Information</div>
+                    <lightning:layout multipleRows="true" class="slds-m-bottom--medium">
+                        <aura:if isTrue="{!v.isViewMode}">
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">First Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.firstName}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Last Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.lastName}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Expiration Date</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.expirationMonth}{!v.dateSeparator}{!v.accountDetailModel.expirationYear}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" 
+                                                  class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'cashcard', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Card Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.name}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" 
+                                                  class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'EACashWallet', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Wallet Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.name}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" 
+                                                  class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'EACashWallet', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Remaining Balance</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.currencyName}&nbsp;{!v.accountDetailModel.balance}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12"
+                                                  class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'paypal', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.name}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">Personas</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.personas}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">Status</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.status}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">IP</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>
+                                        {!v.accountDetailModel.ipAddress} 
+                                        <aura:if isTrue="{!not(empty(v.accountDetailModel.country))}">
+                    						({!v.accountDetailModel.country})
+                						</aura:if>
+                                    </bdi>
+                                </div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'creditCard', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Automatic Account Update Status</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountUpdaterLabel }</bdi></div>
+                            </lightning:layoutItem>
+                            
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!v.isEditMode}">
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">First Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.firstName}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Last Name</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.lastName}</bdi></div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'paypal', 'slds-show', 'slds-hide')
+                                )}">
+                                <lightning:input class="slds-size_11-of-12" aura:id="accountform" name="name"
+                                                 label="Name" value="{!v.accountDetailModel.name}" maxlength="64" onchange="{! c.handleAccountChange }"/>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'EACashWallet', 'slds-show', 'slds-hide')
+                                )}">
+                                <lightning:input class="slds-size_11-of-12" aura:id="accountform" name="walletName"
+                                                 label="Wallet Name" value="{!v.accountDetailModel.name}" maxlength="64" onchange="{! c.handleAccountChange }"/>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" 
+                                                  class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'EACashWallet', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Remaining Balance</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.currencyName}&nbsp;{!v.accountDetailModel.balance}</bdi></div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                                                <lightning:combobox class="slds-size_11-of-12" name="month"
+                                                    label="Expiration" value="{!v.accountDetailModel.expirationMonth}"
+                                                    placeholder="" onchange="{! c.handleCountryChange }"  options="{!v.monthList}" />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="{! join(' ', 'item-padding',
+                                if(v.accountTypeCard, 'slds-show', 'slds-hide')
+                                )}">
+                                                                <lightning:combobox class="slds-size_11-of-12" name="year"
+                                                    label="&nbsp;" value="{!v.accountDetailModel.expirationYear}"
+                                                    placeholder="" onchange="{! c.handleCountryChange }"  options="{!v.yearList}" />
+                                
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:combobox class="slds-size_11-of-12" aura:id="accountform" name="persona"
+                                                    label="Persona" value=""
+                                                    placeholder="Select Persona"  options="{!v.personaList}" onchange="{! c.applyPersona }"/>
+                                 <div class="pillsList slds-m-top_small">
+                                    <aura:iteration items="{!v.selectedPersonaList}" var="pillRec" indexVar="pillIdx">
+                                        <div data-id="{!pillIdx}" class="pillsBlock">
+                                            <lightning:pill label="{!pillRec.label}" onremove="" onclick="{!c.removePersona}" href="#"/>
+                                        </div>
+                                    </aura:iteration>
+                                </div>
+                                
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:combobox class="slds-size_11-of-12" name="status"
+                                    label="Status" value="{!v.accountDetailModel.status}"
+                                    placeholder="" onchange="{! c.handleCountryChange }"  options="{!v.statusList}" />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">IP</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>{!v.accountDetailModel.ipAddress}
+                                        <aura:if isTrue="{!not(empty(v.accountDetailModel.country))}">
+                    						({!v.accountDetailModel.country})
+                						</aura:if>
+                                    </bdi>
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="{! join(' ', 'item-padding',
+                                if(v.accountDetailModel.billingAccountType == 'creditCard', 'slds-show', 'slds-hide')
+                                )}">
+                                <div class="slds-text-body_small edit-field-label">Automatic Account Update Status</div>
+                                <lightning:input type="toggle" aura:id="automaticAccountUpdateStatus" class="slds-size_11-of-12" label="" checked="{!v.accountUpdaterSupported}" name="automaticAccountUpdateStatus" onchange="{! c.handleAutomaticAccountUpdateStatus }"/>
+                            </lightning:layoutItem>
+                        </aura:if>
+                    </lightning:layout>
+                </div>
+                <div class="slds-col slds-size_6-of-12">
+                    <div class="slds-text-heading_small text-bold">Billing Information</div>
+                    <lightning:layout multipleRows="true" class="slds-m-bottom--medium">
+                        <aura:if isTrue="{!v.isViewMode}">
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">Street 1</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.address.street}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">Street 2</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.address.street2}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">City</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.address.city}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">State</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.address.state}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">Zip/Postal</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.address.zip}</bdi></div>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <div class="slds-text-body_small edit-field-label">Country</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.accountDetailModel.address.country}</bdi></div>
+                            </lightning:layoutItem>
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!v.isEditMode}">
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:input class="slds-size_11-of-12" aura:id="addressField" name="street1"
+                                                 label="Street 1" value="{!v.accountDetailModel.address.street}" maxlength="64" required="true"/>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:input class="slds-size_11-of-12" aura:id="addressField" name="street2"
+                                                 label="Street 2 (Optional)" value="{!v.accountDetailModel.address.street2}" maxlength="64" />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:input class="slds-size_11-of-12" aura:id="addressField" name="city"
+                                                 label="City" value="{!v.accountDetailModel.address.city}" maxlength="64" required="true" />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                     <aura:if isTrue="{!v.showStateList}">    
+                                         <lightning:combobox class="slds-size_11-of-12" aura:id="addressFieldStateCombo" name="states"
+                                                    label="State" value="{!v.accountDetailModel.address.state}"
+                                                    placeholder="Select State" onchange="" options="{!v.stateList}" required="true" />
+                                      <aura:set attribute="else">
+                                          <lightning:input class="slds-size_11-of-12" aura:id="addressFieldStateText" name="state"
+                                                 label="State" value="{!v.accountDetailModel.address.state}" maxlength="64" required="true" />
+                                      </aura:set>
+                                     </aura:if>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:input class="slds-size_11-of-12" aura:id="addressField" name="zipPostal"
+                                                 label="Zip/Postal" value="{!v.accountDetailModel.address.zip}" maxlength="64" required="true" />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="item-padding">
+                                <lightning:combobox class="slds-size_11-of-12" aura:id="addressField" name="country"
+                                                    label="Country" value="{!v.accountDetailModel.address.country}"
+                                                    placeholder="" onchange="{! c.handleCountryChange }" options="{!v.countryList}" required="true" />
+                            </lightning:layoutItem>
+                        </aura:if>
+                    </lightning:layout>
+                </div>
+            </div>
+
+            <aura:if isTrue="{!v.Spinner}">
+                <lightning:spinner aura:id="spinner" variant="brand" size="small" />
+            </aura:if>
+        </div>
+        <!--end-->
+    </aura:set>
+    <aura:set attribute="onSuccess" value="{!c.handleUpdateData }" />
+    <aura:set attribute="onCancel" value="{!c.handleCancelUpdate }" />
+    <aura:set attribute="isSuccessDisable" value="false" />
+    <aura:set attribute="success" value="{! v.showSaveButton }" />
+    <aura:set attribute="cancel" value="{!v.cancelButtonName }" />
+    
+</aura:component>

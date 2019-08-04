@@ -1,0 +1,67 @@
+.THIS .c-layoutBackground{
+    background-color:#f7fbfe;
+}
+.THIS .tsm-wrapper-container {
+    margin: 0;
+}
+
+.THIS .tsm-scrollable {
+    max-height: calc(100vh - 170px);
+    overflow-x: hidden;
+    padding: 0;
+}
+.THIS .overview-tab {
+    min-height: calc(100vh - 173px);
+}
+.THIS .knowledge-base{
+    float: right;
+    background-color: transparent;
+    border: 0;
+    z-index:1;
+}
+.THIS .text-style-bold {
+    font-weight: 700;
+}
+
+.THIS.job-role .slds-modal {
+    top: 0%;
+    height: 100%;
+    left:0%;
+}
+
+.THIS.job-role .slds-modal__container {
+    left: 0%;
+}
+
+.THIS.job-role .slds-modal {
+    left: 0;
+}
+
+.THIS .middle-section-wrapper .slds-tabs_default__content{
+    padding-left: .5rem;
+    padding-right: .5rem;
+}
+.THIS .slds-backdrop{
+    left:25%;
+    height: calc(100% - 172px);
+    top: 130px;
+}
+.THIS .slds-modal{
+    left:25%;
+    height: calc(100% - 172px);
+    top: 130px;
+}
+.THIS .jobRoleModal .slds-backdrop{
+    left:0px;
+    height: 100%;
+    top: 0px;
+}
+.THIS .jobRoleModal .slds-modal{
+    left:0px;
+    height: 100%;
+    top: 0;
+}
+/*.THIS .middle-section-wrapper .slds-tabs_default{
+    padding-left: 1rem;
+    padding-right: 1rem;    
+}*/

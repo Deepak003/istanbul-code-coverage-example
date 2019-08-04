@@ -1,0 +1,29 @@
+.THIS .type-Active{
+    color: green;
+    font-weight: 700;
+	text-transform: uppercase;    
+}
+.THIS .type-Suspended {
+    color: #976527;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.THIS .badgecolor{
+    background-color:#f5a623;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: normal;
+    font-style: normal;
+    text-transform: uppercase;
+}
+.THIS .label-tooltip {
+    padding-right: 11px;
+    min-width: 84px;
+    display: inline-block;
+}
+.THIS .slds-dropdown-trigger_click .slds-dropdown {
+    max-height: 310px;
+}
+.THIS .slds-modal_xx-small .slds-modal__container {
+    width: 30rem !important;
+}

@@ -1,0 +1,44 @@
+.THIS.caseActivitySummary {
+    background-color: #FFECE3;
+}
+.THIS .spacingXLarge {
+    margin-right: t(spacingXLarge);
+}
+.THIS .summaryBox {
+    /*width: 352px;*/
+    height:100px;
+    background-color: #FFF;
+    border: 1px solid #FFECE3;
+    border-radius: 6px;
+}
+.THIS .summaryBox .summaryContainer {
+    margin: 0 10px;
+    margin: .75REM .75REM .75REM 0px;/*top and bottom right spacing-small*/
+}
+
+.THIS .summaryBox .summaryContainer p {
+    margin: .5REM;
+}
+
+.THIS .slds-form-element.activitySummary {
+    display: inline-block;
+}
+.THIS .slds-form-element__static.satisfactionLevel {
+    font-weight: 700;
+    color: #11f51a;
+}
+.THIS .flag {
+    text-align: center;/*left and top spacing-small, width and height 25px*/
+}
+
+.THIS .bold {
+    font-weight: t(fontWeightBold);
+    color: t(colorTextDefault);
+}
+
+.THIS .flag svg {    
+    background: #FA4B66;
+    width: 25px;
+    height: 25px;
+    fill: #FFF;
+}

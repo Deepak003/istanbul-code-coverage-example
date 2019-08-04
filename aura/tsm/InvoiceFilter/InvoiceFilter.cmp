@@ -1,0 +1,48 @@
+<aura:component extends="c:Popover">    
+    <aura:attribute name="options" type="List" access="private" default="[
+                                                                         {'label': 'Last 7 Days', 'value': '7'},
+                                                                         {'label': 'Last 14 Days', 'value': '14'},
+                                                                         {'label': 'Last 30 Days', 'value': '30'},
+                                                                         {'label': 'Custom Dates', 'value': '0'},
+                                                                         ]"/>
+    <aura:attribute name="selectedOption" type="String" access="private" default="7" />    
+    <aura:attribute name="today" type="String" access="private" />
+    <aura:attribute name="start" type="String" access="private" />
+    <aura:attribute name="end" type="String" access="private" />
+    <aura:attribute name="isVisibleDatePicker" type="Boolean" access="private" default="true" />
+    
+    <aura:handler value="this" name="init" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.selectedOption}" action="{!c.setDate}"/>
+    
+    <aura:registerEvent name="searchByDate" type="c:BillingEvt" />
+    <aura:attribute name="showFilter" type="Boolean" access="public" />
+    
+    <aura:set attribute="hideCloseBtn" value="true"/>    
+    <aura:set attribute="content">
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem padding="around-small" size="12">
+                <span class="slds-text-heading_small text-bold">Filter Invoices by Date</span>
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="horizontal-small" size="6">
+                <lightning:combobox name="progress" label="Status" value="{!v.selectedOption}" options="{! v.options }" />
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="horizontal-small" size="3">
+                <aura:if isTrue="{!v.isVisibleDatePicker}">
+                    <lightning:input type="date" label="End Date" value="{!v.end}" required="true" messageWhenValueMissing=" " max="{!v.today}" disabled="{! notequals(v.selectedOption,'0') }" />   
+                </aura:if>                                                                                                                                                                                                                 
+            </lightning:layoutItem>
+            <lightning:layoutItem padding="horizontal-small" size="3">
+                <aura:if isTrue="{!v.isVisibleDatePicker}">               
+                    <lightning:input type="date" label="Start Date" value="{!v.start}" required="true" messageWhenValueMissing=" " max="{!v.today}" disabled="{! notequals(v.selectedOption,'0') }" />
+                </aura:if>
+            </lightning:layoutItem>                
+        </lightning:layout>
+        <lightning:layout>
+            <lightning:layoutItem padding="around-small" alignmentBump="left">
+                <div class="slds-p-top_x-large"></div>
+                <lightning:button variant="base" label="Reset Filter" title="Reset Filter" onclick="{! c.handleClickReset }" class="slds-m-right_small" />
+                <lightning:button variant="brand" label="Apply Filter" title="Apply Filter" onclick="{! c.handleClickApply }" disabled="{! or(empty(v.start),empty(v.end)) }" />
+            </lightning:layoutItem>
+        </lightning:layout>
+    </aura:set>
+</aura:component>

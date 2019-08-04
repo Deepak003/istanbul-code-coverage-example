@@ -1,0 +1,203 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    
+    <!--Init functions and parameters from parent-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="allKnowledgeTabs" type="List"/>
+    <aura:attribute name="selectedArticle" type="Object" default="{}"/>
+    <aura:attribute name="selArticle" type="Object" default="{}"/>
+    
+    <aura:attribute name="TwigTranslator" type="Object" />
+    
+    <!-- Objects for this component -->
+    <aura:attribute name="title" type="String"/>
+    <aura:attribute name="localStorage" type="Object" default="{}"/>   
+    <aura:attribute name="selectedDetails" type="Object"/>
+    <aura:attribute name="moreTabs" type="List"/>
+    
+    <!-- Article sharing and book mark -->
+    <aura:attribute name="isBookMarked" type="boolean" default="false"/>
+    <aura:attribute name="isOpen" type="Boolean" default="false" /> 
+    <aura:attribute name="showArticleSharing" type="Boolean" default="false" />
+    <aura:attribute name="selectedLocale" type="String" default="EN-US"/>
+    <aura:attribute name="selLocale" type="String" default="en-us"/>
+    
+    <aura:attribute name="selIndex" type="String" default=""/>
+    <aura:attribute name="showAlert" type="Boolean" default="false"/>
+    
+    <aura:attribute name="languageLocales" type="Map"/>
+    
+    <!-- AJAX Response storage -->
+    <aura:attribute name="JSONResponse" type="map" />
+    <aura:attribute name="localeResponse" type="map" />
+    <aura:attribute name="refactoredLocaleResponse" type="map" />
+    <aura:attribute name="currentId" type="String"/>
+    
+    <!-- Handlers for the change events -->
+    <aura:handler name="change" value="{!v.selectedArticle}" action="{!c.getContentJSON}" />
+    <aura:handler name="change" value="{!v.JSONResponse}" action="{!c.modifySelectedJSON}" />
+    <aura:handler name="change" value="{!v.localeResponse}" action="{!c.refactorLocale}" />
+    
+    <!-- Handlers for the add book mark -->
+    <aura:handler event="c:AddBookMarkEvt" action="{!c.handleAddBookMarkEvent}"/>
+    
+    <!-- Handlers to handle url fire -->
+    <aura:registerEvent name="sendUrlEvent" type="c:KnowledgeComponentEvent" />
+
+     <!--Handler for Article Sharing-->
+    <aura:handler event="c:PostMessage" action="{!c.showAlert}"/>
+    <aura:registerEvent name="RefreshBookmark" type="c:RefreshBookmark"/>
+    
+    <!-- Master container for the knowledge base view -->
+    <div aura:id="knowledge-tabs-view" class="slds-tabs_default slds-sub-tabs">
+        <ul class="slds-tabs_default__nav border-bottom" role="tablist">
+            <div data-value ="home-tab" onclick="{!c.focusHomeTab}">
+                <li aura:id="homeTab" id="home-tab" class="slds-tabs_default__item slds-sub-tabs__item slds-grid slds-grid_vertical-align-center slds-border_right slds-border_left" role="presentation">
+                    <a aria-selected="true" class="slds-tabs_default__link slds-p-horizontal_xx-small" href="javascript:void(0);" role="tab" tabindex="0" title="00071938">
+                        <span class="slds-indicator-container"></span>
+                        <span class="slds-icon_container" title="Home">
+                            <span class="slds-assistive-text">Home</span>
+                        </span>
+                        <span class="slds-truncate" title="home-tab"><lightning:icon class="home-icon" iconName="utility:home" size="x-small" alternativeText="Home" /></span>
+                    </a>
+                </li>
+            </div>
+            
+            <!-- Iteration through the tabs headers in the container -->
+            <aura:iteration items="{!v.allKnowledgeTabs}" var="item" indexVar="idx">
+                <div class="setting-width-control" data-value ="{!item.id}" onclick="{!c.focusCurrentTab}">
+                    <li aura:id="articleTabs" id="{!item.id}" class="padding-left-null slds-tabs_default__item slds-sub-tabs__item slds-grid slds-grid_vertical-align-center slds-border_right slds-border_left" role="presentation">
+                        <a aria-selected="true" class="slds-tabs_default__link slds-p-horizontal_xx-small" href="javascript:void(0);" role="tab" tabindex="0" title="00071938">
+                            <span class="slds-indicator-container"></span>
+                            <span class="slds-icon_container" title="Case">
+                                <span class="slds-assistive-text">Case</span>
+                            </span>
+                            <span class="slds-truncate tab-max-width" title="{!item.fields.title}"><lightning:icon class="article-icon" iconName="standard:article" size="medium" alternativeText="Article" />
+                                {!item.fields.title}
+                            </span>
+                        </a>
+                        <div class="slds-col_bump-left slds-p-left_none slds-p-right_none">
+                            <button class="slds-button slds-button_icon slds-button_icon-container slds-button_icon-x-small" tabindex="0" title="Close 00071938">
+                                <div data-value="{!idx}" onclick="{!c.closeCurrentTab}">
+                                    <lightning:icon class="close-icon" iconName="utility:close" size="x-small" alternativeText="Approved" />
+                                </div>
+                                <span class="slds-assistive-text">Close 00071938</span>
+                            </button>
+                        </div>
+                    </li>
+                </div>
+            </aura:iteration>
+            
+            <!-- Storing more tabs in the container (Duplication the salesforce behavior)-->
+            <div data-value ="more-tab" >
+                <li aura:id="moreTab" id="more-tab" class="slds-hide slds-tabs_default__item slds-sub-tabs__item slds-grid slds-grid_vertical-align-center slds-border_right slds-border_left" role="presentation">
+                    <a aria-selected="true" class="slds-tabs_default__link slds-p-horizontal_xx-small" href="javascript:void(0);" role="tab" tabindex="0" title="00071938">
+                        <span class="slds-indicator-container"></span>
+                        <span class="slds-icon_container" title="Home">
+                            <span class="slds-assistive-text">More</span>
+                        </span>
+                        <span class="slds-truncate" title="home-tab">More</span>
+                    </a>
+                    <div class="slds-col_bump-left slds-p-left_none slds-p-right_none">
+                        <div data-value="{!idx}">
+                            <lightning:buttonMenu class="drop-down-right" variant="container" aura:id="more-menu"  onselect="{! c.handleMoreTabSelect }" alternativeText="Show menu">
+                                <aura:iteration items="{!v.moreTabs}" var="item" indexVar="idx">
+                                    <lightning:menuItem  value="{!item.id}" label="{!item.fields.title}"/>
+                                </aura:iteration>
+                            </lightning:buttonMenu>
+                        </div>
+                    </div>
+                </li>
+            </div>            
+        </ul>
+        <!--Alert Message -->
+        <aura:if isTrue="{!v.showAlert}">
+            <div class="slds-m-top_medium slds-align_absolute-center slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_info" role="alert" style="width:70%">
+                <span class="slds-assistive-text">info</span>
+                <span class="slds-m-right_x-small">
+                    <lightning:icon iconName="utility:check" size="x-small" class="iconClass" alternativeText=""/>
+                </span>
+                <h2>Links appended to Email Message</h2>
+                <div class="slds-notify__close">
+                    <span><lightning:icon class="iconClass" iconName="utility:close" onclick="{!c.hideAlert}" size="x-small" alternativeText="Close"/></span>
+                </div>
+            </div>
+        </aura:if>
+        
+        <!-- Having details for the Home Container-->
+        <div aura:id="homeContent" class="slds-tabs_default__content" role="tabpanel">
+            <c:KnowledgeDetails localStorage="{!v.localStorage}"/>
+        </div>
+        
+        <!-- Iterating through the tab body through the container -->
+        <aura:iteration items="{!v.allKnowledgeTabs}" var="item" indexVar="idx">
+            <div aura:id="articleMasterContainer" class="slds-hide slds-grid slds-m-top--large">   
+                <div class="slds-size_9-of-12 slds-p-left--large">
+                    <div class="slds-m-bottom--small slds-text-heading_small article-header">{!item.fields.title}<span class="slds-p-left--small slds-text-title">Article Number: {!item.articleNumber}</span></div>
+                    <div class="slds-text-title slds-m-bottom--medium">
+                        Last updated <lightning:formattedDateTime value="{!item.lastModified}" year="2-digit" month="short" day="2-digit" />
+                    </div>
+                    <div class="slds-grid slds-border_bottom">
+                        <div class="slds-size_6-of-12 slds-m-bottom--small">
+                            <div class="slds-grid">
+                               <aura:if isTrue="{!or(!empty(item.folderId),item.isBookMarked)}">
+                                    <lightning:button variant="base" label="Bookmarked" title="Bookmarked"  iconName="utility:bookmark" iconPosition="left"/>
+                                    <aura:set attribute="else">
+                                        <lightning:button value="{!idx}" name="{!item}" label="Bookmark" title="Bookmark"  iconName="utility:add" iconPosition="left" onclick="{!c.bookmark}"/>
+                                    </aura:set>
+                                </aura:if>
+                                <aura:if isTrue="{!or(empty(item.fields.scope) , item.fields.scope == 'external')}">
+                               <!-- <aura:if isTrue="{!item.fields.scope == 'external'}">-->
+                                    <div class="slds-m-left--medium">
+                                        <lightning:button aura:id="share" label="Send to player" name="{!item}" iconName="utility:share" onclick="{!c.sendToPlayerAction}"/>
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div class="slds-size_6-of-12 slds-m-bottom--small float-right-child">
+                            <div class="slds-grid">
+                                <div class="padding-button">{!item.localeLabel}</div>
+                                <div class="">
+                                    <lightning:buttonMenu  aura:id="article-menu" onselect="{! c.handleSelect }" value="en-us" iconName="utility:world" alternativeText="Show Locale">
+                                    <aura:iteration items="{!v.refactoredLocaleResponse.hit}" var="items" indexVar="idx">
+                                        <lightning:menuItem label="{!items.fields.locale}" value="{!items.id}" />
+                                    </aura:iteration>
+                                    </lightning:buttonMenu>  
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Storing the detail to the container from NDS -->
+                    <aura:if isTrue="{!item.fields.scope == 'external'}">
+                    <div aura:id="articleContent" class="slds-tabs_default__content slds-hide" role="tabpanel" onclick="{!c.handleArticleClick}"></div>
+                    </aura:if>
+                    <aura:if isTrue="{!item.fields.scope == 'internal'}">
+                        <div aura:id="articleContent" class="internal-articles slds-m-top_small slds-tabs_default__content slds-hide" role="tabpanel" onclick="{!c.handleArticleClick}"></div>
+                    </aura:if>
+                </div>
+                
+                <!-- Looping the Tags related to the articles -->
+                <div class="slds-p-left--large slds-size_3-of-12">
+                    <div class="slds-text-title slds-m-bottom--medium">Article Tags</div>
+                    <div>
+                        <ul class="slds-listbox slds-listbox_horizontal" role="listbox" aria-orientation="horizontal">
+                            <aura:iteration items="{!item.articleTags}" var="tagItem" indexVar="tagIndex"> 
+                                <li class="slds-listbox-item slds-p-bottom_x-small slds-p-right_xxx-small" role="presentation">
+                                    <lightning:badge class="" label="{!tagItem}"/>
+                                </li>
+                            </aura:iteration>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </aura:iteration>
+        
+        <!-- Components for Bookmark and Sharing -->
+        <aura:if isTrue="{!v.isOpen}">
+            <c:AddBookmark selIndex="{!v.selIndex}" isOpen="{!v.isOpen}" selectedArticle="{!v.selArticle}" title="{!v.title}"/>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showArticleSharing}">
+            <c:ArticleSharing isOpen="{!v.showArticleSharing}" selectedArticle="{!v.selArticle}" localStorage="{!v.localStorage}"/>
+        </aura:if>
+    </div> 
+</aura:component>

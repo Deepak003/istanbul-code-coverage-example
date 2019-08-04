@@ -1,0 +1,9 @@
+<aura:tokens extends="force:base">
+    <aura:token name="homepageComponentHeight" value="375px" />
+    <aura:token name="homepageComponentBackgroundColor" value="#FFFFFF" />
+    <aura:token name="homepageComponentIconHeight" value="26px" />
+    <aura:token name="homepageComponentIconWidth" value="26px" />
+    <aura:token name="colorGray9" value="#706e6b" />
+    <aura:token name="homepageComponentCardHeight1" value="90px" />
+    <aura:token name="homepageComponentCardHeight2" value="120px" />
+</aura:tokens>

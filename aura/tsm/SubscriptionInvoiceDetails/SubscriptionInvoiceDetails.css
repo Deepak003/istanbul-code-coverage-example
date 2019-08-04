@@ -1,0 +1,44 @@
+.THIS .line-items-table td {
+    height: 50px;
+}
+
+.THIS .tax-row {
+    line-height: 40px;    
+}
+
+.THIS .tax-row > div {
+    border-top: 1px solid #cacaca;
+}
+
+.THIS .col-position {
+    position: absolute;
+    top: 10px;
+}
+
+.THIS .blue {
+    color: blue;
+}
+
+.THIS .no-border-bottom {
+    border-bottom: none;
+}
+
+.THIS .refund {
+    color: #844800;
+}
+
+.THIS .side-bar-rectangle {
+    border-left: 4px solid #f5a623;
+}
+
+.THIS .refund-title {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: #fafaf9;
+    color: #844800;
+    font-weight: bold;
+}
+
+.THIS .refund-body {
+    
+}

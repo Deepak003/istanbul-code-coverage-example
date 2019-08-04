@@ -1,0 +1,147 @@
+<aura:component controller="ProductAuraController" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">
+    <aura:attribute name="allFilterData" type="List"/>
+    <aura:attribute name="globalSelectionMap" type="Map"/> 
+    <aura:attribute name="openGrantAward" type="boolean"/>
+    <aura:attribute name="openGrantContent" type="boolean"/>
+    <aura:attribute name="validationError" type="boolean" default="false"/>
+    
+    <aura:attribute name="caseId" type="String"/>
+    
+    <aura:attribute name="itemData" type="List"/>
+    <aura:attribute name="isItemData" type="boolean" default="false"/>
+    <aura:attribute name="packsData" type="List"/>
+    <aura:attribute name="isPacksData" type="boolean" default="false"/>
+    <aura:attribute name="currencyData" type="List"/>
+    <aura:attribute name="isCurrencyData" type="boolean" default="false"/>
+    <aura:attribute name="currencyReasons" type="List"/>
+    <aura:attribute name="configUIData" type="Object" />
+    <aura:attribute name="isContianerConfigured" type="Boolean" />
+    <aura:attribute name="containersList" type="List" default="[]"/>
+    
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="openGrantResponse" type="boolean"/>
+    <aura:attribute name="responseData" type="Map" />
+    
+    <aura:attribute name="selectedPersona" type="Map" />
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="selectedProduct" type="String" access="public"/>
+    
+    <aura:attribute name="successData" type="List" default="[]"/>
+    <aura:attribute name="failedData" type="List" default="[]"/>
+    
+    <aura:attribute name="grantEventData" type="List" default="[]"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />  
+    <aura:registerEvent name="backActionEvent" type="c:GrantComponentEvent" />
+    <aura:registerEvent name="grantResetEvent" type="c:GrantComponentEvent" />
+    
+    <!-- Generic permission variables - TSM-2910, TSM-2911, TSM-2912 -->
+    <aura:attribute name="genericConfigurationData" type="Object" default="{}"/>
+
+    <aura:attribute name="product" type="Object" />
+
+    <!--tsm 2940-->
+   
+    <aura:registerEvent name="refreshSessionsTab" type="c:refreshSessionsTab"/>
+    
+    <div>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open backdropClass">
+            <div class="slds-modal__container">                
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeGrantAwardSection}" alternativeText="Close" />
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="font-normal slds-text-heading_medium slds-hyphenate">Grant Content</h2>
+                    <div class="allign-center">Grant items, packs and currency all in one flow</div>
+                </header>
+                <div class="slds-modal__content slds-p-right_x-large slds-p-left_x-large setting-height slds-is-relative">
+                     <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                    <div class="slds-m-top--medium slds-m-bottom--large grant-header"> Select type and amount</div>
+                    
+                    <aura:if isTrue="{!v.itemData.length > 0}">
+                        <!-- Items section -->
+                        <div class="slds-m-bottom--large slds-text-title_bold">Item(s) selected</div>
+                        <div class="slds-m-bottom--medium">
+                            <aura:iteration items="{!v.itemData}" var="item" indexVar="idx"> 
+                                <div class="slds-grid slds-m-bottom--small cart-background slds-p-around_small">
+                                    <div class="slds-size_1-of-3 input-text">{!item.data.name}</div>
+                                    <div class="slds-size_1-of-4">
+                                        <lightning:combobox class="combo-box slds-m-right--small" aura:id="item-configuration-change" value="Untradable" placeholder="(Configuration)"
+                                                            options="{!item.configList}"/> 
+                                    </div>
+                                    <div class="slds-size_1-of-7">
+                                        <lightning:combobox class="combo-box slds-m-right--small" aura:id="item-count-change" value="1" placeholder=""
+                                                            options="{!item.quantityList}"/> 
+                                    </div>
+                                    <div class="slds-size_1-of-4">
+                                        <lightning:combobox  class="combo-box slds-m-right--medium"  value="" aura:id="items-container" placeholder="Container" disabled="{! not(v.isContianerConfigured)}" options="{!v.containersList}"/> 
+                                    </div>
+                                    <div data-value="{!item.data.category}" data-id="{!item.data.id}" data-name="ITEM_CATEGORY" class="grant-close-icon" onclick="{!c.removeCurrentSelection}">
+                                        <lightning:icon iconName="utility:close" size="x-small" alternativeText="Close" />
+                                    </div>
+                                </div>   
+                            </aura:iteration>    
+                        </div>
+                    </aura:if> 
+                    
+                    <aura:if isTrue="{!v.packsData.length > 0}">
+                        <!-- Packs section -->
+                        <div class="slds-m-bottom--large slds-text-title_bold">Pack(s) selected</div>
+                        <div class="slds-m-bottom--medium">
+                            <aura:iteration items="{!v.packsData}" var="item" indexVar="idx"> 
+                                <div class="slds-grid slds-m-bottom--small cart-background slds-p-around_small">
+                                    <div class="slds-size_1-of-3 input-text">{!item.data.name}</div>
+                                    <div class="slds-size_1-of-4">
+                                        <lightning:combobox class="combo-box slds-m-right--small" aura:id="pack-configuration-change" value="Untradable" placeholder="(Configuration)"
+                                                            options="{!item.configList}"/> 
+                                    </div>
+                                    <div class="slds-size_1-of-7">
+                                        <lightning:combobox class="combo-box slds-m-right--small" aura:id="pack-count-change" value="1" placeholder=""
+                                                            options="{!item.quantityList}"/> 
+                                    </div>
+                                    <div class="slds-size_1-of-4">
+                                        <lightning:combobox  class="combo-box slds-m-right--medium"  aura:id="packs-container"  value="" placeholder="Container" disabled="{! not(v.isContianerConfigured)}" options="{!v.containersList}"/> 
+                                    </div>
+                                    <div data-value="{!item.data.category}" data-id="{!item.data.id}" data-name="PACK_TYPE" class="grant-close-icon" onclick="{!c.removeCurrentSelection}">
+                                        <lightning:icon iconName="utility:close" size="x-small" alternativeText="Close" />
+                                    </div>
+                                </div>  
+                            </aura:iteration>    
+                        </div> 
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!v.currencyData.length > 0}">
+                        <!-- Currency section -->
+                        <div class="slds-m-bottom--large slds-text-title_bold">Currency selected</div>
+                        <div class="slds-m-bottom--medium">
+                            <aura:iteration items="{!v.currencyData}" var="item" indexVar="idx"> 
+                                <div class="slds-grid slds-m-bottom--large cart-background slds-p-around_small">
+                                    <div class="slds-size_1-of-3 input-text">{!item.name}</div>
+                                    <div class="slds-size_1-of-6"></div>
+                                    <div class="slds-size_1-of-7">
+                                        <lightning:input id="{!idx}" type="number" class="combo-box slds-m-right--small" aura:id="currency-amount" onchange="{!c.validateSelection}"/>
+                                    </div>
+                                    <div class="slds-size_1-of-3">
+                                        <aura:if isTrue="{!v.currencyReasons.length > 1}">                                       
+                                            <lightning:combobox class="combo-box slds-m-right--small" aura:id="currency-reason-change" value="" options="{!v.currencyReasons}" placeholder="Select a Reason" onchange="{!c.validateReason}"/>        
+                                        </aura:if>
+                                    </div>
+                                    <div data-value="{!item.category}" data-id="{!item.id}" data-name="Currency" class="grant-close-icon" onclick="{!c.removeCurrentSelection}">
+                                        <lightning:icon iconName="utility:close" size="x-small" alternativeText="Close" />
+                                    </div>
+                                </div>
+                            </aura:iteration>    
+                        </div>
+                    </aura:if>
+                    
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button aura:id="backButton" label="Back" onclick="{!c.backToGrantSection}" />
+                    <lightning:button aura:id="grantCartDetails" variant="brand" label="Grant" onclick="{!c.submitGrantContent}" disabled="true"/> 
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open backdropClass"></div>
+    </div>
+</aura:component>

@@ -1,0 +1,51 @@
+<aura:component controller="AuraSelectRole" extends="c:TSMJobRoleMain" implements="flexipage:availableForAllPageTypes,force:appHostable,force:hasRecordId" access="global">
+    
+    <aura:attribute name="workItemMap" type="map" />
+    <aura:attribute name="focusedTabId" type="String" />
+    <aura:attribute name="caseId" type="Id" />
+    <aura:attribute name="target" type="object" />
+    <aura:attribute name="roleName" type="String" />    
+    
+    <aura:attribute name="isCaseActive" type="boolean" default="false" />
+    
+    <aura:attribute name="noRoleDefined" type="String" />
+    <aura:attribute name="isTSM" type="Boolean" default="true" /> 
+    <aura:attribute name="permissionSet" type="Object"/> 
+    <aura:attribute name="allPermissionsList" type="List"/>
+    <aura:attribute name="roleSize" type="Integer"/>
+    <aura:attribute name="isChangeJobRole" type="boolean" default="false" />
+    
+    
+    <!-- Register Handlers --> 
+    <aura:handler event="c:revJobroleAppEvt" action="{!c.onRoleChange}" />
+    <aura:handler event="c:jobroleAppEvt" action="{!c.changeRoleToSelect}" />
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>    
+    
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:utilityBarAPI aura:id="utilitybar" />
+
+    <span>{!v.noRoleDefined}</span>
+	<ul role="listbox" class="slds-listbox slds-listbox_vertical">
+        <aura:iteration items="{!v.roleOptions}" var="role" indexVar="index">
+            <aura:if isTrue="{!role.value != null}"> 
+                <li role="presentation" class="slds-listbox__item">
+                    <div role="option" aura_id="{!'JobRole'+v.selectedRole}" data-index="{!index}" onclick="{!c.selectRole}"
+                         selected="{!v.selectedRole == role.value ? 'true' : 'false'}"
+                         class="slds-listbox__option slds-listbox__option_plain slds-media slds-media_small">
+                        <span class="slds-media__figure">
+                            <lightning:icon size="x-small" iconName="utility:check" 
+                                            class="{!v.selectedRole == role.value ? 'slds-show' : 'slds-hide'}" />
+                        </span>
+                        <span class="slds-media__body">
+                            {!role.label}	
+                        </span>
+                    </div>
+                </li>
+            </aura:if>
+        </aura:iteration>
+    </ul>                 
+    <lightning:spinner class="slds-hide slds-is-absolute" 
+                       aura:id="spinnerQueueJR" variant="brand" size="small"/>
+					   
+</aura:component>

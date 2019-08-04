@@ -1,0 +1,81 @@
+<aura:component controller="SubscriptionsAuraCtl">
+    <aura:attribute name="subscription" type="Object" access="public"/>
+    <aura:attribute name="stopSubscriptionObj" type="Object" access="public"/>
+    <aura:attribute name="subscriptionType" type="String" access="public"/>
+    <aura:attribute name="accordianType" type="String" access="public"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="stopOrCancel" type="String" />
+    <aura:attribute name="isOpen" type="Boolean" default="false" /> 
+	<aura:attribute name="offerId" type="String" access="public"/><!-- TSM-2246 -->
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="false" />
+    <aura:attribute name="isCancelDisable" type="Boolean" default="false" />
+    <aura:attribute name="accountId" type="String"/>
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+    <!--<aura:registerEvent name="refundSubscriptionEventAction" type="c:RefundSubscriptionEvent"/>-->
+    <aura:registerEvent name="refreshParent" type="c:RefreshSubscription"/>
+    <aura:registerEvent name="resetAccordianEvent" type="c:ResetSubscriptionAccordian"/>
+    
+    <aura:if isTrue="{!and(v.isOpen, v.stopOrCancel == 'Stop')}">
+        <c:ParentModal isModalOpen="true" title="Stop Subscription">
+            <aura:set attribute="class" value="modal-large"/>            
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <!-- stop subscription details data block-->
+                <div aura:id="stopSubscriptionDataBlock">
+                    <div class="slds-m-left_xx-large slds-m-right_x-large" aura:id="textBlock">
+                        <p >
+                            <strong>Are you sure you want to stop {!v.subscription.productName}?</strong><br/><br/>
+                            <span>Customer's {!v.accordianType} is going to be immediately stopped and the 
+                                subscription will terminate once this action is completed. <strong>This action is irreversible 
+                                and the player will be unable to access the current content immediately after 
+                                stopping the current subscription.</strong></span>
+                        </p>
+                    </div>                    
+                </div>  
+                
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="isCancelDisable" value="{!v.isCancelDisable}"/>
+            <aura:set attribute="cancel" value="No"/>  
+            <aura:set attribute="success" value="Yes, Stop"/>  
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.successModal}"/>
+        </c:ParentModal>
+    </aura:if>
+    
+    <aura:if isTrue="{!and(v.isOpen, v.stopOrCancel == 'Cancel')}">
+        <c:ParentModal isModalOpen="true" title="Cancel Subscription">
+            <aura:set attribute="class" value="modal-large"/>            
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <!-- stop subscription details data block-->
+                <div aura:id="stopSubscriptionDataBlock">
+                    <div class="slds-m-left_xx-large slds-m-right_x-large" aura:id="textBlock">
+                        <p >
+                            <strong>Are you sure you want to cancel {!v.subscription.productName}?</strong><br/><br/>
+                            <span>Customer's {!v.accordianType} is going to be cancelled and the 
+                                subscription will terminate at the end of current billing cycle. <strong>This action is irreversible 
+                                and the player will be unable to access the current content immediately after 
+                                the subscription expires.</strong></span><br/><br/>
+                            <aura:if isTrue="{!v.subscriptionType == 'Origin'}">
+                                <div class="slds-m-right_x-large">End of current billing cycle</div>
+                                <ui:outputDateTime value="{!v.subscription.nextBillingDate}" format="MMM/d/YY"/>
+                            </aura:if>
+                        </p>
+                    </div>                    
+                </div>  
+                
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="isCancelDisable" value="{!v.isCancelDisable}"/>
+            <aura:set attribute="cancel" value="No"/>  
+            <aura:set attribute="success" value="Yes, Cancel"/>  
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.successModal}"/>
+        </c:ParentModal>
+    </aura:if>
+</aura:component>

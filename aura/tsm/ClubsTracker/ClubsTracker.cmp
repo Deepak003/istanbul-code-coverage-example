@@ -1,0 +1,344 @@
+<aura:component controller="ClubTrackerAuraCtl">    
+    <aura:attribute name="nucleusId" type="Id" access="public" />
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Persona selected from product-snapshort" />
+    <aura:attribute name="product" type="Map" access="public" description="Current product" />
+    <aura:attribute name="historyStats" type="List" access="public" />
+    <aura:attribute name="caseId" type="Id" access="public"  />
+    <aura:attribute name="accountId" type="Id" access="public"  />
+    
+    <!-- Private Attributes -->
+    <aura:attribute name="persona" type="Object" access="private" default="{}" description="Persona data"/>
+    <aura:attribute name="columns" type="List" access="private" description="The columns will be used for lightning:datatable"/>
+    <aura:attribute name="clubs" type="List" access="private" description="All FUTClubs (FUT)"/>
+    <aura:attribute name="subClubs" type="List" access="private" description="All subclubs (WC)"/>
+    
+    <!-- Persoan Modal properties -->
+    <aura:attribute name="deAtivePersonaModal" type="Map" access="private" default="{}" description="State of DeActive Personal Modal"/>
+    <aura:attribute name="activatePersonaModal" type="Map" access="private" default="{}" description="State of Active Club Modal"/>
+    <aura:attribute name="unlockPersonaModal" type="Map" access="private" default="{}" description="State of Unlock Club Modal"/>
+    
+    <!-- Club Modal properties -->
+    <aura:attribute name="resetClubLimitModal" type="Map" access="private" default="{}" description="State of Reset Club Limit Modal"/>
+    <aura:attribute name="changeClubNameModal" type="Map" access="private" default="{}" description="State of Change Club Name Modal"/>
+    <aura:attribute name="restoreClubModal" type="Map" access="private" default="{}" description="State of Restore Club Modal"/>    
+    
+    
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="false" description="State of loading icon"/>
+    <aura:attribute name="targetClub" type="Map" access="private" description="Current targeted club on which will perform action"/>
+    <aura:attribute name="sourceClub" type="Map" access="private" description="This map will have old values of club"/>
+    <aura:attribute name="hasRestoreClubPermission" type="Boolean" default="false"/>
+    <aura:attribute name="hasChangeClubNamePermission" type="Boolean" default="false"/>
+    <aura:attribute name="hasPersonaEditPermission" type="Boolean" default="false"/>
+    <aura:attribute name="hasResetClubLimitPermission" type="Boolean" default="false"/>
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}" />
+    
+    <!-- change handlers -->
+    <aura:handler name="change" value="{!v.selectedPersona}" action="{!c.handleRefresh}" />
+    <aura:handler name="change" value="{!v.historyStats}" action="{!c.handleRefresh}" />
+    
+    <aura:registerEvent name="onResetClubLimit" type="c:ClubsTrackerEvt" />
+    <aura:registerEvent name="reloadData" type="c:ClubsTrackerEvt" />
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <div class="slds-is-relative">        
+        <lightning:layout>
+            <lightning:layoutItem class="vertical-center slds-p-bottom_medium">
+                <div class="slds-page-header__title">Persona and Associated Clubs</div>
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <div class="history-table">            
+            <div class="slds-grid tsm-table-heading slds-border_bottom">
+                <div class="slds-col slds-size_4-of-12">
+                    <span class="slds-p-left_large tsm-table-heading_label">PERSONA NAME</span>
+                </div>
+                <div class="slds-col slds-size_3-of-12">
+                    <span class="tsm-table-heading_label">STATUS</span>
+                </div>
+                <div class="slds-col slds-size_4-of-12">
+                    <span class="tsm-table-heading_label">LAST UPDATED ON</span>
+                </div>
+            </div>
+            
+            <div class="slds-border_bottom"> 
+                <div class="slds-grid tsm-table-row slds-grid_vertical-align-center pointer"
+                     onclick="{!c.toggleExpand}">
+                    <div class="slds-col slds-size_4-of-12 tsm-table-col_text-primary-item">
+                        <lightning:buttonIcon variant="bare" size="small" class="slds-is-absolute slds-p-right_xxsmall" iconName="{!v.persona.isExpand?'utility:chevrondown':'utility:chevronright'}" />
+                        <span class="slds-p-left_large">{! v.persona.name }</span>
+                    </div>
+                    <div class="slds-col slds-size_3-of-12 tsm-table-col_text-primary-item">
+                        <span class="{! v.persona.status }">
+                            {! v.persona.status }
+                            <aura:if isTrue="{!v.persona.lockStatus == 'true'}">
+                                <span> &amp; Locked</span>
+                            </aura:if>
+                        </span>
+                    </div>
+                    <div class="slds-col slds-size_4-of-12 tsm-table-col_text-primary-item">
+                        <span>
+                            <c:FormattedDateTime value="{!v.persona.lastUpdatedOn}" format="only-date"/>
+                        </span>
+                    </div>
+          <aura:if isTrue="{!v.hasPersonaEditPermission}">                    
+                        <div class="slds-col slds-size_1-of-12 tsm-table-col_text-primary-item" onclick="{!c.stopClickPropagation}">
+                            <lightning:buttonMenu onselect="{! c.handleActionMenuSelect }" alternativeText="Show Action" 
+                                                  iconSize="x-small" value="{! idx }" menuAlignment="right">
+                                <aura:if isTrue="{! v.persona.status == 'active' }">
+                                    <lightning:menuItem value="deactivate" label="Deactivate" disabled="{! not(v.productMaskingData.ActivateorDeactivatePersona)}"/>
+                                    <aura:set attribute="else">
+                                        <lightning:menuItem value="activate" label="Activate" disabled="{! not(v.productMaskingData.ActivateorDeactivatePersona)}"/>                                    
+                                    </aura:set>
+                                </aura:if>
+                                <aura:if isTrue="{! v.persona.lockStatus == 'true' }">
+                                    <lightning:menuItem value="unlock" label="Unlock" />
+                                </aura:if>
+                            </lightning:buttonMenu>
+                        </div>
+                    </aura:if>
+                </div>
+                
+                <div class="{! join(' ',
+                            'slds-p-left_x-large slds-p-top_medium',
+                            v.persona.isExpand ? 'slds-show' : 'slds-hide'
+                            ) }">
+                    <lightning:layout>
+                        <lightning:layoutItem class="vertical-center">
+                            <div class="">Associated Clubs</div>
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    
+                    <lightning:datatable
+                                         columns="{! v.columns }"
+                                         data="{! v.clubs }"
+                                         class="club-table"
+                                         keyField="id"
+                                         hideCheckboxColumn="true"
+                                         resizeColumnDisabled="true"
+                                         onrowaction="{! c.handleRowAction }"/>
+                    
+                    <lightning:layout>
+                        <lightning:layoutItem class="slds-p-vertical_medium">
+                             <aura:if isTrue="{!v.hasResetClubLimitPermission}">
+                              <lightning:button variant="neutral" label="Reset Club Limit" onclick="{! c.openResetClubLimitModal }" />
+                            </aura:if>
+                        </lightning:layoutItem>
+                    </lightning:layout>  
+                    
+                </div>
+                
+            </div>
+            
+            
+        </div>
+        
+        <!-- Deactivate Persona -->
+        <aura:if isTrue="{!v.deAtivePersonaModal.isOpen}">
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-small" aura:id="dialog">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">
+                            Deactivate Persona
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large slds-is-relative">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <lightning:combobox label="Select Reason" placeholder="Select reason" options="{! v.deAtivePersonaModal.reasons }" onchange="{! c.handleReasonChangeForDeactivatePersona }"/>                        
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand" 
+                                          label="Deactivate"
+                                          title="Deactivate"
+                                          onclick="{! c.onClickDeactivate }"
+                                          disabled="{! or(!v.deAtivePersonaModal.reason, v.isLoading) }" />
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>    
+        
+        <!-- Active Club -->
+        <aura:if isTrue="{!v.activatePersonaModal.isOpen}">        
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-small">
+                <div class="slds-modal__container" aura:id="dialog">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">
+                            Activate Persona        
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large slds-is-relative">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <lightning:combobox label="Select Reason" placeholder="Select reason" options="{! v.activatePersonaModal.reasons }" onchange="{! c.handleReasonChangeForActivePersona }"/>                        
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand" 
+                                          label="Activate"
+                                          title="Activate"
+                                          onclick="{! c.onClickActivate }"
+                                          disabled="{! or(!v.activatePersonaModal.reason, v.isLoading) }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+        <!-- Change Club Name -->
+        <aura:if isTrue="{!v.changeClubNameModal.isOpen}">
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-small" aura:id="dialog">
+                <div class="slds-modal__container">                    
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">
+                            Change Club Name
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large slds-is-relative">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <lightning:input label="Club Name" value="{! v.targetClub.name}" />
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand" 
+                                          label="Save"
+                                          title="Save"
+                                          onclick="{! c.onClickChangeClubNameSave }"
+                                          disabled="{! or(!v.targetClub.name, v.isLoading) }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+        <!-- Reset Club Limit -->
+        <aura:if isTrue="{!v.resetClubLimitModal.isOpen}">
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-small" aura:id="dialog">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">
+                            Reset Club Limit
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large slds-is-relative">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <p class="modal-body">Are you sure you want to reset the club limit?</p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand" 
+                                          label="Reset"
+                                          title="Reset"
+                                          onclick="{!c.onClickReset}"
+                                          disabled="{! v.isLoading }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+        <!-- Restore Club -->
+        <aura:if isTrue="{!v.restoreClubModal.isOpen}">
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-small" aura:id="dialog">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">
+                            Restore Club
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large modal-regular-content slds-is-relative">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <aura:if isTrue="{! !empty(v.restoreClubModal.subClubsDropdown) }">
+                          <lightning:combobox label="Select a World Cup Club to Restore" placeholder="Select club" options="{! v.restoreClubModal.subClubsDropdown }" onchange="{! c.handleSubClubChange }" class="slds-p-bottom_small"/>
+                        </aura:if>
+                        <lightning:combobox label="Select Reason" placeholder="Select reason" options="{! v.restoreClubModal.reasons }" onchange="{! c.handleReasonChangeForRestoreClub }"/>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand" 
+                                          label="Restore"
+                                          title="Restore"
+                                          onclick="{! c.onClickRestore }"
+                                          disabled="{! or(!v.restoreClubModal.reason, if(!empty(v.restoreClubModal.subClubsDropdown), !v.restoreClubModal.subClub, false) )}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+                
+        <!-- Unlock Club -->        
+        <aura:if isTrue="{!v.unlockPersonaModal.isOpen}">
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-small" aura:id="dialog">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate">
+                            Unlock Club             
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large modal-regular-content">
+                        <p class="modal-body">Are you sure you want to unlock the club?</p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand" 
+                                          label="Unlock"
+                                          title="Unlock"
+                                          onclick="{! c.onClickUnlock }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+    </div>    
+</aura:component>

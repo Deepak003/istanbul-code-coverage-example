@@ -1,0 +1,19 @@
+<aura:component controller="AuraSelectRole" extensible="true" abstract="true">    
+    <!--TSMJobRoleMain -->
+    
+    <aura:attribute name="roleOptions" type="List"/>
+    <aura:attribute name="showChangeJobRole" type="boolean" default="false" />
+    <aura:attribute name="isJobRoleChange" type="boolean" default="false" />
+    <aura:attribute name="noRoleDefined" type="String" />
+    <aura:attribute name="selectedRole" type="String" default=""/>
+    <aura:attribute name="selectedRoleName" type="String" default=""/>
+    <aura:attribute name="isTSM" type="Boolean" default="true" />
+    <aura:attribute name="tabsInfo" type="Object" />
+    
+    <aura:registerEvent name="jobRoleSelectionCheck" type="c:JobRoleSelectionCheck"/>
+    <aura:registerEvent name="jobroleAppEvt" type="c:jobroleAppEvt"/>
+    <aura:registerEvent name="JobRoleModalCloseEvent" type="c:JobRoleModalCloseEvent"/>
+	<lightning:omniToolkitAPI aura:id="omniToolkit" />
+	<div> {!v.body} </div>
+    
+</aura:component>

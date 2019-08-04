@@ -1,0 +1,77 @@
+.THIS .slds-card .slds-text-heading_small {
+    visibility:hidden;
+}
+.THIS.header-fixed-menu {
+    background: #1b1c1d;
+    height: 57px;
+}
+.THIS .ui-container {
+	width: 85%;
+    margin-left: auto!important;
+    margin-right: auto!important;
+    height: inherit;
+}
+.THIS .header-title {
+	padding-top: 13px;
+}
+.THIS .header-item {
+	color: hsla(0,0%,100%,.9);
+    font-weight: 700;
+    text-decoration: none;
+}
+.THIS .item {
+	color: hsla(0,0%,100%,.9);
+    vertical-align: middle;
+    font-weight: 400;
+    padding-left: 25px;
+    text-decoration: none;
+    background: #1b1c1d;
+    border:0px
+}
+h1.THIS {
+    font-size: 28px;
+    font-weight: bold;
+    margin-left: 4%;
+    margin-top: 2%;
+}
+
+.THIS .risk-type {
+    margin-top: 2%;
+    margin-left: 2%;
+    width: 90%;
+    border: 2px solid black;
+}
+
+.THIS .risk-criteria {
+    border: 2px solid black;
+    width: 46%;
+    margin-left: 3%;
+	height: 479px;
+    margin-top: 2rem !important;
+}
+.THIS .range-slider {
+    border: 2px solid black;
+    width: 92%;
+    margin-left: 3%;
+    height: 50px;
+}
+.THIS .action-items {
+    margin-left: 28%;
+    margin-right: 28%;
+}
+
+.THIS .action-button {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.THIS .slds-modal__header {
+    text-align: left;
+    font-weight: bold;
+}
+.THIS .ui-mini-image {
+    height: 30px;
+}
+.THIS .color-code {
+    display: flex;
+}

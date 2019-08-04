@@ -1,0 +1,28 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" 
+                controller="QueueListAuraCtl">
+    <aura:attribute name="roleOptions" type="List"/>
+    <aura:attribute name="noRoleDefined" type="String" />
+    <aura:attribute name="selectedRole" type="Object" />
+    <!-- Register Handlers --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <span>{!v.noRoleDefined}</span>
+    <ul role="listbox" class="slds-listbox slds-listbox_vertical">
+        <aura:iteration items="{!v.roleOptions}" var="role" indexVar="index">
+            <li role="presentation" class="slds-listbox__item">
+                <div role="option" data-index="{!index}" onclick="{!c.selectRole}" 
+                     selected="{!v.selectedRole.label == role.label ? 'true' : 'false'}"
+                     class="slds-listbox__option slds-listbox__option_plain slds-media slds-media_small">
+                	<span class="slds-media__figure">
+                        <lightning:icon size="small" iconName="utility:check" 
+                                        class="{!v.selectedRole.label == role.label ? 'slds-show' : 'slds-hide'}" />
+                    </span>
+                    <span class="slds-media__body">
+						{!role.label}	
+                    </span>
+                </div>
+            </li>
+        </aura:iteration>
+    </ul>                 
+    <lightning:spinner class="slds-hide slds-is-absolute" 
+                       aura:id="spinnerQueueJR" variant="brand" size="small"/>
+</aura:component>

@@ -1,0 +1,25 @@
+.THIS.comp-container {
+    min-height: 100px;
+}
+.THIS.begin-message{
+    width: 50%;
+    margin: 0px auto;
+}
+.THIS.begin-message{
+    margin: 0px auto;    
+    background-color: #fff;
+    opacity: .9;
+    z-index: 9999;
+    padding: 5% 0 19% 0;
+    top: 50px;
+}
+
+.THIS.begin-message > div {
+    width: 50%;
+    margin: 0px auto;
+}
+
+.THIS .scrollerSize {
+    display: flex;
+    height: calc(100vh - 38vh);
+}

@@ -1,0 +1,94 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" controller="KnowledgeBaseAuraCtl" access="global">
+    <!-- List of variables used in KB Articles -->
+    <ltng:require scripts="{!$Resource.Util}" />
+    <aura:attribute name="articleJSONResponse" type="Map" />
+    <aura:attribute name="articaleUpdatedList" type="List" default="[]"/>
+    
+    <aura:attribute name="filteredEventsList" type="List" default="[]"/>
+    <aura:attribute name="searchString" type="String" default=""/>
+    <aura:attribute name="isData" type="Boolean" default="false" />
+    <aura:attribute name="isDataNull" type="Boolean" default="false" />
+    <aura:attribute name="eventsList" type="List" default="[]"/>
+    <aura:attribute name="keyPressTimer" type="Integer" default="0" />
+    <aura:attribute name="timeCount" type="Integer" default="0"/>
+    <aura:attribute name="sortByList" type="List" default="[
+                                                           {'label': 'This Month', 'value': 'month'},
+                                                           {'label': 'This Week', 'value': 'week'},
+                                                           {'label': 'This Day', 'value': 'day'}
+                                                           ]"/>
+    <!-- List of variables used in KB -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    
+    <!--Component Start-->
+    <div class="c-container slds-box ">
+        <lightning:layout>
+            <div class='icon-container'>
+                <lightning:icon iconName="standard:insights" class="bColor" title="Events"/> 
+                <span class="slds-p-left_x-small slds-text-title_bold">Events</span>
+            </div>
+            <div class="slds-col_bump-left colorCss" >
+                <lightning:buttonIcon iconName="utility:refresh" size="medium"  variant="bare" onclick="{! c.refreshEmergingIssues }" alternativeText="refersh" />
+                <span class="slds-p-left_x-small"> {!v.timeCount} Minutes ago </span>
+            </div>
+        </lightning:layout>
+        <lightning:layout>            
+            <lightning:layoutItem size="8" class="slds-p-right--small">
+                <lightning:input
+                                 class="search-knowledge"
+                                 aura:id="knowledge-search"
+                                 type="search"
+                                 value="{!v.searchString}"
+                                 onchange ="{! c.searchPromoEvents }"
+                                 placeholder="Search"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="4">
+                <lightning:combobox aura:id="lastModifiedVal" class="search-knowledge" name="sortBy" value="month" placeholder="" options="{!v.sortByList}" onchange="{!c.changeSortByValue}"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <aura:if isTrue="{!v.isData == true}"> 
+            <lightning:layout horizontalAlign="space" verticalAlign="center" multipleRows="true" >
+                <aura:iteration items="{!v.filteredEventsList}" var="item" indexVar="idx" end="4">
+                    <lightning:layoutItem padding="around-x-small" size="12">
+                        <div data-value="{!idx}" class="slds-m-top_x-small " onclick="{!c.selectArticleCard}">
+                            <lightning:card aura:id="foundArticles" class="card-details" title="{!item.fields.title}">
+                                <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                    <div data-value="{!idx}" class="slds-p-horizontal_small slds-m-top--small edit-field-label body-text-small dateField">
+                                        <span data-value="{!idx}">Last updated {!item.fields.last_modified_at}</span>
+                                    </div>
+                                </aura:if>
+                                <p data-value="{!idx}" title="{!item.fields.summary}" class="slds-p-horizontal_small slds-m-top--small slds-truncate textField">
+                                    {!item.fields.summary}
+                                </p>
+                                <div class="slds-grid slds-p-bottom_medium">
+                                    <aura:if isTrue="{!item.fields.scope == 'internal'}">
+                                        <div class="slds-m-left--small">
+                                            <lightning:badge class="scope-promotion" label="PROMOTION"/>
+                                        </div>
+                                        <div class="slds-m-left--small">
+                                            <lightning:badge class="scope-notpublic" label="NOT PUBLIC"/>
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <div class="slds-size_2-of-3 slds-m-left--small">
+                                                <lightning:badge class="scope-promotionBlue" label="PROMOTION"/>
+                                            </div>
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </lightning:card>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>
+        </aura:if>
+        <aura:if isTrue="{!v.filteredEventsList.length == 0}">
+            <c:EmptyState>
+                <aura:set attribute="message">
+                    No Events Found
+                </aura:set>
+            </c:EmptyState>
+        </aura:if>
+            
+    </div>
+</aura:component>

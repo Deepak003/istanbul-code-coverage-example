@@ -1,0 +1,46 @@
+<aura:component >
+	<!-- Attributes -->
+    <aura:attribute name="header" type="string" default=""/>
+    <aura:attribute name="content" type="List" default="[]"/>
+    <aura:attribute name="emailMsgTmpl" type="String" default=""/>
+    <aura:attribute name="inGameMsgTmpl" type="String" default=""/>
+    <aura:attribute name="footer" type="string" default=""/>
+    <aura:attribute name="sendMsgPreviewFlg" type="boolean" default="false" />
+    <aura:attribute name="isPopUp" type="boolean" default="false" />    
+    
+    <aura:if isTrue="{!v.isPopUp}">
+        <div role="dialog" tabindex="-1" aria-labelledby="header99" class="slds-modal slds-fade-in-open ">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <lightning:button variant="normal" class="slds-button slds-button--icon-inverse slds-modal__close uiButton--modal-closeBtn uiButton" 
+                                      label="X" onclick="{!c.closePopUp}"  />
+                    
+                    <h2 id="header99" class="slds-text-heading--medium">{!v.header}</h2>                                            
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <div>
+                        <div class="slds-text-heading--small slds-p-vertical--medium"><span class="slds-border_bottom">Email Message</span></div>
+                        <lightning:formattedRichText value="{!v.emailMsgTmpl}" />
+                        
+                        <aura:if isTrue="{!v.inGameMsgTmpl}">
+                            <div class="slds-text-heading--small slds-p-vertical--medium"><span class="slds-border_bottom">In Game Message</span></div>
+                    		<lightning:formattedRichText value="{!v.inGameMsgTmpl}" />
+                        </aura:if>
+                    </div>                                        
+                </div>                
+                <div class="slds-modal__footer">
+                    <div>{!v.footer}</div>
+                    <div class="slds-grid">
+                        <div class="slds-col slds-text-align_left">
+                            <lightning:button aura:id="noButton" variant="neutral" class="slds-button" label="No" onclick="{!c.closePopUp}" disabled="false" />
+                        </div>
+                        <div class="slds-col slds-text-align_right">                                
+                            <lightning:button aura:id="yesButton" variant="brand" class="slds-button slds-button--brand" label="Yes" onclick="{!c.yesButtonClick}" />
+                        </div>
+                    </div>
+                </div>                
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop--open"></div>
+    </aura:if>
+</aura:component>

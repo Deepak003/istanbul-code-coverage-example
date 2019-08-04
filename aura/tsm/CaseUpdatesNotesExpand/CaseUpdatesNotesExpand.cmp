@@ -1,0 +1,22 @@
+<aura:component >
+    <aura:attribute name="notes" type="List"/>    
+    <aura:attribute name="actions" type="List"/>
+    
+    
+    <div class="case-updates-notes-expand-container">
+        <aura:if isTrue="{! v.notes }">
+            <div class="case-notes-title part-1">Advisor Note</div>
+            <aura:iteration items="{!v.notes}" var="row" indexVar="idx">
+                <div title="{! row.date }">-{! row.label }</div>
+            </aura:iteration>
+        </aura:if>
+        <aura:if isTrue="{! v.actions.length !=0 }">
+            <div class="case-notes-title part-2">Advisor Actions</div>
+            <div class="case-notes-advisor-actions">
+                <aura:iteration items="{!v.actions}" var="row" indexVar="idx">
+                    <div title="{! row.date }">-<lightning:formattedRichText value="{! row.label }"></lightning:formattedRichText></div>                
+                </aura:iteration>
+            </div>
+        </aura:if>            
+    </div> 
+</aura:component>

@@ -1,0 +1,40 @@
+<aura:component controller="CaseHistoryAuraCtl">
+	<!-- Attribute -->
+    <aura:attribute name="simpleCase" type="Object" />    
+    <aura:attribute name="caseActions" type="Object"/>
+    <aura:attribute name="caseStatus" type="String"/>
+    <aura:attribute name="caseType" type="String"/>
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="chatTransArr" type="List"/>
+    <aura:attribute name="isArchived" type="Boolean"/>
+    <aura:attribute name="strSubject" type="String"/>
+    <aura:attribute name="strDescription" type="String"/>
+    <aura:attribute name="strReason" type="String"/>
+    <aura:attribute name="chatTranscript" type="Boolean" default="false"/>
+    <aura:attribute name="showRawDataFlg" type="Boolean" default="false"/>
+    <aura:attribute name="showRawData" type="String" />
+    <aura:attribute name="caseActionLength" type="Integer" default="0"/>
+    <!-- Methods -->
+    <aura:method name="getCaseAllEventsData" 
+                 action="{!c.getCaseEventsData}" 
+                 access="PUBLIC"
+                 description="call the get case events method" />
+    <div class="slds-is-relative">
+        <aura:if isTrue="{!v.chatTranscript}">
+        	<div class="slds-p-vertical_medium">
+            	<span class="slds-text-link" onclick="{!c.popUpChatClicked}">Click here for the Chat Transcript</span>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.showRawDataFlg}">
+        	<div class="slds-p-vertical_medium">
+                <div class="slds-p-vertical_x-small slds-text-heading--medium"><strong>Case Events</strong></div>
+            	<aura:unescapedHtml value="{!v.showRawData}" />
+            </div>
+        </aura:if>
+    	<aura:iteration items="{!v.caseActions}" var="row" indexVar="idx">
+            <c:ExpandCollapseCaseEvtCmp caseType="{!v.caseType}" idNumber="{!idx}" bodyContent="{!row}"/>            
+        </aura:iteration>
+        <lightning:spinner class="slds-hide thor-caseevt-spin" aura:id="caseEvtSpinner" alternativeText="loading" variant="brand" size="large"/> 
+    </div> 
+    <c:PopupModule aura:id="popUpCmpCEV"/>
+</aura:component>

@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="Presence status change event">
+    <aura:attribute name="selectedStatus" type="String" />
+</aura:event>

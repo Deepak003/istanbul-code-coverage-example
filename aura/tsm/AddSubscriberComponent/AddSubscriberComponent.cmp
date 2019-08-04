@@ -1,0 +1,117 @@
+<aura:component controller="SubscriberController" access="global">
+    
+    <!-- handlers -->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <!-- attributes -->
+    <aura:attribute name="addSuccessful" type="Boolean" default="false" />
+    <aura:attribute name="restrict" type="String"/>
+    <aura:attribute name="errorMessage" type="String" default=""/>
+    <aura:attribute name="currentDate" type="Date"/>
+    <aura:attribute name="type" type="String" default="" />
+    <aura:attribute name="message" type="String" default=""/>
+    <aura:attribute name="disableButton" type="boolean" default="true"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="newSubscriberFlag" type="Boolean" />
+    <aura:attribute name="objGDPRSubscriber" type="GDPRSubscriber__c" default="{sobjectType : 'GDPRSubscriber__c'}" />
+
+    <div style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{!c.closeModal}"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          size="large"
+                                          class="slds-modal__close"/>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Add New Subscriber</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <fieldset class="slds-form-element slds-form-element_compound">
+                        <div class="slds-form-element__control">
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_3-of-6">
+                                    <div class="slds-form-element">
+                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input 
+															 value="{!v.objGDPRSubscriber.Name}"	
+                                                             type="text"
+                                                             label="Name"
+                                                             messageWhenPatternMismatch="{!v.errorMessage}"
+                                                             onchange="{!c.handleButton}" 
+                                                             />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-size_3-of-6">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control" >
+                                            <lightning:input 
+                                                             type="text"
+                                                             label="Alias"
+                                                             onchange="{!c.handleButton}"
+                                                             value="{!v.objGDPRSubscriber.Alias__c}"
+                                                             />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="slds-grid slds-gutters">
+                                
+                                <div class="slds-col slds-size_4-of-4">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control" >
+                                            <lightning:input 
+                                                             type="email"
+                                                             placeholder="subscriber@email.com"
+                                                             value="{!v.objGDPRSubscriber.Email__c}"
+                                                             label="Point of Contact-Email"
+                                                             onchange="{!c.handleButton}"
+                                                             />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="slds-grid slds-gutters">
+                                <div class="slds-col slds-size_2-of-4">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <lightning:input 
+                                                             type="checkbox" 
+                                                             label="Active" 
+                                                             checked="{!v.objGDPRSubscriber.Active__c}"
+                                                             aura:id="activityFlag"/>
+                                                
+                                          
+                                        </div>
+                                    </div>
+                                </div>                              
+                            </div>
+                            
+                        </div>
+                    </fieldset>
+                </div>
+                <aura:if isTrue="{!v.spinner}">
+                    <div aura:id="spinnerId" class="slds-spinner_container" style="background-color: transparent;">
+                       <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert">
+                         <span class="slds-assistive-text">Loading</span>
+                         <div class="slds-spinner__dot-a"></div>
+                         <div class="slds-spinner__dot-b"></div>
+                       </div>
+                    </div>
+                 </aura:if>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick="{!c.closeModal}">Cancel</button>
+                    <button disabled="{!v.disableButton}" class="slds-button slds-button_neutral" onclick="{!c.createSubscriber}">Create Subscriber</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+    
+</aura:component>

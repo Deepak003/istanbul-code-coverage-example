@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="Event template" >
+    <aura:attribute type="boolean" name="isMobileProductAdded" />
+    <aura:attribute type="String" name="gamerIdType" />
+    <aura:attribute type="Object" name="selectedUserIdentity" />
+</aura:event>

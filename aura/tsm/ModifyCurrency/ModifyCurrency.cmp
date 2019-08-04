@@ -1,0 +1,100 @@
+<aura:component controller="ProductAuraController"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Selected persona object from ProductSnapshort" />
+    <aura:attribute name="nucleusId" type="Id" access="public" />
+	<aura:attribute name="caseId" type="Id" access="public" />
+    <aura:attribute name="selectedProduct" type="Object" access="public" description="Selected product object"  />
+    <aura:attribute name="selectedPlatform" type="Object" access="public" description="Selected platform object"  />
+    <aura:attribute name="selectedAction" type="String" default=""/>
+    <aura:attribute name="selectedAmount" type="Integer"/>
+    <aura:attribute name="options" type="List" default=""/>
+    <aura:attribute name="reasons" type="List" default=""/>
+    <aura:attribute name="isModifyCurrency" type="Boolean"/>
+    <aura:attribute name="amountLimitMessage" type="String" default=""/>
+    <aura:attribute name="currentBalance" type="Integer"/>
+    <aura:attribute name="formattedAmount" type="String" default=""/>
+    <aura:attribute name="newBalance" type="Integer"/>
+    <aura:attribute name="showDefault" type="Boolean"/>
+    <aura:attribute name="showReasons" type="Boolean"/>
+    <aura:attribute name="disableApplyButton" type="Boolean" default="true"/>
+    <aura:attribute name="requiredVal" type="Boolean" default="false"/>
+    <aura:attribute name="selectedRowForModal" type="Object"/>
+    <aura:attribute name="disableActions" type="Boolean"/>
+    <aura:attribute name="actionPlaceholder" type="String" default="Select"/>
+    <aura:attribute name="actionPlaceholderValue" type="String"/>
+    <aura:attribute name="maxCreditableValue" type="Integer"/>
+    <aura:attribute name="maxDebitableValue" type="Integer"/>
+    <aura:attribute name="configUIData" type="Object"/>
+    
+    <aura:registerEvent name="closeModal" type="c:CloseModifyCurrencyModal"/>
+    <aura:registerEvent name="refreshParent" type="c:RefreshProductTabEvent"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <div>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" >
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeModal}"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight: normal">Modify {!v.selectedRowForModal.name}</h1>
+                </header>
+                
+                <div class="modalBody slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large setting-height" >
+                    <div><lightning:combobox aura:id="actions" name="general" disabled="{!v.disableActions}" placeholder="{!v.actionPlaceholder}" label="Select action" options="{!v.options }" onchange="{!c.onActionChange}" /></div> 
+                    <div class="slds-m-top_medium" onclick="{!c.checkAmount}">
+                        <lightning:input aura:id="amountInput" label="{!'Enter amount' +v.amountLimitMessage}" value="{!v.selectedAmount}" onchange="{!c.checkAmount}" required="{!v.requiredVal}"/>
+                    </div>
+                    <aura:if isTrue="{!v.showReasons}">
+                        <div class="slds-m-top_medium"><lightning:combobox aura:id="reasons" name="general" placeholder="Select a Reason" label="Select a Reason" onchange="{!c.checkAmount}" options="{!v.reasons}"/></div> 
+                    </aura:if>
+                    <table class="detailedTable slds-table slds-table_cell-buffer slds-m-top_medium">
+                        <tbody>
+                            <tr class="slds-hint-parent Content slds-border_bottom">
+                                <td scope="row" style="border-top: 0;">
+                                    <div class="slds-truncate">Current Balance</div>
+                                </td>
+                                <td style="border-top: 0;">
+                                    <div class="slds-float_right slds-truncate">{!v.currentBalance}</div>
+                                </td>
+                            </tr>
+                            <tr class="slds-hint-parent Content slds-border_bottom">
+                                <td scope="row">
+                                    <div class="slds-truncate">Modification</div>
+                                </td>
+                                <td >
+                                    <aura:if isTrue="{!!v.showDefault}">
+                                        <div class="slds-float_right slds-truncate">{!v.formattedAmount}</div>
+                                        <aura:set attribute="else">
+                                            <div class="slds-float_right slds-truncate">0</div>
+                                        </aura:set>
+                                    </aura:if>
+                                </td>
+                            </tr>
+                            <tr class="slds-hint-parent Content">
+                                <td scope="row">
+                                    <div class="slds-truncate">New Balance</div>
+                                </td>
+                                <td>
+                                    <aura:if isTrue="{!!v.showDefault}">
+                                        <div class="slds-float_right slds-truncate">{!v.newBalance}</div>
+                                        <aura:set attribute="else">
+                                            <div class="slds-float_right slds-truncate">{!v.currentBalance}</div>
+                                        </aura:set>
+                                    </aura:if>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table> 
+                </div>
+                <footer class="slds-modal__footer slds-p-top_large">
+                    <lightning:button aura:id="cancelButton" label="Cancel" onclick="{!c.closeModal}"/>
+                    <lightning:button aura:id="applyButton" variant="brand" label="Apply" onclick="{!c.onApply}" disabled="{!v.disableApplyButton}"/>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

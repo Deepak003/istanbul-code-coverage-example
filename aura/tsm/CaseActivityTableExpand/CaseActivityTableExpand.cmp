@@ -1,0 +1,80 @@
+<aura:component access="global">   
+    <aura:attribute name="cols" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid columns."/> 
+    
+    <aura:attribute name="rows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid row data."/>
+    
+    <aura:attribute name="filteredRows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The filtered grid row data." />
+
+    <aura:attribute name="cmpName"
+                    type="String"
+                    access="GLOBAL" />
+
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="c:Expand" action="{!c.toggleStateAll}"/>
+    
+    <div class="slds-border_bottom slds-grid slds-p-bottom_xx-small" id="{!v.cmpName}">
+        <aura:iteration items="{!v.cols}" var="col" indexVar="idx">            
+            <div class="{! 'slds-text-heading--label slds-col ' + col.class }">
+                <span class="slds-truncate">{! col.label}</span>
+                <aura:if isTrue="{!col.class == 'slds-is-sortable '}">
+                    <div onclick="{!c.sortDesc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small arrowdown">
+                        <lightning:icon iconName="utility:arrowdown" size="small" alternativeText="Sort by"/>
+                    </div>
+                    <div onclick="{!c.sortAsc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small slds-hide arrowup">
+                        <lightning:icon iconName="utility:arrowup" size="small" alternativeText="Sort by"/>
+                    </div>
+                </aura:if>
+            </div>            
+        </aura:iteration>
+    </div>
+    <!-- Data Iteration -->
+    <aura:iteration items="{!v.filteredRows}" var="row" indexVar="idx">
+        <div class="slds-border_bottom slds-p-bottom_small slds-section caseHistoryData" aria-controls="{!idx}" aria-expanded="false" >
+            <div class="slds-has-flexi-truncate slds-grid">
+                <aura:iteration items="{!row.data}" var="colData" indexVar="id">
+                    <div class="{!'slds-col slds-p-right--none '+ colData.label + ' ' + colData.class}">
+                        <aura:if isTrue="{!colData.label == 'Case ID'}">
+                            <div class="{! 'slds-truncate link-column ' + colData.label}" data-row="{!idx}" data-pk="{!row.pk}" title="{!colData.value}">
+                                <span class="slds-p-right_xx-small">                                    
+                                    <lightning:buttonIcon value="{!idx}" variant="bare" size="small" 
+                                        onclick="{!c.expandClick}"
+                                        iconName="{!row.expanded?'utility:down':'utility:right'}" />
+                                </span>                                                                        
+                                <span class="slds-text-link">{!colData.value}</span>
+                            </div>                        
+                            <aura:set attribute="else">
+                                <div class="container-ellipse">
+                                    <aura:if isTrue="{!colData.label == 'Date'}">
+                                        <!--<ui:outputDateTime value="{!colData.value}" format="MMM/d/Y"/>-->
+                                        <c:FormattedDateTime value="{!colData.value}" format="only-date"/>
+                                        <aura:set attribute="else">
+                                            <aura:if isTrue="{!colData.label == 'Status'}">
+                                                <span class="{!'slds-m-right_x-small status-icon '+colData.value}"></span>
+                                            </aura:if>
+                                            <span title="{!colData.value}">{!colData.value}</span>
+                                        </aura:set>
+                                    </aura:if>                     
+                                </div>
+                            </aura:set>
+                        </aura:if>                        
+                    </div>                    
+                </aura:iteration> 
+            </div>
+            <aura:if isTrue="{!row.expanded}">
+                <c:CaseSummary case="{! row }" />
+            </aura:if>
+            
+        </div>
+    </aura:iteration>
+</aura:component>

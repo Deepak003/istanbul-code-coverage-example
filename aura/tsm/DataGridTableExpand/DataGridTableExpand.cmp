@@ -1,0 +1,205 @@
+<aura:component access="global" extends="c:DataGridTableArchiveCases" controller="CaseDetailAuraCtl">   
+    <aura:attribute name="cols" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid columns."/> 
+    
+    <aura:attribute name="rows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid row data."/>
+    
+    <aura:attribute name="filteredRows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The filtered grid row data." />
+    
+    <aura:attribute name="selectedRow"
+                    type="Object"
+                    access="GLOBAL" /> 
+    <aura:attribute name="cmpName"
+                    type="String"
+                    access="GLOBAL" />
+    <aura:attribute name="intervalId"
+                    type="String"
+                    access="GLOBAL" />
+    <aura:attribute name="pageNumber"
+                    type="Integer"
+                    default="1"
+                    access="GLOBAL" />
+    <aura:attribute name="expandAll" type="Boolean" default="false" />
+    <aura:attribute name="renderComp" type="Boolean" default="false" />
+    <aura:attribute name="totalCases" type="Integer"  />
+    <aura:attribute name="casesOfPage" type="Integer" default="0" />
+    <aura:attribute name="caseObj" type="Case" default="{'sobjectType': 'Case'}"/>
+    <aura:registerEvent name="rowclick"  
+                        type="c:DataGridRowClick"/>
+    
+    <aura:registerEvent name="rowdblclick"  
+                        type="c:DataGridRowDblClick"/>
+    
+    <aura:registerEvent name="rowclickApp"  
+                        type="c:DataGridRowClickApp"/>
+    <aura:registerEvent name="caseHistoryRender"  
+                        type="c:CaseHistoryRenderEvt"/>
+    <!--
+    <aura:handler event="c:GetNextRowClickApp" action="{!c.getNextRowClickEvent}" />
+    <aura:handler event="c:FilterQueueEvt" action="{!c.getFilterSelectEvt}" />
+    -->
+    <aura:handler name="change" value="{!v.expandAll}" action="{!c.expandAll}"/>
+    <aura:method name="setSelection" 
+                 action="{!c.setSelection}" 
+                 access="PUBLIC"
+                 description="Set selected row, by ID">
+        
+        <aura:attribute name="Id" 
+                        type="String" 
+                        default="" />
+    </aura:method>
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{!v.rows}" action="{!c.init }" />
+    <div aura:id="caseHistoryDataTable" class="slds-border_bottom slds-grid slds-gutters slds-p-top_small" id="{!v.cmpName}" onscroll="{!c.scrollDiv}">
+        <aura:if isTrue="{!v.casesOfPage}"><div class="thor-history-pagination slds-m-around_small"><b>{!v.casesOfPage}</b>&nbsp; of &nbsp;<b>{!v.totalCases} </b>&nbsp; Cases.</div></aura:if>
+        <aura:iteration items="{!v.cols}" var="col" indexVar="idx">
+             <aura:if isTrue="{!col.type != 'hidden'}">
+                <div class="{!idx ? 'slds-text-heading--label slds-col slds-size_1-of-8' : 'slds-text-heading--label slds-col slds-size_2-of-6' }">
+                    <span class="slds-truncate">{!col.label}</span>
+                    <aura:if isTrue="{!col.class == 'slds-is-sortable '}">
+                        <div onclick="{!c.sortDesc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small arrowdown">
+                            <lightning:icon iconName="utility:arrowdown" size="small" alternativeText="Sort by"/>
+                        </div>
+                        <div onclick="{!c.sortAsc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small slds-hide arrowup">
+                            <lightning:icon iconName="utility:arrowup" size="small" alternativeText="Sort by"/>
+                        </div>
+                    </aura:if>
+                </div>  
+            </aura:if>
+        </aura:iteration>
+    </div>
+        <!-- Data Iteration -->
+        <aura:iteration items="{!v.filteredRows}" var="row" indexVar="idx">
+            <div aura:id="caseHistoryData" class="slds-border_bottom slds-section caseHistoryData" aria-controls="{!idx}" aria-expanded="false" >
+            <div class="slds-has-flexi-truncate slds-grid slds-gutters">
+                <aura:iteration items="{!row.data}" var="colData" indexVar="id">
+                    <aura:if isTrue="{!colData.type != 'hidden'}">
+                        <div data-pk="{!row.pk}" data-row="{!idx}" class="{!id ? 'slds-col slds-size_1-of-8 ' : 'slds-col slds-size_2-of-6 ' +colData.label}">
+                            <aura:if isTrue="{!colData.label == 'Subject'}">
+                                <div class="slds-truncate subject" data-row="{!idx}" data-pk="{!row.pk}" title="{!colData.value}" onclick="{!c.expandClick}" >
+                                    <span><lightning:icon iconName="utility:up" 
+                                                    size="small"
+                                                    aura:id="upIcon"
+                                                    variant="bare" 
+                                                    class="slds-hide"
+                                                    alternativeText="up" />
+                                    <lightning:icon iconName="utility:down" 
+                                                    size="small" 
+                                                    aura:id="downIcon"
+                                                    variant="bare"                                            
+                                                    alternativeText="down" /></span>                                                                        
+                                    <span class="slds-text-link">{!colData.value}</span>
+                                </div>                        
+                                <aura:set attribute="else">
+                                    <aura:if isTrue="{!colData.type == 'Date'}">
+                                        <!--{!colData.value}-->
+                                        <ui:outputDateTime value="{!colData.value}" format="MMM/d/Y"/>
+                                        <aura:set attribute="else">
+                                            <aura:if isTrue="{!colData.type == 'seemore'}">                                                    
+                                                        <div class="slds-media slds-text-link">
+                                                            <div class="slds-media__figure">
+                                                                <lightning:icon class="slds-icon slds-icon_small"  iconName="utility:open" size="small" />
+                                                            </div>
+                                                            <div class="slds-media__body" onclick="{!c.fullDetailsClick}" >
+                                                                <a>{!colData.value} Full details</a>                                                   
+                                                            </div>
+                                                        </div>
+                                                    <aura:set attribute="else">
+                                                        <aura:if isTrue="{!colData.label == 'Status'}">
+                                                                <span class="{!'slds-m-right_x-small '+colData.value}"></span>{!colData.value}
+                                                            <aura:set attribute="else"> 
+                                                                <aura:if isTrue="{!colData.type == 'caseType'}">
+                                                                	<div aura:id="caseType" data-model="{!colData.value}">
+                                                                    	{!colData.value}
+                                                                    </div>
+                                                                    <aura:set attribute="else">
+                                                                        <aura:if isTrue="{!colData.type == 'displayIcon'}">
+                                                                            <span  aura:id="archiveType" data-model="{!colData.value}">
+                                                                            <aura:if isTrue="{!colData.value}">
+                                                                                <lightning:icon iconName="utility:lock" 
+                                                                                        size="small"
+                                                                                        variant="bare"                                            
+                                                                                        alternativeText="lock" />
+                                                                                </aura:if>
+                                                                                </span>
+                                                                            <aura:set attribute="else">
+                                                                                <aura:if isTrue="{!colData.type == 'caseNumber'}">
+                                                                                    <div aura:id="caseNumber" data-model="{!colData.value}">
+                                                                                        {!colData.value}
+                                                                                    </div>
+                                                                                     <aura:set attribute="else">
+                                                                                        <div>
+                                                                                            {!colData.value}
+                                                                                        </div>
+                                                                                    </aura:set>
+                                                                                </aura:if>
+                                                                            </aura:set>
+                                                                        </aura:if>
+                                                                    </aura:set>
+                                                                </aura:if>                                                                                                                                
+                                                            </aura:set>
+                                                        </aura:if>                                                	
+                                                    </aura:set>
+                                            </aura:if>                                        
+                                        </aura:set>
+                                    </aura:if>                                
+                                </aura:set>
+                            </aura:if>                        
+                        </div>
+                        <aura:set attribute="else">                                                            
+                            <div aura:id="hiddenData" data-model="{!colData.value}"></div>
+                        </aura:set>
+                    </aura:if>                    
+                </aura:iteration> 
+            </div>
+                <div aria-hidden="true" class="slds-p-left_small slds-grid slds-gutters slds-truncate slds-section__content" id="{!idx}">
+                    <div class="slds-col slds-size_2-of-6 slds-m-around_medium"><c:UserGeneratedContent aura:id="userGeneratedContentHistoryCmp" simpleCase="{!v.caseObj}" /></div>
+                    <div class="slds-col slds-size_4-of-6">
+                        <!-- Expanded data STARTS here -->
+                        <div class="edit-field-label slds-text-body_small">
+                            Category
+                        </div>
+                        <div class="slds-m-bottom_small field-label-data">
+                             <ui:outputText aura:id="categoryName" value=""/>
+                        </div>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-size_1-of-2">
+                                <div class="edit-field-label slds-text-body_small">
+                                    Product
+                                </div>
+                                <div class="slds-m-bottom_small field-label-data">
+                                    <ui:outputText aura:id="productName" value=""/>
+                                </div>
+                            </div>
+                            <div class="slds-size_1-of-2">
+                                <div class="edit-field-label slds-text-body_small">
+                                    Platform
+                                </div>
+                                <div class="slds-text-heading--label slds-m-bottom_small field-label-data">
+                                    <ui:outputText aura:id="platformName" value=""/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="edit-field-label slds-text-body_small">
+                            <c:CaseEventsStatus simpleCase="{!v.caseObj}" aura:id="case-notes" caseId="{!row.pk}" 
+                                                strSubject="{!row.data[0].value}" strDescription="{!row.data[16].value}"
+                                                isArchived="{!row.data[6].value}" caseType="{!row.data[4].value}" />
+                        </div>
+                        <!-- END -->
+                    </div>
+                </div>
+            </div>
+        </aura:iteration>
+    <div class="slds-is-relative">
+        
+    </div>
+</aura:component>

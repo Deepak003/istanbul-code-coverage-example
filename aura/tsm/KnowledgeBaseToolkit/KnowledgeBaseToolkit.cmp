@@ -1,0 +1,18 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    
+    <aura:attribute name="selectedArticle" type="Object" default="{}"/>
+    <aura:attribute name="localStorage" type="Object" default="{}"/>
+    
+    <lightning:tabset variant="scoped" selectedTabId="one">
+        <lightning:tab label="ARTICLES" id="one" >
+            <div class="slide-bar">
+                <c:KnowledgeBaseArticles selectedArticle="{!v.selectedArticle}" localStorage="{!v.localStorage}"/>  
+            </div>
+        </lightning:tab>
+        <lightning:tab label="BOOKMARKS" id="two" class="tab-height">
+            <div class="slide-bar">
+                <c:KnowledgeBaseBookmarks />
+            </div>
+        </lightning:tab>
+    </lightning:tabset>     
+</aura:component>

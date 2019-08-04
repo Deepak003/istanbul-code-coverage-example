@@ -1,0 +1,22 @@
+.THIS .backgroundColor{
+    background-color:#F3F2F2;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    border-radius: 4px;
+}
+.THIS .modal-small {
+	width: 90%;
+    margin: 0 auto;
+}
+
+.THIS .modal-small + .slds-backdrop_open,
+.THIS .modal-large + .slds-backdrop_open {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.THIS .modal-small .slds-modal__content {
+    height: calc(320px - 60px);
+}

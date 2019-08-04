@@ -1,0 +1,153 @@
+<aura:component controller="ServiceStatusAuraCtl" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <!-- Attributes -->
+    <aura:attribute name="serviceStatusList" type="Object"/>
+    <aura:attribute name="serviceStatusForProductList" type="Object"/>
+    <aura:attribute name="lookupProducts" type="List" access="private" />
+    <aura:attribute name="mapProducts" type="map" access="private" />
+    <aura:attribute name="selectedProductName" type="String" access="private" default="" />
+    <aura:attribute name="selectedProductId" type="String" access="private" default="" />
+    <aura:attribute name="selectedProduct" type="String" />
+    <aura:attribute name="isAllUP" type="boolean"  default="false" />
+    <aura:attribute name="isAllUPForProduct" type="boolean"  default="false" />
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleBubbling}"/>
+    
+    <div class="c-container slds-box serviceStatus"  aura:id="mainLayoutContainer">         
+        <lightning:layout>
+            <div class='icon-container titleBox'>
+                <lightning:icon class="customNotification" iconName="standard:custom_notification" title="Service Status" />
+                <span class="slds-p-left_x-small slds-text-title_bold">  Service Status </span>  
+            </div>
+        </lightning:layout>
+        <!--       
+            <div class='icon-container'>
+                <lightning:icon class="fallbackIcon" iconName="standard:custom_notification" size="small" title="Service Status" /> <b> Service Status </b>
+            </div> 
+       
+        </lightning:layout>
+        
+            <div class="slds-col_bump-left" >
+                <lightning:icon iconName="utility:refresh" title="Process" size="xx-small"/> 
+                <span> 2 Minutes ago </span>
+            </div>
+        -->
+        <lightning:layoutItem  size="12" class="slds-text-align_left slds-m-bottom_small slds-m-top_small">  
+            <span class="currentStatus slds-text-body_regular"> Current Service Status </span>
+        </lightning:layoutItem>
+        
+        <lightning:layoutItem flexibility="auto" class="slds-border_top slds-border_bottom slds-m-bottom_small limitVert" size="12" padding="small">
+            <lightning:accordion allowMultipleSectionsOpen="true">
+                <aura:iteration items="{!v.serviceStatusList}" var="con">
+                    <lightning:layout class="slds-grid slds-media slds-media_inline" >      
+                        <lightning:layout class="slds-p-left_medium">
+                            <aura:if isTrue="{!con.isAllUP}">   
+                                <lightning:icon class="successIconTop" iconName="utility:success" size="small" />            
+                                <aura:set attribute="else">
+                                    <lightning:icon class="infoAltTop" iconName="utility:warning" size="small" />    
+                                </aura:set>
+                            </aura:if>  
+                        </lightning:layout>
+                        <lightning:accordionSection  name="{!con.serviceStatusType}" label="{!con.serviceStatusType}">
+                            <aura:set attribute="body">
+                                <aura:iteration items="{!con.lstXBOXServiceStatus}" var="ssvo">
+                                    <lightning:layout class="slds-media slds-media_inline slds-p-left_large">
+                                        <lightning:layoutItem class="slds-media__figure slds-text-align_right" > 
+                                            <aura:if isTrue="{!ssvo.Status__c == '1'}">
+                                                <lightning:icon class="successIconXbox" iconName="utility:success" size="small" />
+                                                <aura:set attribute="else">
+                                                    <lightning:icon class="infoAltXbox" iconName="utility:warning" size="small" />    
+                                                </aura:set>
+                                            </aura:if>
+                                        </lightning:layoutItem>
+                                        <lightning:layout>
+                                            <lightning:layoutItem class="slds-media__figure slds-text-align_center" > 
+                                                <p>{!ssvo.Name} </p>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem class="slds-media__figure slds-text-align_center" > 
+                                                <aura:if isTrue="{!ssvo.Status__c == '1'}">
+                                                    <p class="upStatus"><b>UP</b></p>
+                                                    <aura:set attribute="else">
+                                                        <p class="downStatus"><b>DOWN</b></p>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </lightning:layout> 
+                                </aura:iteration>
+                            </aura:set>
+                        </lightning:accordionSection>
+                    </lightning:layout> 
+                </aura:iteration>
+            </lightning:accordion>
+        </lightning:layoutItem>
+        
+        <p><a class="slds-align_absolute-center controlTower" onclick="{!c.openControlTower}">Go To Control Tower</a></p>
+        
+        <lightning:layoutItem  size="12" class="slds-text-align_left slds-m-bottom_xxX-small">  
+            <span class="currentStatus slds-text-body_regular"> EA Service Status </span>
+        </lightning:layoutItem>
+        
+        <lightning:layoutItem  size="12" class="slds-m-top_medium slds-text-align_left remove-heading">  
+            <c:LookupTSM selectedName="{!v.selectedProductName}" fieldName="Product" lookupData="{!v.lookupProducts}" />
+        </lightning:layoutItem>
+        
+        
+        <aura:if isTrue="{!empty(v.serviceStatusForProductList.lstServerStatuses)}">     
+            <p class="slds-align_absolute-center">No Data Found.</p>
+        </aura:if>
+        
+        <aura:if isTrue="{!not(empty(v.serviceStatusForProductList.lstServerStatuses))}">     
+            <lightning:layoutItem flexibility="auto" class="slds-m-top_small slds-border_top slds-border_bottom slds-m-bottom_small limitVert" size="12">
+                <lightning:accordion allowMultipleSectionsOpen="true">       
+                    <lightning:layout class="slds-media slds-media_inline slds-p-left_xx-small">    
+                        <lightning:layoutItem class="slds-text-align_right slds-p-left_medium" > 
+                            <aura:if isTrue="{!v.serviceStatusForProductList.isAllUP}">
+                                <lightning:icon class="successUpIcon" iconName="utility:success" size="small" />
+                                <aura:set attribute="else">
+                                    <lightning:icon class="infoAltDown" iconName="utility:warning" size="small" />    
+                                </aura:set>
+                            </aura:if>
+                        </lightning:layoutItem>
+                        <lightning:accordionSection name="{!v.selectedProduct}" label="{!v.selectedProduct}">
+                            <aura:set attribute="body">
+                                <aura:iteration items="{!v.serviceStatusForProductList.lstServerStatuses}" var="ssvo">
+                                    <lightning:layout class="slds-media slds-media_inline">
+                                        <lightning:layoutItem class="slds-media__figure  slds-text-align_right" > 
+                                            <aura:if isTrue="{!ssvo.statusCode == 'up'}">
+                                                <lightning:icon class="successIcon" iconName="utility:success" size="small" />
+                                                <aura:set attribute="else">
+                                                    <lightning:icon class="infoAlt" iconName="utility:warning" size="small" />    
+                                                </aura:set>
+                                            </aura:if>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem>
+                                            <lightning:layout>
+                                                <lightning:layoutItem class="slds-text-align_center slds-p-right_xxx-small" > 
+                                                    <p><b>{!ssvo.platform}</b> </p>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem class="slds-media__figure slds-text-align_center slds-p-left_xxx-small" > 
+                                                    <aura:if isTrue="{!ssvo.statusCode == 'up'}">
+                                                        <p class="upStatus"><b>UP</b></p>
+                                                        <aura:set attribute="else">
+                                                            <p class="downStatus"><b>DOWN</b></p>
+                                                        </aura:set>
+                                                    </aura:if>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                            <lightning:layout>
+                                                <lightning:layoutItem class="slds-text-align_center" > 
+                                                    <p class="currentStatus"> {!ssvo.lastUpdated}   </p>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </aura:iteration>
+                            </aura:set>
+                        </lightning:accordionSection> 
+                    </lightning:layout>
+                </lightning:accordion>
+            </lightning:layoutItem>
+        </aura:if>        
+    </div>    
+</aura:component>

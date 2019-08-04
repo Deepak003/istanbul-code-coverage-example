@@ -1,0 +1,114 @@
+@media (max-width: 767px) {
+    .THIS .hiddenColumn {
+        display: none !important;
+    }
+}
+.THIS.slds-cell-fixed {
+    background-color: #fff;
+}
+
+.THIS.slds-table th {
+    padding-top: .25em;
+    padding-bottom: .25em;
+    background-color: #fff;
+    border-bottom: 1px solid rgb(221, 219, 218);
+    padding-bottom: 1em;
+}
+
+.THIS.slds-table tbody tr > * {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border: none;
+}
+
+.THIS.slds-table tbody tr > * > span {
+    padding: 1.5px 0px;
+}
+
+.THIS.slds-table thead tr > * > span {
+    padding: 1.5px 0px;
+}
+.THIS.slds-table .slds-checkbox {
+    display: none;
+}
+.THIS[is="lightning-primitive-cell-checkbox"] {
+    position: absolute;
+    width: 100%;
+    z-index: 9;
+    background-color: transparent !important;
+    height: 1%;
+}
+.THIS.slds-table .slds-is-selected td {
+    background-color: #1589ee !important;
+    color: #fff;
+}
+.THIS.slds-table.slds-table_striped tbody tr:nth-of-type(even) > td {
+    background-color: transparent;
+}
+.THIS.slds-table:not(.slds-no-row-hover) tbody tr:hover>td {
+    background-color: transparent;
+}
+.THIS.slds-table .slds-icon {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+.THIS.slds-table .slds-is-sortable .arrowdown > lightning-icon,
+.THIS.slds-table .slds-is-sortable .arrowup  > lightning-icon {
+    visibility: hidden;
+}
+.THIS.slds-table .slds-is-sortable:hover .arrowdown > lightning-icon,
+.THIS.slds-table .slds-is-sortable:hover .arrowup > lightning-icon {
+    visibility: visible;
+}
+.THIS .slds-icon {
+    fill: rgb(0, 109, 204);
+    width: .9rem;
+    cursor: pointer;
+}
+.THIS .slds-icon-utility-arrowdown .slds-icon {
+    fill: rgb(112, 110, 107);
+    width: .9rem;
+}
+.THIS .slds-icon-utility-arrowup .slds-icon {
+    fill: rgb(112, 110, 107);
+    width: .9rem;
+}
+.THIS .edit-field-label {
+    color: #617495;
+}
+.THIS .field-label-data {
+    color: #2D2A28;
+    font-weight: 500;
+}
+.THIS .Closed {
+    background-color: #D0021B;
+}
+.THIS .Open,
+.THIS .New {
+    background-color: #7ED321;
+}
+.THIS .status-icon {
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .status-icon:not(.Closed):not(.Open):not(.New) {
+    background-color: yellow;
+}
+.THIS .subject {
+    cursor: pointer;
+}
+
+.THIS .container-ellipse {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+}
+
+.THIS .link-column {
+    margin-left: -.75rem;
+}

@@ -1,0 +1,66 @@
+<aura:component controller="GlobalSearchAuraCtl" implements="lightning:isUrlAddressable">
+    <!--Local search Attributes -->
+    <aura:attribute name="filterOptions" type="List"/>
+    <aura:attribute name="filterSelection" type="string" default="Case Number or Email"/>
+    <aura:attribute name="searchVal" type="string"/>
+    <aura:attribute name="searchDataList" type="List"/>
+    <aura:attribute name="issearching" type="Boolean" default="false"/>
+    <aura:attribute name="selectNamespace" type="string" default=""/>
+    <aura:attribute name="nameSpaceOptions" type="List"/>
+    
+    <!-- Register Handlers --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <!-- Register Workspace API's --> 
+    <lightning:workspaceAPI aura:id="workspace"/>
+    
+    <!-- Global Search component -->
+    <div class="slds-grid plsearch-wrapper player-search">
+        <div class="slds-col slds-size_1-of-1 plsearch-main">
+            <!-- Global Search container -->
+            <div class="slds-global-header__item slds-form-element">
+                <label class="slds-form-element__label" for="combobox-id-24"></label>
+                <div class="slds-form-element__control">
+                    <div class="slds-combobox-group">
+                        <!-- Global Search Menu element holder -->
+                        <div class="slds-combobox_object-switcher slds-combobox-addon_start">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label slds-assistive-text" for="combobox-id-25">Filter Search by:</label>
+                                <div class="slds-form-element__control">
+                                    <div class="slds-combobox_container">
+                                        <lightning:buttonMenu class="button-radius" aura:id="search-criteria" onselect="{! c.handleFilterSelect }" alternativeText="Show menu">
+                                            <aura:iteration items="{!v.filterOptions}" var="filterOpt" indexVar="idx">
+                                                <aura:if isTrue="{!idx == 0}"> 
+                                                    <lightning:menuItem aura:id="menu-items" value="{!filterOpt.value}" label="{!filterOpt.label}" checked="true"/>
+                                                    <aura:set attribute="else">
+                                                        <lightning:menuItem aura:id="menu-items" value="{!filterOpt.value}" label="{!filterOpt.label}" checked="false"/>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </aura:iteration>
+                                        </lightning:buttonMenu>                                                                             
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Global Search input element holder -->
+                        <div class="slds-combobox_container slds-combobox-addon_end global-width" onkeyup="{!c.keyPressController}">
+                            <lightning:input
+                                             aura:id="global-search"
+                                             name="enter-search"
+                                             placeholder="{!'Search for '+v.filterSelection}"
+                                             isLoading="{! v.issearching }"
+                                             variant="label-hidden"
+                                             type="search"
+                                             value="{!v.searchVal}"
+                                             />
+                        </div>
+                        <!-- Global Search namespace element holder -->
+                        <div class="slds-m-left_small curved-border">
+                            <lightning:combobox aura:id="select-namespace" class="hide-label slds-hide" value="{!v.selectNamespace}" name="nameSpace" label="Select Namespace" placeholder="Select Namespace" options="{! v.nameSpaceOptions }" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,202 @@
+<aura:component controller="AccountSearchAuraCtl"   implements="force:appHostable,flexipage:availableForAllPageTypes">
+    <aura:attribute name="targetAccountSFId" type="String" />
+	<aura:attribute name="products" type="List" default="[]"/>
+    <aura:attribute name="productsToDisplay" type="object[]" /> <!-- List of Products -->
+     <aura:attribute name="selectedType" type="string"/>
+    <aura:attribute name="franchiseForProducts" type="object[]" /> <!-- List of Franchise -->
+    <aura:attribute name="listForLookUp" type="object[]" default="[]" /> <!-- List of Franchise -->
+    <aura:attribute name="targetAccountID"  type="string" /> <!--1000224574039  1000199568283 2254621283 TargetAccountID is the nucleusID -->
+    <aura:attribute name="selectedProduct" type="sObject" default="{}"/>
+    <aura:attribute name="accountStatusList" type="List" />
+    <aura:attribute name="objectApiName" type="string" /> 
+    <aura:attribute name="pageNumber" type="string" />
+    <aura:attribute name="isAccountData" type="Boolean" default="true" />
+    <aura:attribute name="targetPetitionCount" type="String" />
+     <aura:attribute name="options" type="List" default="[
+                                                        {'label': 'Franchise', 'value': 'franchise'},
+                                                        {'label': 'Product', 'value': 'product'}]"/>
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+	<aura:handler name="cmpProduct" event="c:ProductSelectEvent" action="{!c.showorHideAccountStatusTable}"/>
+    <!--<aura:handler event="c:ProductSelectEventApp" action="{!c.showorHideAccountStatusTable}" /> --> 
+    <aura:handler  event="c:PetitionDetailEvent" action="{!c.resetaccounStatus}" />
+    <aura:handler name = "petitionDetailCompEvent" event = "c:PetitionDetailStatusEvent" action="{!c.getProductsforTargetAcc}"/>										
+     <aura:handler event="c:updateStrikesAndPetCount" action="{!c.getPetitionCount}" />
+     <!-- thor-690 start -->
+    <aura:handler event="c:strikesAppEvent" action="{!c.OnStrikesUpdated}" />
+    <aura:attribute name="accountObj" type="Account" access="public" /> <!-- simpleRecord -->
+    <aura:attribute name="record" type="Object" /> 
+    <aura:attribute name="recordError" type="String" /> 
+    <aura:attribute name="recordId" type="Id"  />
+    <aura:attribute name="Id" type="Id" />
+    <aura:attribute name="listOfEntitles" type="List"/>
+     
+    <force:recordData aura:id="strikesRecord"
+		recordId="{!v.recordId}" 
+		mode="VIEW"
+		targetFields="{!v.accountObj}"
+    	targetError="{!v.recordError}"
+		recordUpdated="{!c.handleRecordUpdated}" 
+		fields="Id,MajorStrikes__c,MinorStrikes__c"
+                      />               
+                     
+     <!-- thor-690 end -->
+    <!-- Methods -->
+   	<aura:method name="getProductsByAccount" 
+                 action="{!c.getProductsByAccount}"
+                 access="PUBLIC"
+                 description="call the get products by acc method" />
+    <aura:method name="getSrikesAcc" 
+                 action="{!c.getSrikesAcc}"
+                 access="PUBLIC"
+                 description="call the get strikes by acc method" />
+    
+    <div class="slds-p-top_large slds-p-right_medium slds-p-left_medium">
+        <div class="target-player-container">
+            <h1 class="slds-page-header__title slds-truncate slds-align-left slds-m-bottom_medium">
+                Account Status Details
+            </h1>
+            <aura:if isTrue="{!v.targetAccountID}">
+            <lightning:layout class="slds-gutters_xxx-small" aura:id="account_status_det_comp">
+                
+                <lightning:layoutItem flexibility="auto" >                                    
+                    <div class="strike-container slds-p-left_large slds-p-right_large slds-p-top_medium slds-p-bottom_medium">
+                        <p class="slds-p-bottom_x-small">Find out more about this account's sanctioned statuses using the filters below.</p>                                                             
+                        <div>
+                            <lightning:layoutItem flexibility="auto" size="12">
+                                <lightning:layout class="slds-gutters_xxx-small">
+                                    <lightning:layoutItem flexibility="auto" size="3" class="slds-m-top_xxx-smallsanctionSelect">
+                                        <lightning:combobox class="sanctionStatuscls" aura:id="sanctionStatus" name="progress" label="Select a status type"
+                                                            placeholder="Select"
+                                                            value="Select"
+                                                            dropdownAlignment="right"
+                                                            onchange="{!c.handleChange}"
+                                                            options="{!v.options}"/>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem flexibility="auto" size="9" class="slds-m-top_xxx-small sanctionSearch">
+                                        <c:Lookup objectAPIName="{!v.objectApiName}" aura:id="prodAccStatus" 
+                                                  IconName="standard:account"
+                                                 listOfSearchRecords="{!v.listForLookUp}"
+                                                 listOfEntitles = "{!v.listOfEntitles}"
+												 listOfSearchRecordsLast =""		 
+                                                  oRecord="{!v.selectedProduct}"                                               	 
+                                                  placeHolder="Search"
+                                                  required="true"
+                                                  eventType="productAccStatus"
+                                               />											
+                                    </lightning:layoutItem>                                   
+                                </lightning:layout>
+                                
+                            </lightning:layoutItem>
+                        </div>
+                        
+                        <lightning:layoutItem class="slds-m-top_medium" flexibility="auto">
+                            
+                            <div class="slds-table--header-fixed_container headerColor" aura:id="account_status_list_comp">
+                                <lightning:spinner class="slds-hide mySpinner slds-spinner_xx-small" aura:id="mySpinner" variant="brand" size="small"/>
+                                <div class="accstatus slds-scrollable_y" aura:id="account_status_list" onscroll="{!c.scrollBottom}">
+                                    <table  class="headerColor slds-table slds-table_fixed-layout slds-p-around_medium slds-table_cell-buffer slds-table--header-fixed " aura:id="accountStatusTable">
+                                        <thead style="align:center;">
+                                            <tr class="slds-text-title_caps slds-border_bottom">
+                                                <th scope="col">
+                                                    <div class="slds-truncate slds-cell-fixed tableHeadingName" title="ID">Name</div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate slds-cell-fixed tableHeading" title="Display Name">Entitlement</div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate slds-cell-fixed tableHeading" title="Display Name">current status</div>
+                                                </th>  
+                                                <th scope="col">
+                                                    <div class="slds-truncate slds-cell-fixed tableHeading" title="NameSpace">Until</div>
+                                                </th>                                       
+                                            </tr>
+                                        </thead>   
+                                        <aura:if isTrue="{!v.isAccountData}">
+										   <aura:iteration items="{!v.accountStatusList}" var="accStatus">
+												<tr  class="slds-border_bottom dataDisplay">
+													<td scope="row"  class="slds-text-body_small slds-m-bottom_x-small" title="{!v.selectedProduct.Name}">
+														<span class="typeAheadVal"> {!v.selectedType}</span>&nbsp;
+                                                        <aura:if isTrue="{!v.selectedType!='Franchise'}">{!v.selectedProduct.Name}
+                                                             </aura:if>
+                                                        <aura:if isTrue="{!accStatus.statusType}">{!accStatus.statusType}
+                                                             </aura:if>
+													</td>
+													<td scope="row"  class="slds-text-body_small slds-m-bottom_x-small rowFields slds-truncate" title="{!accStatus.name}">
+														{!accStatus.name}
+													</td>
+													<td scope="row" class="slds-text-body_small slds-m-bottom_x-small rowFields"> 
+														<span class="{!accStatus.currentStatus + ' ' + 'slds-m-right_x-small'}">
+														</span>
+														{!accStatus.currentStatus}
+													</td>
+													<td scope="row"  class="slds-text-body_small slds-m-bottom_x-small rowFields">  
+														 <aura:if isTrue="{!accStatus.checkDate == 'noDate'}"> 
+														  {!accStatus.until}
+														 </aura:if>
+														<aura:if isTrue="{!accStatus.checkDate != 'noDate'}"> 
+															{!accStatus.until}
+														 </aura:if>
+													</td>                                                                                
+												</tr>
+											</aura:iteration>  
+                                             <aura:set attribute="else">
+  												<tr colspan="4" class="slds-border_bottom dataDisplay">
+                                                <span class="dataNotFound">No data found</span>                                      
+                                            </tr>
+   											 </aura:set>
+
+                                            </aura:if>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                        </lightning:layoutItem>                          
+                    </div>                   
+                </lightning:layoutItem>
+            </lightning:layout>
+            
+            <lightning:layout class="slds-gutters_xxx-small">
+                <lightning:layoutItem flexibility="auto" >
+                    <div class="strike-container slds-m-top_medium slds-p-left_large slds-p-right_large slds-p-top_medium slds-p-bottom_medium">
+                        <lightning:layout>
+                            <lightning:layoutItem flexibility="auto" padding="horizontal-medium">
+                                <div class="slds-text-body_small slds-m-bottom_xxx-small">
+                                    Major Strikes
+                                </div>
+                                <div class="c-inline slds-m-bottom_xx-small">
+                                     {!v.accountObj.MajorStrikes__c} 
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem flexibility="auto" padding="horizontal-medium">
+                                <div class="slds-text-body_small slds-m-bottom_xxx-small">
+                                    Minor Strikes
+                                </div>
+                                <div class="c-inline slds-m-bottom_xx-small">
+                                    {!v.accountObj.MinorStrikes__c} 
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem flexibility="auto" padding="horizontal-medium">
+                                <div class="slds-text-body_small slds-m-bottom_xxx-small">
+                                    Petitions
+                                </div>
+                                <div class="c-inline slds-m-bottom_xx-small">
+                                   {!v.targetPetitionCount}
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </div>
+                </lightning:layoutItem>
+                
+            </lightning:layout>         
+            <aura:set attribute="else">
+                <h1 class="slds-text-heading_large slds-page-header_medium slds-text-align_center slds-p-around_large">
+                    No target account is associated with this petition case.
+                </h1>
+			</aura:set>
+           </aura:if>
+        </div>        
+    </div>	
+    
+</aura:component>

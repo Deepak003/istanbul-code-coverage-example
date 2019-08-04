@@ -1,0 +1,21 @@
+.THIS .c-layoutBackground{
+    background-color:#F7FBFE;
+}
+.THIS .padding-right-null{
+    padding-right: .65rem;
+    padding-left: .65rem;
+}
+.THIS .tsm-scrollable {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+.THIS .chat-case-details-base{
+    margin-top: -0.9em;
+    margin-left: -0.75em;
+}
+.THIS .chat-wrapper-view-base{
+    margin-right: 0;
+}
+.THIS .chat-wrapper-margin{
+     margin-left: -0.75em;
+}

@@ -1,0 +1,28 @@
+.THIS .slds-text-heading_medium{
+    font-weight:normal;
+}
+
+.THIS .modalBody{
+    height:60%;
+    overflow:auto;
+}
+
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+
+.THIS .data-grid .slds-dropdown-trigger{
+    display:none;    
+}
+.THIS .dataGrid .slds-table_header-fixed_container,
+.THIS .dataGrid .slds-table--header-fixed_container {      
+    position: relative;
+    padding-top: 2rem;
+    background-color: rgb(255, 255, 255);
+    overflow: hidden;
+}
+.THIS .dataGrid .slds-table td {
+    padding: 0.5rem;
+    white-space: nowrap;
+    position: relative;
+}

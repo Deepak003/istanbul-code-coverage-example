@@ -1,0 +1,70 @@
+.THIS .slds-section-case-event__content{
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    height: 0;
+}
+.THIS.slds-section-case-event.slds-is-open .slds-section-case-event__content {
+    padding-top: .5rem;
+    overflow: visible;
+    visibility: visible;
+    opacity: 1;
+    height: auto;
+}
+.THIS .slds-timeline__item_task:before {
+    height: 90%;
+    left: .6rem;
+    top: .4rem;
+    margin-left: 0;
+    background-color: #95aec5;
+}
+.THIS .thor-email-icon .slds-icon-utility-email lightning-primitive-icon {
+    background: #617495;
+    padding: 1px 3px 3px;
+}
+.THIS .thor-email-icon .slds-icon-utility-email svg {
+    fill: rgb(255,255,255);
+    width: 1rem;
+}
+.THIS .expand-header {
+   font-size: 1rem;
+   font-weight: 600;
+   color: #000; 
+   padding:0;
+}
+.THIS .expcollp-header {
+    width: 95%;
+}
+.THIS .expcollp-header:before {
+    content: "\003E";
+    position: absolute;
+    left: -20px;
+    top: -2px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding-right: 2rem;
+}
+.THIS.slds-section-case-event.slds-is-open .expcollp-header:before{
+    transform: rotate(90deg);
+    top: 0.8rem;
+    left: -34px;
+}
+.THIS .expand-content {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+}
+.THIS .field-label-data {
+    white-space: normal;
+}
+.THIS .thor-line-height {
+    line-height: 1.5rem;
+}
+.THIS .thor-expand-item {
+    font-weight: 500;
+    font-size: .9rem;
+    color: #000;
+}
+.THIS .thor-pointer {
+    cursor: pointer;
+}

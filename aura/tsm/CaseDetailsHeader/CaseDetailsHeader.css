@@ -1,0 +1,11 @@
+.THIS .c-layoutBackground{
+    background-color:#FAFAF9;
+}
+.THIS .c-heading{
+    font-weight:bold;
+    font-size:16px !important;
+    line-height:25px;
+}
+.THIS .edit-field-label {
+    color: #706E6B;
+}

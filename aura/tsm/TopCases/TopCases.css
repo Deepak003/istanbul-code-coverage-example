@@ -1,0 +1,79 @@
+.THIS {
+    background: token(homepageComponentBackgroundColor);
+    height: token(homepageComponentHeight);
+    overflow-y: auto;
+}
+.THIS .limitVert {
+    padding: 3px 3px 4px;
+    overflow: auto;
+}
+.THIS .circle {
+    border: 0.1em solid #95aec5;
+    border-radius: 100%;
+    background-color: #95aec5;
+    width: 21px;
+    height: 21px;
+    text-align: center;
+}
+
+.THIS .circle p {
+    margin-top: 0.10em;
+    font-size: 10px;
+    font-weight: normal;
+    font-family: SalesforceSans;
+    margin-left: 0.6em;
+    margin-top: 0.4em;
+    width: 8px;
+    height: 13px;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: 0.6px;
+    color: #ffffff;
+}
+.THIS .currentStatus{
+    color:t(colorTextActionLabel);
+    font-size:10pt;
+    
+}
+.THIS .lastUpdated{
+    color: grey;
+    font-size: 10px;
+}
+.THIS .dashboardCSS{
+    background-color: transparent;
+}
+.THIS .dashboardCSS lightning-primitive-icon svg{
+    background: rgb(112,110,107);
+    border-radius: 5px;
+    height: token(homepageComponentIconHeight);
+    width: token(homepageComponentIconWidth);
+}
+.THIS .refreshIcon .slds-icon-text-default{ 
+    height: 12px;
+    width: 12px;
+    fill: rgb(127,127,127);
+}
+.THIS .topCaseTime{
+    font-size:10pt;
+    float:right;
+    margin:auto;
+}
+
+.THIS.p-container{
+    border: 1px solid;
+    border-color: #e3e5ed;
+}
+
+.THIS .titleBox{
+    position: relative;
+}
+
+.THIS .titleText{
+    font-size:16px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 155px;
+    margin: 0 0 0 10px;
+}

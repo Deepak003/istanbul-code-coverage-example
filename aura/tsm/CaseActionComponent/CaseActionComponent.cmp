@@ -1,0 +1,646 @@
+<aura:component  extends="c:CaseActionMain" controller="CaseDetailAuraCtl">
+    <ltng:require styles="{!$Resource.multilineToastCSS}" />
+	<!-- Aura handler  --> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="workId" type="String" />
+    <aura:attribute name="simpleCase" type="Object" />
+    <aura:attribute name="caseObj" type="Case" default="{'sobjectType': 'Case'}"/>
+    <aura:attribute name="petitionDetails" type="Petition_Details__c" default="{'sobjectType': 'Petition_Details__c'}"/>
+    <aura:attribute name="petitionActions" type="List" default="[]" />
+	<aura:attribute name="queueOptions" type="Object" />													
+    <aura:attribute name="strikeLevels" type="Object" />
+	<aura:attribute name="petitionActionSelected" type="String" />															  
+    <aura:attribute name="penaltyLevels" type="Object" />
+    <aura:attribute name="disciplinaryActions" type="Object" />
+    <aura:attribute name="durationList" type="Object" />
+    <aura:attribute name="customDurationUnits" type="Object" />
+    <aura:attribute name="validationErrorMessage" type="String" />
+    <aura:attribute name="durationNumber" type="Integer" />
+	<aura:attribute name="selectedPetitionAction" type="String" />
+    <aura:attribute name="objectApiName" type="string" />
+    <aura:attribute name="selectedEntitlement" type="string" /> 
+    <aura:attribute name="reasonCodesList" type="Object" />
+    <aura:attribute name="accountReasonCodes" type="Object" />
+	<aura:attribute name="franchiseReasonCodes" type="Object" />
+    <aura:attribute name="productEntitlements" type="Object" />
+    <aura:attribute name="entReasonCodes" type="Object" />
+    <aura:attribute name="personaReasonCodes" type="Object" />
+  	<aura:attribute name="violationSelectedOptionList" type="Object"/>
+    <aura:attribute name="violationActionOptionList" type="object"/>
+    <aura:attribute name="petitionCommitFlg" type="Boolean" default="false" />
+    <aura:attribute name="isAccount" type="Boolean" default="false" />
+    <aura:attribute name="showStrikeLevels" type="Boolean" default="false" />
+    <aura:attribute name="createCase" type="Boolean" default="false" />
+    <aura:attribute name="products" type="List" />
+    <aura:attribute name="platforms" type="List" default="[]" />
+    <aura:attribute name="categories" type="List" default="[]" />
+    <aura:attribute name="subCategories" type="List" default="[]" />
+    <aura:attribute name="contentTypes" type="List" default="[]" />
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="selectedPlatform" type="Object" />
+    <aura:attribute name="selectedCategory" type="Object" />
+    <aura:attribute name="selectedViolationChat" type="String"/> 
+    <aura:attribute name="selectedCtType" type="Object" />    
+    <aura:attribute name="newCase" type="String[]" default="[]" />
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:handler event="c:GetNextRowClickApp" action="{!c.getNextRowClickEvent}" /> 
+    <aura:handler event="c:ViolationActionClickEvt" action="{!c.violationSelectEvent}" />
+    <aura:handler event="c:EntitlementEvent" name="cmpEntitlement" action="{!c.EntitlementAction}" />
+     <aura:handler event="c:UpdateCaseObjectAppEvt" action="{!c.updateCaseObjEvent}" />
+    <aura:attribute type="string" name="caseNote"   />
+    <aura:attribute type="string" name="accNote"   />
+    <aura:attribute type="string" name="note"   />
+    <aura:attribute name="petitionCaseFlag" type="Boolean" default="false" />
+    <aura:attribute name="tabViewFlag" type="String" default="Queued" />
+    <aura:attribute name="petitionActionFlag" type="Boolean" default="true" />
+    <aura:attribute name="caseAction" type="String"/>
+	<aura:attribute name="queueSelect" type="String"/>
+    <aura:attribute name="selectedQueue" type="List" />				   
+    <aura:attribute name="userType" type="String"/>
+    <aura:attribute name="contentPenaltyActionEventParam" type="Object" />
+    <aura:attribute name="strContentVO" type="Object" />
+    <aura:attribute name="strPersonaVO" type="Object" />
+    <aura:attribute name="selectedItems" type="Object" />
+    <aura:attribute name="targetAccount" type="Object" />
+    <aura:attribute name="franchiseObj" type="Object" />
+    <aura:attribute name="productObj" type="Object" />
+    <aura:attribute name="entitlementObj" type="Object" />
+    <aura:attribute name="msgLanguageOptions" type="List" />
+    <aura:attribute name="emailTemplateOptions" type="List" />
+    <aura:attribute name="inGameTemplateOptions" type="List" />
+    <aura:attribute name="emailMsgTmpl" type="String" />
+    <aura:attribute name="inGameMsgTmpl" type="String" />
+    <aura:attribute name="msgLanguageVal" type="String" />
+	<aura:attribute name="emailTemplateVal" type="String" />
+    <aura:attribute name="inGameTemplateVal" type="String" />
+    <aura:attribute name="supportedMsgType" type="Object" />
+    <aura:attribute name="contentActPermsHide" type="Boolean" default="false" />
+    <aura:attribute name="contentActPermsShow" type="Boolean" default="false" />
+    <aura:attribute name="violationPerms" type="Boolean" default="false" />
+    <aura:attribute name="sendMsgPerms" type="Boolean" default="false" />    
+    <aura:attribute name="allPermsList" type="List"/>
+    <aura:attribute name="errorMessageEmail" type="String" />
+    <aura:attribute name="errorMessageIngame" type="String" />
+    <aura:attribute name="strMsgLocale" type="String" />
+    <aura:attribute name="availableStatusId" type="String" default="" />
+    <aura:attribute name="currentOmniStatus" type="String"/>
+    <aura:attribute name="isWorkOnCaseCmp" type="Boolean" default="false" /> 
+    <!-- Start THOR 490 -->
+    <aura:attribute name="selectedStrikeMsgName" type="String" />
+    <aura:attribute name="currentMajorStrike" type="String" />
+    <aura:attribute name="currentMinorStrike" type="String" />
+    <aura:attribute name="selectedStrikeType" type="String" />
+    <aura:attribute name="selectedStrike" type="String"/>    
+    <aura:attribute name="strikeOptions" type="List" />
+    <aura:attribute name="majorStrikeOptions" type="List" />
+    <aura:attribute name="minorStrikeOptions" type="List" />
+    <aura:attribute name="mapOfStrikes" type="map" />
+    <aura:attribute name="listOfMsg" type="Array" default="[]"/>
+    <!-- End of THOR 490 -->
+    <!-- THOR-1221 -->
+    <aura:attribute name="sendMsgPreviewFlg" type="Boolean" default="false" />
+	<aura:attribute name="adjustPenalty" type="Boolean" default="false" /> 
+    <aura:attribute name="listOfSelectedRecords" type="List" default="[]" />
+    <aura:registerEvent name="accountNotesAppEvent" type="c:AccountNotesAppEvent"/> 
+    <aura:handler event="c:DataGridRowClickApp" action="{!c.handleRowClickAppEvent}" />
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <!--aura:handler event="c:ProductSelectEventApp" action="{!c.selectEntitlementEventTrigger}" /-->
+    
+    <aura:handler event="c:updatePetitionActionsEvt" action="{!c.updatePetitionActions}" /><!--THOR-982-->
+    <aura:handler name="change" value="{!v.listOfSelectedRecords}" action="{!c.onChangeEntitlement}" />	
+    <!-- THOR-1221 -->
+    <aura:handler name="change" value="{!v.sendMsgPreviewFlg}" action="{!c.sendMsgPrevSaveContinue}" />
+    
+    <!-- Methods -->
+    <aura:method name="appendActions" 
+                 action="{!c.appendActions}" 
+                 access="PUBLIC"
+                 description="appendActions method" />
+    <aura:method name="getSupportedMessageType" 
+                 action="{!c.getSuprtMessageType}" 
+                 access="PUBLIC"
+                 description="Supported Message Type method" />
+    <aura:method name="updatePetitionActions" 
+                 action="{!c.updatePetitionActions}" 
+                 access="PUBLIC"
+                 description="Updating pet actions" />					  
+    <div class="slds-is-relative petition-actions slds-border_left slds-border_right slds-border_bottom slds-border_top" 
+         aura:id="petition-actions" id="petition-actions">
+        <div class="">
+            <div class="petition-actions-header-main slds-grid slds-m-bottom_none slds-p-left_large slds-p-right_large slds-p-top_large">
+                <div class="slds-media slds-media_center slds-has-flexi-truncate" >
+                    <aura:if isTrue="{!v.isAccount}">
+                        <div class="slds-media__figure slds-align-top">
+                            <h2><lightning:icon iconName="utility:list"
+                                                title="Create a New Case" /></h2>
+                        </div>
+                        <div class="slds-media__body">
+                            <!-- Inserts the  current number, pulled from the flow, into the script -->
+                            <ui:outputRichText class="petition-actions-header" value="{!'Create a New Case'}"/>                        
+                        </div> 
+                        <aura:set attribute="else">
+                            <div class="slds-media__figure slds-align-top">
+                                <h2><lightning:icon iconName="utility:list"
+                                                    title="Petition Actions" /></h2>
+                            </div>
+                            <div class="slds-media__body">
+                                <!-- Inserts the  current number, pulled from the flow, into the script -->
+                                <ui:outputRichText class="petition-actions-header" value="{!'Petition Actions'}"/>                        
+                            </div> 
+                        </aura:set>
+                    </aura:if>                    
+                </div>
+            </div>   
+            
+        </div>        
+        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+            <div class="slds-p-bottom_medium">
+                <div class="slds-p-left_large slds-p-right_large">
+                    <lightning:combobox id="selectPetition" aura:id="selectPetitionAction" name="petitionAction" label=""
+                                        placeholder="Select an action"
+                                        value="{!v.caseAction}"
+                                        onchange="{!c.handlePetitionActions}"
+                                        onfocus="{!c.handlePetitionClickActions}"
+                                        options="{!v.petitionActions}"/>
+					<lightning:combobox class="slds-hide" aura:id="queueSelectDropdown"
+                                        placeholder="Select a queue"
+                                        value="{!v.queueSelect}"
+                                        onchange="{!c.handleQeueueSelectActions}"
+                                        options="{!v.queueOptions}"/>
+                </div>
+            </div>
+        </aura:if>       
+        <div>            
+            <div class="petition-footer slds-m-left_large slds-m-right_large">
+                <aura:if isTrue="{!v.createCase}">
+                    <div id="createCasePD" aura:id="createCasePD">
+                        <div class="slds-border_top petition-actions-header-main slds-p-top_large slds-grid slds-m-bottom_none">
+                            <div class="slds-media slds-media_center slds-has-flexi-truncate" >
+                                <div class="slds-media__figure slds-align-top">
+                                    <h2><lightning:icon iconName="utility:add"
+                                                        title="Add Details" /></h2>
+                                </div>
+                                <div class="slds-media__body">
+                                    <!-- Inserts the users current number, pulled from the flow, into the script -->
+                                    <ui:outputRichText class="petition-actions-header" value="{!'Add Details'}"/>                        
+                                </div>                    
+                            </div>
+                        </div>
+                        <div class="slds-p-bottom_xx-small">
+                            <c:Lookup objectAPIName="getProducts" 
+                                      IconName="standard:account"
+                                      listOfSearchRecords="{!v.products}"
+                                      listOfEntitles = "{!v.productEntitlements}"
+                                      selectedRecord="{!v.selectedProduct}" 
+                                      placeHolder="Select a Product"
+                                      required="true"
+                                      eventType="product"
+                                      aura:id="createCaseProduct"/>
+                            <c:Lookup objectAPIName="getPlatformsByProduct" 
+                                      IconName="standard:account"
+                                      listOfSearchRecords="{!v.platforms}"
+                                      listOfEntitles = "{!v.productEntitlements}"
+                                      selectedRecord="{!v.selectedProduct}" 
+                                      placeHolder="Select a Platform"
+                                      required="true"
+                                      eventType="platform"
+                                      dependentEVType="product"
+                                      aura:id="createCasePlatform"/>
+                            <c:Lookup objectAPIName="getTosCategoriesByProduct" 
+                                      IconName="standard:account"
+                                      listOfSearchRecords="{!v.categories}"
+                                      listOfEntitles = "{!v.productEntitlements}"
+                                      selectedRecord="{!v.selectedProduct}" 
+                                      placeHolder="Choose a Category"
+                                      required="true"
+                                      eventType="category"
+                                      dependentEVType="product"
+                                      aura:id="createCaseCategory"/>
+                            <aura:if isTrue="{!v.petitionCaseFlag}">
+                            	<c:Lookup objectAPIName="getContentTypes" 
+                                      IconName="standard:account"
+                                      listOfSearchRecords="{!v.contentTypes}"
+                                      listOfEntitles = "{!v.productEntitlements}"
+                                      selectedRecord="{!v.selectedCtType}" 
+                                      placeHolder="Choose a User Content Type(Optional)"
+                                      eventType="contentType"
+                                      aura:id="createCaseContentType"/>
+                            </aura:if>                            
+                            
+                            <lightning:input id="caseSubject" name="subject" label="Enter a Subject"  value="{!v.caseObj.Subject}" maxlength="100" aura:id="createCaseSubject"/>
+                            <lightning:textarea id="caseNote" name="notes" value="{!v.note}" label="Enter Case Notes" maxlength="3900"  aura:id="createCaseNotes" />
+                        </div>
+                        <div class="slds-align_absolute-center slds-border_top slds-p-top_medium slds-p-bottom_medium slds-m-top_medium">
+                            <lightning:button class="half-width-btn" label="Cancel" title="Cancel" onclick="{!c.cancelCaseClick }" aura:id="cancelCreateCaseClick"/>
+                            <lightning:button class="full-width-btn" variant="brand" label="Create &amp; Open Case" 
+                                              title="Create &amp; Open Case" 
+                                              onclick="{!c.createCaseClick }" aura:id="createCaseClick"/>
+                        </div>
+                    </div>
+                </aura:if>
+            </div>
+        </div>        
+    </div>
+ <!--  thor-492 start -->
+    <aura:if isTrue="{!v.tabViewFlag == 'PetitionDetail'}"> 
+        <div class="petition-actions" aura:id="manage_content_penalities">
+            <aura:if isTrue="{!v.violationPerms}">
+                
+                <div class="disabled-section slds-p-bottom_medium slds-is-relative petition-actions slds-border_left slds-border_right slds-border_bottom slds-border_top" 
+             aura:id="petition-content-penalties" id="petition-actions">            
+                    <div class="">
+                        
+                    <div class="petition-actions-header-main slds-grid slds-m-bottom_none slds-p-left_large slds-p-right_large slds-p-top_large">
+                        <div class="slds-media slds-media_center slds-has-flexi-truncate" >
+                            <div class="slds-media__figure slds-align-top">
+                                <h2><lightning:icon iconName="utility:thunder" class="slds-icon-utility-thunder slds-icon_container" title=""/></h2>
+                            </div>
+                            <div class="slds-media__body">
+                                <!-- Inserts the users current number, pulled from the flow, into the script -->
+                                <ui:outputRichText class="petition-actions-header" value="Manage Content &amp; Penalities"/>                        
+                            </div> 
+                            <lightning:icon aura:id="editPCAClick" onclick="{!c.editPCAClick}" class="slds-hide thor-cursor-pointer" iconName="utility:edit" size="x-small" />
+                        </div>
+                    </div>
+                    
+                    <!--aura:if isTrue="{!and(v.simpleCase.Petition_Details__r.Hide_Url__c, v.simpleCase.Petition_Details__r.Content_Type__c=='File')}">
+                        <div data-id="{!v.simpleCase.Petition_Details__r.Hide_Url__c}" class="slds-m-top_small slds-p-vertical_small slds-p-left_large slds-p-right_large image-hide" id="hideVideoChk">
+                            <ui:inputCheckbox aura:id="hideContent" label="Hide Video Content Permanently" click="{!c.imageHidePermanent}"/>
+                        </div>                            
+                    </aura:if-->
+                    <!--  STRIKE LEVEL  DROP-DOWN -->
+                    <div class="slds-hide" aura:id="violationConfirmedOptions">
+                        <aura:if isTrue="{!v.contentActPermsHide}">
+                        <div data-id="{!v.simpleCase.Petition_Details__r.Hide_Url__c}" class="slds-is-relative slds-m-top_small slds-p-vertical_small slds-p-left_large slds-p-right_large image-hide-detail" id="hideImageChk">
+                            <ui:inputCheckbox aura:id="hideContent" class="detail-image-huide" label="Hide Image Content Permanently" click="{!c.imageHidePermanent}"/>
+                        </div>                            
+                    </aura:if>
+                    
+            		<!-- THOR-1343 -->
+                     <aura:if isTrue="{!v.simpleCase.Petition_Details__r.Unhide_Url__c }">
+                        <div data-id="{!v.simpleCase.Petition_Details__r.Unhide_Url__c}" class="slds-is-relative slds-m-top_small slds-p-vertical_small slds-p-left_large slds-p-right_large image-hide-detail" id="unHideImageChk">
+                            <ui:inputCheckbox aura:id="unHideContent" class="detail-image-huide" label="UnHide Image Content" click="{!c.imageUnHidePermanent}"/>
+                        </div>                              
+                    </aura:if>
+                    
+                    <div class="" aura:id="penaltySectionVln"> <!-- THOR-1197 -->
+                       <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}"> 
+                        <div> 
+                            <div class="slds-p-left_large slds-p-right_large">
+                                 <div aura:id="strikesSectionID"  >
+                                    <div class="slds-p-left_large slds-p-right_large">
+                                        <div class="slds-grid slds-m-top_small slds-is-relative">
+                                            <div class="slds-col slds-size_1-of-2 slds-p-right_small strikesClass">
+                                                <lightning:select name="selectStrike" aura:id="strikesTypeSelect" value="{!v.selectedStrikeType}" onchange="{!c.selectStrikeType}">
+                                                    <option class="grey_color" value="Strike Type">Strike Type</option>
+                                                    <option value="Major Strikes" >Major Strikes</option>
+                                                    <option value="Minor Strikes">Minor Strikes </option>
+                                                </lightning:select>
+                                            </div>
+                                                                       
+                                            <div class="penalty-cus-duration-unit slds-col slds-size_1-of-2 slds-is-absolute">
+                                                <lightning:select  name="strikesName"  aura:id="strikeSection" value="{!v.selectedStrike}" onchange="{!c.strikeActions}">
+                                                    <aura:iteration items="{!v.strikeOptions}" var="strikeOption" indexvar="key">  
+                                                        <aura:if isTrue="{!strikeOption.isCurrent}">
+                                                            <option class="grey_color"  value="{!strikeOption.value}"  selected="{!strikeOption.value ==v.selectedStrike}" >{!strikeOption.value} </option>
+                                                        </aura:if>
+                                                        <aura:if isTrue="{!!strikeOption.isCurrent}">
+                                                            <option class="black_color"  value="{!strikeOption.value}" selected="{!strikeOption.value ==v.selectedStrike}" > {!strikeOption.value}</option>
+                                                        </aura:if>
+                                                    </aura:iteration> 
+                                                </lightning:select>
+                                            </div>
+                                        </div>                                
+                                    </div>
+                                </div>
+							</div>
+                        </div>                
+                          </aura:if>    
+                        <!-- END  -->
+                        <!-- manage content drop down for PENALITY LEVEL start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                            <lightning:spinner class="slds-hide violationActionSpinner slds-spinner_xx-small" aura:id="violationActionSpinner" variant="brand" size="small"/>
+                        <div>
+                            <div class="slds-p-left_large slds-p-right_large">
+                                <lightning:combobox id="penaltyLevel" aura:id="penaltyLevel" name="penaltyLevel" label=""
+                                                    placeholder="Select Penalty Level"
+                                                    value=""
+                                                    onchange="{!c.penaltyLevelsAction}"
+                                                    onfocus="{!c.handlePetitionClickActions}"
+                                                    options="{!v.penaltyLevels}"/>
+                            </div>
+                        </div>                
+                        </aura:if>     
+                        <!-- END -->
+                        <!-- manage content drop down for ENTITLEMENT SEARCH start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                                <div aura:id="productEntitlementsSection" class="slds-hide">
+                                <div class="slds-p-left_large slds-p-right_large">
+                                     <c:Lookup objectAPIName="{!v.objectApiName}"
+                                          IconName="standard:account"
+                                          listOfSearchRecords="{!v.productEntitlements}"
+                                          listOfEntitles = "{!v.productEntitlements}"
+                                          selectedRecord="{!v.selectedEntitlement}" 
+                                          placeHolder="Select Entitlements"
+                                          eventType="entitlementSelect"
+                                          selectLabel="Entitlement"
+                                          multipleSelect="true"
+                                          SearchKeyWord=""
+                                          listOfSelectedRecords="{!v.listOfSelectedRecords}"
+                                          aura:id="productEntitlementsLookup"/>
+                                </div>
+                        </div> 
+                        </aura:if>     
+                        <!-- END  -->
+                        <!-- manage content drop down for ENTITLEMENT SEARCH start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                                <div aura:id="selectedEntitlementSection" class="slds-hide">
+                                <div aura:id="addentitlementPills" class="slds-p-left_large slds-p-right_large add-entitlement-pills">
+                                     <!--Pills to be added here -->
+                                </div>
+                        </div> 
+                        </aura:if>     
+                        <!-- END  -->
+                       <!-- manage content drop down for DISP ACTION start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                        <div >
+                            <div class="slds-p-left_large slds-p-right_large">
+                                <lightning:combobox id="disciplinaryAction" aura:id="disciplinaryAction" name="disciplinaryAction" label=""
+                                                    placeholder="Select Disciplinary Action"
+                                                    value=""
+                                                    onchange="{!c.disciplinaryActions}"
+                                                    onfocus="{!c.handlePetitionClickActions}"
+                                                    options="{!v.disciplinaryActions}"/>
+                            </div>
+                        </div>                
+                        </aura:if>     
+                        <!-- END  -->
+                        <!-- manage content drop down for DURATION LIST start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                        <div aura:id="selectedDisciplinarySection">
+                            <div class="slds-p-left_large slds-p-right_large">
+                                <lightning:combobox id="durationBan" aura:id="durationBan" name="durationBan" label=""
+                                                    placeholder="Select Duration"
+                                                    value=""
+                                                    onchange="{!c.durationActions}"
+                                                    onfocus="{!c.handlePetitionClickActions}"
+                                                    options="{!v.durationList}"/>
+                            </div>
+                        </div>                
+                        </aura:if>     
+                        <!-- END  -->
+                         <!-- manage content drop down for CUSTOM DURATION start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                        <div aura:id="customDurationSection" class="slds-hide">
+                            <div class="slds-p-left_large slds-p-right_large">
+                                <div class="slds-grid slds-m-top_small slds-is-relative">
+                                	<div class="slds-col slds-size_2-of-3">
+                                    	<ui:inputNumber updateOn="keyup" keyup="{!c.customDurationBlurEvent}" class="custom-duration" value="{!v.durationNumber}" aura:id="custDurationVal" placeholder="Enter Number" />
+                                    </div>
+                                    <div class="penalty-cus-duration-unit slds-col slds-size_1-of-3 slds-is-absolute">
+                                    	<lightning:combobox id="customDurationUnits" aura:id="customDurationUnit" name="" label=""
+                                                    placeholder="Select Units"
+                                                    onchange="{!c.customDurationActions}"
+                                                    onfocus="{!c.handlePetitionClickActions}"
+                                                    options="{!v.customDurationUnits}"/>
+                                    </div>
+                                </div>                                
+                            </div>
+                        </div>                
+                        </aura:if>     
+                        <!-- END  -->
+                        <!-- manage content drop down for REASON CODES start  -->
+                        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                        <div>
+                            <div class="slds-p-left_large slds-p-right_large">
+                                <lightning:combobox id="reasonCode" aura:id="reasonCode" name="reasonCode" label=""
+                                                    placeholder="Select Reason"
+                                                    value=""
+                                                    onchange="{!c.reasonCodesAction}"
+                                                    onfocus="{!c.handlePetitionClickActions}"
+                                                    options="{!v.reasonCodesList}"/>
+                            </div>
+                        </div>                
+                        </aura:if> 
+                    
+                    <!-- END  -->
+                         <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+                        <div class="slds-p-top_x-small">
+                            <div class="slds-p-left_large slds-p-right_large">
+                                <aura:if isTrue="{!v.isWorkOnCaseCmp != true}">
+                                 <button aura:id="cpactBtn" class="disabled-section full-width-btn slds-button slds-button_neutral commitViolationButton" onclick="{!c.saveContinueContentPenalties}">Save and Continue</button>
+                                </aura:if>
+                            </div>
+                        </div>                
+                        </aura:if>                       
+                     </div> <!-- THOR-1197 -->
+                     </div>
+                     <div class="slds-p-top_small slds-p-left_large slds-p-right_large slds-hide" aura:id="cpamsgSection"></div>
+                </div>
+        	</div> 
+        <!-- VIOLATION CONFIRMED MANAGE ACTIONS GRID ends here -->
+        </aura:if>
+        <!-- adding new grid for MAKES NOTES here -->
+             <div class="disabled-section slds-p-bottom_medium slds-is-relative petition-actions slds-border_left slds-border_right slds-border_bottom slds-border_top" 
+             aura:id="petition-makenotes" id="petition-actions">
+                 <div class="">
+                     <div class="petition-actions-header-main slds-grid slds-m-bottom_none slds-p-left_large slds-p-right_large slds-p-top_large">
+                        <div class="slds-media slds-media_center slds-has-flexi-truncate" >
+                            <div class="slds-media__figure slds-align-top">
+                                <h2><lightning:icon iconName="utility:note" class="slds-icon_container slds-icon-utility-announcement" title="Manage Content &amp; Penalities"/></h2>
+                            </div>
+                            <div class="slds-media__body">
+                                <!-- Inserts the user's current number, pulled from the flow, into the script -->
+                                <ui:outputRichText class="petition-actions-header" value="Make Notes"/> 
+                            </div>
+                            <lightning:icon aura:id="editMknoteClick" onclick="{!c.editMknoteClick}" class="slds-hide thor-cursor-pointer" iconName="utility:edit" size="x-small" />
+                        </div>                    
+                     </div>   
+                     <div aura:id="makeNotesCD" class="makeNotesSec slds-m-horizontal_large slds-hide notesArea slds-p-bottom_medium" onkeyup="{!c.keyPressController}">
+                         <lightning:textarea onblur="{!c.caseNoteBlurEvt}" id="makeNote" name="makeNotes" value="{!v.caseNote}" aura:id="makeNoteText"
+                                             label="Enter Case Notes" maxlength="3900" />
+                         
+                         <aura:if isTrue="{!v.violationPerms}">
+                             <div aura:id="accountNotes">
+                                 <span class="cp-account-note"><ui:inputCheckbox aura:id="copyContentAcc" label="Copy to Account Notes" click="{!c.copyCaseNotesAcc}"/></span>
+                                 <lightning:textarea id="accntNote" name="accntNotes" value="{!v.accNote}" aura:id="accntNoteText"
+                                                     label="Enter Account Notes" maxlength="3900" />
+                                 <ui:inputCheckbox aura:id="accNotePinned" label='Mark this note as "Pinned"' click="{!c.accNotemarkPinned}"/>
+                                 <lightning:icon iconName="utility:pin" 
+	                         				 aura:id="mkNAccSticky"
+	                         				 class="acc-sticky-pin"
+	                                         size="small" 
+	                                         variant="bare" 
+	                                         alternativeText="Sticky" />
+                             </div>
+                        </aura:if>
+                         <aura:if isTrue="{!v.isWorkOnCaseCmp != true}">
+                         <aura:if isTrue="{!v.violationPerms == false}">
+                         	<lightning:button variant="brand"         
+                                           label="Commit" title="Commit" 
+                                           onclick="{!c.makeNotesCommit}" aura:id="commit_button_casedetail"/>
+                             <aura:set attribute="else">
+                             	<lightning:button variant="neutral"
+                             					  aura:id="makeCaseAccNotesBtn"
+                                                  class="full-width-btn"
+                                                  label="Save and Continue" title="Save and Continue" 
+                                                  onclick="{!c.makeNotesSaveContinue}"/>
+                             </aura:set>
+                         </aura:if>  
+                         </aura:if>
+                    </div>
+                    <div class="slds-p-top_small slds-p-left_large slds-p-right_large slds-hide" aura:id="makeNotesMsgSection">
+                    	<div><b> Case Notes </b></div> 
+                        <div class="slds-p-vertical_small" aura:id="mnmsgCase"></div>
+                        <div><b> Account Notes </b></div> 
+                        <div class="slds-p-vertical_small" aura:id="mnmsgAcc"></div>
+                    </div>
+                </div> 
+            </div> 
+            <!-- grind ends here -->
+            <aura:if isTrue="{!v.violationPerms}">
+                <!-- adding new grid for SEND MESSAGE here  -->
+                <aura:if isTrue="{!v.sendMsgPerms}">
+                    <div class="disabled-section slds-p-bottom_medium slds-is-relative petition-actions slds-border_left slds-border_right slds-border_bottom slds-border_top" 
+                         aura:id="petition-message" id="petition-actions">                  
+                        <div class="">
+                            <div class="petition-actions-header-main slds-grid slds-m-bottom_none slds-p-left_large slds-p-right_large slds-p-top_large">
+                                <div class="slds-media slds-media_center slds-has-flexi-truncate" >
+                                    <div class="slds-media__figure slds-align-top">
+                                        <h2><lightning:icon iconName="utility:email" class="slds-icon_container slds-icon-utility-announcement" title=""/></h2>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <!-- Inserts the user's current number, pulled from the flow, into the script -->
+                                        <ui:outputRichText class="petition-actions-header" value="Send Message"/>                        
+                                    </div>
+                                    <lightning:icon aura:id="editMsgClick" onclick="{!c.editMsgClick}" class="slds-hide thor-cursor-pointer" iconName="utility:edit" size="x-small" />
+                                </div>
+                            </div>   
+                            <div class="send-msg slds-hide slds-p-left_large slds-p-right_large" aura:id="sendMsg">
+                                <lightning:combobox class="slds-p-bottom_small" id="msgLanguage" aura:id="msgLanguage" name="msgLanguage" label=""
+                                                    placeholder="Select message language"
+                                                    value="{!v.msgLanguageVal}"  
+                                                    onchange="{!c.handleMsgLocaleChanged}"
+                                                    options="{!v.msgLanguageOptions}"/>
+                                <!-- Email MSG Starts -->
+                                <aura:if isTrue="{!v.supportedMsgType.isEmail}">
+                                    <lightning:combobox class="disabled-section slds-p-bottom_small" id="emailMsgTemplateCMB" aura:id="emailMsgTemplateCMB" name="emailMsgTemplateCMB" label="Email Message to Player"
+                                                        placeholder="Select Email Message Template"
+                                                        value="{!v.emailTemplateVal}"  
+                                                        onchange="{!c.handleEmailTemplateChanged}"
+                                                        options="{!v.emailTemplateOptions}"/> 
+                                    <!-- Expand Icon -->
+                                    <lightning:icon aura:id="expandEmailMsgClick" onclick="{!c.expandEmailMsgClick}" class="thor-expand-icon thor-cursor-pointer" iconName="utility:expand" size="small" />
+                                    
+                                    <div aura:id="emailMessageMain" class="email-message-editor">
+                                        <div aura:id="emailPopContainer" class=" ">
+                                            <div aura:id="emailPopHeader" class=" ">
+                                            	<lightning:icon aura:id="contractEmailMsgClick" onclick="{!c.contractEmailMsgClick}" class="slds-hide thor-cursor-pointer" iconName="utility:contract" size="small" />
+                                            </div>
+                                            <div aura:id="emailPopContent" class="">
+                                            	<lightning:inputRichText onblur="{!c.emailMsgBlurEvt}" messageWhenBadInput="{!v.errorMessageEmail}" aura:id="emailMsgTmplId" value="{!v.emailMsgTmpl}" placeholder="Email Message"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </aura:if>
+                                <!-- Email Msg End -->
+                                <!--  In Game MSG Player -->
+                                <aura:if isTrue="{!v.supportedMsgType.isInGame}">
+                                    <lightning:combobox class="disabled-section slds-p-bottom_small" id="inGameMsgTemplate" aura:id="inGameMsgTemplate" name="inGameMsgTemplate" label="In-Game Message to Player"
+                                                        placeholder="Select In-Game Message Template"
+                                                        value="{!v.inGameTemplateVal}"  
+                                                        onchange="{!c.handleInGameTemplateChanged}"
+                                                        options="{!v.emailTemplateOptions}"/>
+                                    <lightning:icon aura:id="expandIngameMsgClick" onclick="{!c.expandIngameMsgClick}" class="thor-expand-icon thor-cursor-pointer" iconName="utility:expand" size="small" />
+                                    
+                                    <div aura:id="ingameMessageMain" class="ingame-message-editor" >                                        
+                                        <div aura:id="ingamePopContainer" class=" ">
+                                            <div aura:id="ingamePopHeader" class=" ">
+                                                <lightning:icon aura:id="contractIngameMsgClick" onclick="{!c.contractIngameMsgClick}" class="slds-hide thor-cursor-pointer" iconName="utility:contract" size="small" />                                            	
+                                            </div>
+                                        	<div aura:id="ingamePopContent" class=" ">
+                                            	<lightning:inputRichText onblur="{!c.inGameMsgBlurEvt}" messageWhenBadInput="{!v.errorMessageIngame}" aura:id="inGameMsgTmplId" value="{!v.inGameMsgTmpl}" placeholder="In Game Message"/>
+                                            </div>
+                                        </div>                                          
+                                    </div>
+                                </aura:if>
+                                <!-- In Game Msg End -->
+                                <lightning:spinner class="slds-hide" aura:id="msgLocaleSpinner" variant="brand" size="small"/> 
+                                <aura:if isTrue="{!v.isWorkOnCaseCmp != true}">
+                                    <lightning:button variant="neutral"
+                                                      class="slds-m-top_small full-width-btn"
+                                                      label="Save and Continue" title="Save and Continue"
+                                                      aura:id="sndMsgSaveCnt"
+                                                      onclick="{!c.sendMsgSaveContinue}" />
+                                </aura:if>
+                            </div>
+                            <div class="slds-p-top_small slds-p-left_large slds-p-right_large slds-hide" aura:id="emailingMsgSection">
+                                <div>
+                                    <b> Message Language: </b>
+                                    <span aura:id="snmsgLan"></span>
+                                </div>
+                                <aura:if isTrue="{!v.supportedMsgType.isEmail}">
+                                    <div class="slds-p-vertical_small">
+                                        <b> Email Message to Player: </b>
+                                        <div aura:id="snmsgEmailTempl"></div>
+                                    </div>
+                                </aura:if>
+                                <aura:if isTrue="{!v.supportedMsgType.isInGame}">
+                                    <div class="slds-p-vertical_small">
+                                        <b> In-Game Message to Player: </b>
+                                        <div aura:id="snmsgInGameTempl"></div>
+                                    </div>
+                                </aura:if>
+                            </div>
+                        </div>
+                    </div> 
+                </aura:if>
+                <!-- grind ends here  -->
+                
+                <!-- adding new grid for ADD ACTIONS here -->
+                <div class="disabled-section slds-hide slds-p-bottom_medium slds-is-relative petition-actions slds-border_left slds-border_right slds-border_bottom slds-border_top" 
+                     aura:id="petition-aditional-actions" id="petition-aditional-actions">
+                    <div class="">
+                        <div class="petition-actions-header-main slds-grid slds-m-bottom_none slds-p-left_large slds-p-right_large slds-p-top_large">
+                            <div class="slds-media slds-media_center slds-has-flexi-truncate" >
+                                <div class="slds-media__figure slds-align-top">
+                                    <h2><lightning:icon iconName="utility:add" class="slds-icon_container slds-icon-utility-announcement" title="Manage Content &amp; Penalities"/></h2>
+                                </div>
+                                <div class="slds-media__body">
+                                    <!-- Inserts the user's current number, pulled from the flow, into the script -->
+                                    <ui:outputRichText class="petition-actions-header" value="Add Case Actions"/>                        
+                                </div>
+                                <lightning:icon class="slds-hide" iconName="utility:edit" size="x-small" />
+                            </div>
+                        </div>   
+                    </div>
+                    <div class="additional-action slds-hide" aura:id="addlnActnSec"> 
+                        <lightning:combobox id="additionalAction" aura:id="additionalAction" name="additionalAction" label="Optional"
+                                            placeholder="Select aditional action"
+                                            value=""
+                                            onchange="{!c.handleAditionalActions}"                                    
+                                            options="{!v.aditionalActions}"/>
+                    </div>
+                </div>
+                <div class="disabled-section slds-p-vertical_medium slds-p-left_large slds-p-right_large" aura:id="commitActionSection">
+                    <aura:if isTrue="{!v.isWorkOnCaseCmp != true}">
+                        <lightning:button variant="brand"
+                                          aura:id="commit_button"
+                                          class="full-width-btn disableButton"
+                                          label="Commit" title="Commit" 
+                                          onclick="{!c.handleCommitActionSection }" />
+                    </aura:if>
+                </div>
+                <!-- grind ends here  -->
+            </aura:if>
+        </div>
+    </aura:if>
+<!--  thor-492 end -->
+<!-- THOR-1221 Starts-->
+    <c:SendMsgPopUp aura:id="sendMsgpopUpCmp" emailMsgTmpl="{!v.emailMsgTmpl}" sendMsgPreviewFlg="{!v.sendMsgPreviewFlg}" inGameMsgTmpl="{!v.inGameMsgTmpl}"/>
+    <!-- THOR-1221 Ends-->
+    <div class="slds-text-align_center">
+        <lightning:spinner class="slds-is-absolute slds-hide" aura:id="petitionSpinner" variant="brand" size="small"/>
+    </div>
+</aura:component>

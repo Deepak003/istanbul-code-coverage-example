@@ -1,0 +1,74 @@
+<aura:component access="global">
+    <aura:attribute name="caseUpdatesFilteredList" type="List" default="[]"/>
+    <aura:attribute name="cmpName" type="String" default=""/>
+    <aura:attribute name="columns" type="List" default="[]"/>
+    <aura:if isTrue="{!not(empty(v.caseUpdatesFilteredList))}">
+    
+    <div class="slds-grid backgroundColor slds-m-top_small gridHeight">
+          <!-- Commenting as part of TSM-2811-->
+        <!-- <div class="slds-size_1-of-12 slds-p-left_x-small slds-p-right_large" style="margin:auto">
+            <ui:inputCheckbox aura:id="headerBox" value="" class=""/>
+        </div> -->
+        <div class=" slds-size_2-of-12 slds-p-left_small" style="margin:auto">
+            <span class="headerColor slds-truncate ">{!v.columns[0].label}</span>
+        </div>
+        <div class=" slds-size_6-of-12" style="margin:auto">
+            <span class="headerColor slds-truncate ">{!v.columns[1].label}</span>
+        </div>
+        <div class=" slds-size_3-of-12 slds-p-left_small" style="margin:auto">
+            <span class="headerColor slds-truncate ">{!v.columns[2].label}</span>
+        </div>
+    </div>
+    <div class="bodySection">
+        <aura:iteration items="{!v.caseUpdatesFilteredList}" var="row" indexVar="idx">
+            <div class="{!'slds-grid gridHeight bodySection '+row.rowStyleClass}">
+                  <!-- Commenting as part of TSM-2811-->
+               <!-- <div class=" slds-size_1-of-12 slds-p-left_x-small slds-p-right_large slds-p-top_medium slds-p-bottom_medium">
+                    <ui:inputCheckbox aura:id="bodycheckbox" value="" class="slds-checkbox " disabled="{!row.disableCheckbox}"/>
+                </div>-->
+                <div class=" slds-size_2-of-12 slds-p-bottom_x-small slds-p-left_large slds-p-top_x-small">
+                  <div>
+                      <c:FormattedDateTime value="{!row.time}" format="only-date"/>
+                      <!--<lightning:formattedDateTime value="{!row.time}" year="numeric" month="numeric" day="numeric" timeZone="GMT" hour12="false"/>-->
+                  </div>
+                  <div>
+                      <lightning:formattedDateTime value="{!row.time}" hour="2-digit" minute="2-digit"/> UTC
+                      <!-- <c:FormattedDateTime value="{!row.time}" format="only-time"/> -->
+                      <!--<lightning:formattedDateTime value="{!row.time}" hour="2-digit" minute="2-digit" timeZone="GMT" hour12="false" class="secondLineRow"/> <span class="secondLineRow">&nbsp;GMT</span>-->
+                  </div> 
+                </div>
+                <div class="slds-size_6-of-12 activityMargin">
+                    <!--<span class="slds-truncate wrapText">-->
+                        <ui:outputRichText value="{!row.activity}" linkify="false"></ui:outputRichText>
+                    <!--</span>-->
+                </div>
+                <div class=" slds-size_3-of-12 slds-p-bottom_x-small slds-p-top_x-small">
+                    <aura:if isTrue="{!(row.rowStyleClass == 'suspiciousSuccessful' || row.rowStyleClass == 'showSuspiciousIcon') }">
+                        <div class="iconDivStyle">
+                            <lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="error" size="x-small" class="{!row.rowStyleClass == 'showSuspiciousIcon'?'':'iconStyle'}"/>
+                        </div>
+                    </aura:if> 
+                    <aura:if isTrue="{!row.rowStyleClass == 'suspiciousFailed'}">
+                        <div class="iconDivStyle">
+                            <lightning:icon iconName="utility:warning" alternativeText="Warning!" variant="warning" size="x-small" class="iconStyle"/>
+                        </div>
+                    </aura:if>
+                    <div class="slds-show_inline-block">                      
+                        <aura:if isTrue="{!row.email}">
+                            <div>{!row.email}</div>
+                            <aura:set attribute="else">
+                                <div>
+                                    {!row.ip}
+                                </div>
+                                <div class="secondLineRow">
+                                    {!row.location}
+                                </div>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+        </aura:iteration>
+    </div>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,59 @@
+<aura:component access="global" >
+    
+        
+    <aura:attribute name="headerText" type="String" default="Delete Confirmation"/>
+    <aura:attribute name="cancelText" type="String" default="Cancel"/>
+    <aura:attribute name="okText" type="String" default="Delete"/>    
+    <aura:attribute name="bodyText" type="String" default=""/>
+    <aura:attribute name="confirmStatus" type="String" default=""/>
+    
+    
+    <!--use boolean attribute for Store true/false value,
+    make default to "false" so modal box are not display on the load of component. 
+    --> 
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    
+    <!--Use "slds-m-around_xx-large" class to add standard X-Large padding to the component--> 
+    <!--<div class="slds-m-around_xx-large">-->
+        
+        
+        <!--Use aura:if tag to display Model Box, on the bese of conditions. [isOpen boolean attribute] -->   
+        <aura:if isTrue="{!v.isOpen}">
+            
+            <!--###### MODAL BOX Start######--> 
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- ###### MODAL BOX HEADER Start ######-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModel }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                            {! v.headerText }                     
+                        </h2>
+                    </header>
+                    <!--###### MODAL BOX BODY Part Start######-->
+                    <div class="slds-modal__content slds-p-around_medium slds-text-align_left" id="modal-content-id-1">
+                        <p><b>{! v.bodyText }</b></p>
+                    </div>
+                    <!--###### MODAL BOX FOOTER Part Start ######-->
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="{! v.cancelText }"
+                                          title="{! v.okText }"
+                                          onclick="{! c.closeModel }"/>
+                        <lightning:button variant="brand" 
+                                          label="{! v.okText }"
+                                          title="{! v.okText }"
+                                          onclick="{! c.likenClose }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            <!--###### MODAL BOX Part END Here ######-->
+            
+        </aura:if>
+    <!--</div>-->
+</aura:component>

@@ -1,0 +1,42 @@
+.THIS {
+    
+}
+
+
+/* ============= Modal Size CSS ==================== */
+
+
+.THIS .modal-small,
+.THIS .modal-large {
+	width: 50%;
+    margin: 0 auto;
+    height: calc(100% - 172px);
+    top: 130px;
+}
+
+.THIS .modal-small + .slds-backdrop_open,
+.THIS .modal-large + .slds-backdrop_open {
+    margin: 0 auto;
+    height: calc(100% - 172px);
+    top: 130px;
+}
+
+.THIS .slds-modal_small .slds-modal__container {
+    width: 50%;    
+}
+
+.THIS .modal-small .slds-modal__content {
+    /*height: calc(320px - 117px);*/
+}
+
+.THIS .modal-large .slds-modal__content {
+    /*height : calc(440px - 117px);*/
+}
+
+.THIS .modal-large .slds-modal__container {
+    width: 80%;
+}
+
+.THIS .modal-small .slds-modal__container {
+    width: 50%;
+}

@@ -1,0 +1,134 @@
+<aura:component controller="CaseInfoAuraController"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" extends="c:Base" access="global" > 
+    
+    <!-- Attributes required for child components -->
+    <!-- accountId required for : AccountTab, AccountSummary, CaseActivitySummary -->
+    <aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="caseObj" type="Object" /> <!-- TSM 1912 -->
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="accountSummary" type="Object"/>
+    <aura:attribute name="accountSnapDetails" type="Object"/>
+    <aura:attribute name="isShielded" type="Object"/>
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="selectedPlatform" type="Object" />
+    <aura:attribute name="selectedCategory" type="Object" />
+    
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="caseNumber" type="String"/>
+    <aura:attribute name="subject" type="String"/>
+    <aura:attribute name="channel" type="String" description="Case Channel Name"/>
+    
+    <aura:attribute name="selectedTab" type="String" default="one"/>
+    <aura:attribute name="loginHistoryData" type="Map" />
+    <aura:attribute name="selectedAccountSubTab" type="String" default="one"/> 
+	<aura:attribute name="transferCase" type="boolean" default="false" />
+	<aura:attribute name="isChatTransferRender" type="Boolean" default="false"/>
+
+    <!-- emailId required for : Email -->
+    <aura:attribute name="emailId" type="String"/>   
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="isAccountObject" type="boolean" default="False"/>
+    <aura:attribute name="isAgentIdUpdated" type="boolean" default="false"/>
+    <aura:handler name="viewAllEvent" event="c:ViewAccountEvent" action="{!c.handleOpenCase}"/>
+    <aura:handler name="viewAccountEvent" event="c:ViewAccountEvent" action="{!c.handleOpenAccount}"/>
+    <aura:handler name="sessionsOpenEvent" event="c:ViewAccountEvent" action="{!c.handleOpenSession}"/>    
+    
+    <aura:registerevent name="viewAccountNotesEvent" type="c:ViewAccountNotesEvent"/>
+    <aura:handler event="c:ProductSnapShotAction" action="{!c.currentProductChange}"/>
+    <aura:handler name="onVerification" event="c:AccountSecurityEvt" action="{!c.onAov}"/>
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    <lightning:conversationToolkitAPI aura:id="conversationKit" />
+    <aura:handler name="RefreshPersona" event="c:RefreshPersona" action="{!c.refreshAccountSummary}"/>
+    <aura:handler event="lightning:conversationAgentSend" action="{! c.onAgentSend}" />
+    <aura:handler name="render" value="{!this}" action="{!c.onRender}"/>
+    <aura:attribute name="isAccountLoading" type="Boolean" default="false" access="public"/>
+    
+    <!-- Attributes required for product tab to load -->
+    <aura:attribute name="customerOwnedMobileProduct" type="Object"/>
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="allProducts" type="Object"/>
+    <aura:attribute name="featuredProduct" type="Object" />
+
+    <lightning:layout multipleRows="true" class="petition-detail-container adding-base-top">
+        <lightning:layoutItem flexibility="auto" size="12">
+            <!-- TSM-2187 Adding alert -->
+            <c:NotificationUtilityAlert/>
+            <lightning:layout verticalAlign="space" class="slds-gutters slds-is-relative wrapper-min-height">
+                <lightning:layoutItem flexibility="auto" size="8" class="padding-right-null slds-is-relative"> 
+                    <lightning:tabset selectedTabId="{!v.selectedTab}" class="tsm-scrollable">
+                        <lightning:tab label="OVERVIEW" id="one" class="">   
+                            <div class="slds-is-relative overview-tab">                                
+                                <aura:if isTrue="{!v.isAccountLoading}">
+                                    <lightning:spinner variant="brand" size="small"/>
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{! not(v.nucleusId) }">
+                                            <c:AccountNonNuclesView accountId="{!v.accountId}" caseId="{! v.caseId}" /> 
+                                            <aura:set attribute="else">
+                                                <aura:if isTrue="{!v.accountSnapDetails !=undefined}"> 
+                                                    <!-- Passing nucleusId for the component since the component is querying with nucleus id on Account object at AccountActivitySummaryAuraCtl-->                         
+                                                    <div class="slds-border_bottom slds-m-bottom--large">
+                                                        <c:AccountSummary accountSummary="{!v.accountSummary}" accountId="{!v.accountId}" accountSnapDetails="{!v.accountSnapDetails}" isShielded="{!v.isShielded}" nucleusId="{!v.nucleusId}" caseId="{! v.caseId}" caseObj="{!v.caseObj}" loginHistoryData="{!v.loginHistoryData}"/>
+                                                    </div>
+                                                    <div class="slds-border_bottom slds-m-bottom--large">
+                                                            <c:FraudCooldown nucleusId="{!v.nucleusId}" accountId="{!v.accountId}"  caseId="{! v.caseId }"/>
+                                                        </div>
+                                                    <c:AccountChangeHistory nucleusId="{!v.nucleusId}" isOverview="true" pillsFilterList="[{label:'Last 7 days',value:'SevenDays'}]" caseId="{! v.caseId }" hideAccountData="{!v.channel == 'Email' ? true : v.accountSnapDetails.isUnAuthenticated == undefined ? v.accountSnapDetails.isAovVerified : and(v.accountSnapDetails.isAovVerified, not(v.accountSnapDetails.isUnAuthenticated))}"/>                                                    
+                                                </aura:if>
+                                            </aura:set> 
+                                        </aura:if>
+                                    </aura:set>
+                                </aura:if>
+                            </div>
+                        </lightning:tab>
+                        <aura:if isTrue="{!v.nucleusId}">
+                            <lightning:tab label="ACCOUNT" id="two">
+                                <div class="slds-is-relative overview-tab"> 
+                                    <lightning:spinner variant="brand" size="small" class="{! v.isAccountLoading ? 'slds-show' : 'slds-hide' }"/>
+                                    <aura:if isTrue="{!v.accountSnapDetails  !=undefined}"> 
+                                        <c:AccountSummary accountSummary="{!v.accountSummary}" accountId="{!v.accountId}" accountSnapDetails="{!v.accountSnapDetails}" isShielded="{!v.isShielded}" nucleusId="{!v.nucleusId}" caseId="{! v.caseId}" caseObj="{!v.caseObj}" loginHistoryData="{!v.loginHistoryData}"/>
+                                        <!-- Passing nucleusId and recordId for the component since the component is querying with nucleus id for Account notes and recordId in place of case Id for Account basic Info--> 
+                                        <aura:if isTrue="{!v.accountSummary}">
+											<c:AccountTab selectedTab="{!v.selectedAccountSubTab}" accountSummary="{!v.accountSummary}" caseObj="{!v.caseObj}" accountId="{! v.accountId}" nucleusId="{! v.nucleusId}" caseId="{!v.caseId}" isAccountObject="{! v.isAccountObject}" hideAccountData="{!v.channel == 'Email' ? true : v.accountSnapDetails.isUnAuthenticated == undefined ? v.accountSnapDetails.isAovVerified : and(v.accountSnapDetails.isAovVerified, not(v.accountSnapDetails.isUnAuthenticated))}" />
+										</aura:if>
+                                    </aura:if>
+                                </div>
+                            </lightning:tab>
+                            <lightning:tab label="PRODUCT" id="three">
+                                <!-- Passing nucleusId and recordId for the component since the component is querying with nucleus id for Account notes and recordId in place of case Id for Account basic Info--> 
+                                <div class="slds-is-relative overview-tab">
+                                    <aura:if isTrue="{!v.featuredProduct != undefined}"> 
+                                        <!-- Passing nucleusId and recordId for the component since the component is querying with nucleus id for Account notes and recordId in place of case Id for Account basic Info--> 
+                                        <c:ProductTab featuredProduct="{!v.featuredProduct}" customerProduct="{!v.customerProduct}" accountId="{! v.accountId}" caseId="{!v.caseId}" email="{!v.emailId}" nucleusId="{!v.nucleusId}" allProducts="{!v.allProducts}" selectedProduct="{!v.selectedProduct}"  selectedPlatform="{!v.selectedPlatform}"  selectedCategory="{!v.selectedCategory}" hideAccountData="{!v.channel == 'Email' ? true : v.accountSnapDetails.isUnAuthenticated == undefined ? v.accountSnapDetails.isAovVerified : and(v.accountSnapDetails.isAovVerified, not(v.accountSnapDetails.isUnAuthenticated))}" /> 
+                                    </aura:if>
+                                </div>
+                            </lightning:tab>
+                        </aura:if>
+                        <lightning:tab label="CASES" id="four">
+                            <c:CaseTab caseId="{!v.caseId}" accountId="{! v.accountId}" nucleusId="{!v.nucleusId}" />                            
+                        </lightning:tab>
+                    </lightning:tabset>     
+                </lightning:layoutItem>
+                
+                <lightning:layoutItem flexibility="auto" size="4" class="c-layoutBackground tsm-scrollable chat-wrapper-margin wrapper-min-height">
+                    <!-- TSM-2187 Adding alert -->
+                    <c:NotificationUtilityAlert/>
+                    <!-- TSM-2418 Adding KB Enhancements -->
+                    <lightning:tabset selectedTabId="caseActions">
+                        <lightning:tab label="ACTIONS" id="caseActions">
+                        <aura:if isTrue="{!v.caseId != undefined}"> 
+                            <c:CaseActionTSM transferChatCase="{!v.transferCase}" caseObj="{!v.caseObj}" caseId="{!v.caseId}"  caseType="chat" outboundEmailVO ="{!v.outboundEmailVO}" accountId="{!v.accountId}" nucleusId="{!v.nucleusId}" recordId="{!v.recordId}" />
+                        </aura:if>
+                        </lightning:tab>
+                        <lightning:tab label="ARTICLES" id="suggestedArticles">
+                            <!-- TSM-2418 Adding Suggested Articles -->
+                            <c:SuggestedArticles caseId="{! v.caseId }" selectedProduct="{!v.selectedProduct}" selectedPlatform="{!v.selectedPlatform}" selectedCategory="{!v.selectedCategory}"/>
+                        </lightning:tab>
+                    </lightning:tabset>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </lightning:layoutItem>
+    </lightning:layout>    
+    
+</aura:component>

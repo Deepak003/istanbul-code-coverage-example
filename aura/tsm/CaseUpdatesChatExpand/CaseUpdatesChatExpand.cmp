@@ -1,0 +1,7 @@
+<aura:component >
+	<aura:attribute name="chat" type="String"/>
+    
+    <strong>TODO: Expanded state will be defined in sprint 2 under Chat Epic</strong>
+
+	<c:CaseUpdatesNotesExpand notes="{! v.chat.notes }" actions="{! v.chat.actions }" /> 
+</aura:component>

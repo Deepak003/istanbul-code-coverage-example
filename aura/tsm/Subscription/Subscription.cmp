@@ -1,0 +1,98 @@
+<aura:component controller="SubscriptionsAuraCtl">
+    
+    <aura:attribute name="inactiveSubscriptions" type="List" />
+    <aura:attribute name="activeSubscription" type="Object" />
+    <aura:attribute name="inactiveNucleusSubscriptions" type="List" />
+    <aura:attribute name="activeNucleusSubscription" type="Object" />
+    <aura:attribute name="eaAccessSubscription" type="List" />
+    <aura:attribute name="nucleusId" type="String"/> 
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="showAddSubscription" type="Boolean" default="false"/>
+    <aura:attribute name="showSubscriptionButton" type="Boolean" default="true"/>
+    <aura:attribute name="billingAccList" type="List" default=""/>
+    <aura:attribute name="originSubscriptionOptions" type="List" access="private"/>
+	<aura:attribute name="accountId" type="String"/>
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/>
+    
+    <aura:handler event="c:RefreshSubscription" action="{!c.doInit}"/>
+    <aura:handler event="c:AddSubscriptionEvent" action="{!c.closeModal}"/>
+    
+    <aura:handler name="change" value="{! v.activeSubscription }" action="{! c.setUpcomingSubscriptionOption }"/>
+    <aura:handler name="change" value="{! v.originSubscriptionOptions }" action="{! c.setUpcomingSubscriptionOption }"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="Map" />
+    
+    <div class="slds-is-relative">
+        
+        <TEXTAREA ID="holdtext" class="hide-textarea">
+            https://integration.www.x.origin.com/store/origin-access/wwce
+        </TEXTAREA>
+        
+        <!-- origin access subscriptions -->
+        <div class="slds-grid slds-m-bottom_small">
+            <div class="slds-size_8-of-12">
+                <lightning:formattedText value="ORIGIN ACCESS SUBSCRIPTIONS" class="slds-text-title_caps labelColor slds-float_left"/>
+            </div>
+            <div class="slds-size_4-of-12 slds-text-align_right slds-text-body_small">
+                <a onclick="{!c.copy}">Copy Secure Purchase Link</a>
+            </div>
+        </div>
+        <lightning:spinner alternativeText="Loading" size="small" aura:id="subscriptionSpinner" variant="brand" class="slds-hide"/>
+        <aura:if isTrue="{!not(empty(v.activeSubscription)) || not(empty(v.inactiveSubscriptions))}">
+            <!--<aura:if isTrue="{!not(empty(v.subscriptionType))}">-->
+            <c:SubscriptionAccordion accountMaskingList="{!v.accountMaskingList}" currentSubscription="{!v.activeSubscription}" caseId="{!v.caseId}" previousSubscriptions="{!v.inactiveSubscriptions}" subscriptionType="Origin" onClickAddSubscription="{!c.AddSubscription}"
+                                     nucleusId="{!v.nucleusId}" billingAccList="{!v.billingAccList}" accountId="{!v.accountId}" />
+            <!--</aura:if>-->
+        </aura:if>
+        <div aura:id="originEmptyState" class="slds-hide slds-m-bottom_medium">
+            <div class="slds-text-body_regular slds-m-bottom_medium">No subscription</div>
+            <aura:if isTrue="{!v.showSubscriptionButton}">
+                <lightning:button label="Add Subscription" title="Neutral action" class="slds-m-top_medium" onclick="{!c.AddSubscription}"/>
+                <aura:set attribute="else">
+                    No billing method found, 
+                    <!--<lightning:formattedUrl value="https://"  label="Copy Secure Purchase Link" />-->
+                    <lightning:button variant="base" class="buttonClass" label="Copy Secure Purchase Link" iconPosition="left" onclick="{!c.copy}"/>                    
+                </aura:set>
+            </aura:if>
+        </div>
+        
+        <!-- nucleus subscriptions -->
+        <div class="slds-grid slds-m-bottom_small">
+            <div class="slds-size_12-of-12">
+                <lightning:formattedText value="NUCLEUS SUBSCRIPTIONS" class="slds-text-title_caps labelColor slds-float_left"/>
+            </div>
+        </div>
+        <lightning:spinner alternativeText="Loading" size="small" aura:id="nucleusSubscriptionSpinner" variant="brand" class="slds-hide"/>
+        <aura:if isTrue="{!not(empty(v.inactiveNucleusSubscriptions))}">
+            <!--<aura:if isTrue="{!not(empty(v.subscriptionType))}">-->
+            <c:SubscriptionAccordion accountMaskingList="{!v.accountMaskingList}" currentSubscription="{!v.activeNucleusSubscription}" previousSubscriptions="{!v.inactiveNucleusSubscriptions}" subscriptionType="Nucleus"  nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+            <!--</aura:if>-->
+        </aura:if>
+        <div aura:id="nucleusEmptyState" class="slds-hide">
+            <div class="slds-text-body_regular slds-m-bottom_medium">No subscription</div>
+            <!--<lightning:button label="Add Subscription" title="Neutral action" onclick="{! c.handleClick }" class="slds-m-top_medium"/>-->
+        </div>
+        
+        
+        <!-- ea access subscriptions  -->
+        <div class="slds-grid slds-m-bottom_small">
+            <div class="slds-size_12-of-12">
+                <lightning:formattedText value="EA ACCESS SUBSCRIPTIONS" class="slds-text-title_caps labelColor slds-float_left"/>
+            </div>
+        </div>
+        <lightning:spinner alternativeText="Loading" size="small" aura:id="eaAccessSubscriptionSpinner" variant="brand" class="slds-hide"/>
+        <aura:if isTrue="{!not(empty(v.eaAccessSubscription))}">
+            <aura:iteration items="{!v.eaAccessSubscription}" var="eaSubscription"> 
+                <c:SubscriptionAccordion accountMaskingList="{!v.accountMaskingList}" currentSubscription="{!eaSubscription}" subscriptionType="EAAccess" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+            </aura:iteration>
+        </aura:if>
+        <div aura:id="eaAccessEmptyState" class="slds-hide">
+            <div class="slds-text-body_regular slds-m-bottom_medium">No subscription</div>
+        </div>
+    </div>
+    <aura:if isTrue="{!v.showAddSubscription}">
+        <c:AddSubscription nucleusId="{!v.nucleusId}" billingAccList="{!v.billingAccList}" caseId="{!v.caseId}"  accountId="{!v.accountId}" />
+    </aura:if>
+</aura:component>

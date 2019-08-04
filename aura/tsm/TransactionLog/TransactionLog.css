@@ -1,0 +1,38 @@
+.THIS {
+}
+.THIS .lightning-spinner .slds-spinner_container .slds-show {
+   display:contents;
+}
+.THIS .slds-text-heading_medium{
+    font-weight:normal;
+}
+.THIS .headerfontSize {
+    font-size : 12px;
+}
+.THIS .header {
+    color: #706e6b;
+}
+
+.THIS .headerCaps::first-letter {
+    text-transform: capitalize;
+}
+.THIS .lowerCase {
+    font-size : 12px;
+    text-transform: lowerCase;
+}
+.THIS .capitalize {
+    text-transform: capitalize;
+}
+.THIS .fontBold {
+    font-weight : bold;
+}
+.THIS .leftPadding {
+   padding-left : 25px;
+}
+.THIS .modalBody{
+    height:60%;
+    overflow:auto;
+}
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}

@@ -1,0 +1,120 @@
+<aura:component controller="AccountBillingAuraCtl" >
+    <aura:attribute name="nucleusId" type="Id" access="public"/>
+    <aura:attribute name="accountData" type="Map" access="public"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="accountId" type="Id"/>
+    <!-- This will set from: Billing, TransactionFiltering, PaymentOptions -->
+    <aura:attribute name="selectedPaymentOption" type="Map" access="public"/>
+    <aura:attribute name="invoicesRaw" type="List" access="private"/>     
+    <aura:attribute name="isInvoiceLoading" type="Boolean" access="private"/>
+    
+    <!-- This will set from: Billing, TransactionFiltering -->
+    <aura:attribute name="paymentOptionsRaw" type="List" access="private"/>
+    
+    <!-- This will set from: Billing, PaymentOptions -->
+    <aura:attribute name="invoiceSource" type="String" default="" access="private"/>
+    <aura:attribute name="invoicePageNumber" type="Integer" default="1" access="private"/>
+    <aura:attribute name="totalInvoiceCount" type="Integer" access="private" />
+
+	<!-- This will set from: PaymentHistory, PaymentOptions -->    
+    <aura:attribute name="invoiceType" type="String" access="private" default="" />
+    
+    <!-- This will set from: TransactionFiltering, PaymentOptions -->
+    <aura:attribute name="showPaymentSearchModal" type="Boolean" access="public"/>
+    
+    <!-- This will set from: Billing -->
+    <aura:attribute name="paymentOptions" type="List" access="private"/>
+    <aura:attribute name="invoices" type="List" access="private"/>
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private"/>
+    <aura:attribute name="isLoadedFirstTime" type="Boolean" default="false" access="private"/>
+    <aura:attribute name="isPaymentOptionLoading" type="Boolean" access="private"/>
+    <aura:attribute name="startDate" type="String" access="private"/>
+    <aura:attribute name="endDate" type="String" access="private"/>
+    <aura:attribute name="isOrfanSearch" type="Boolean" access="private"/>
+    
+    <aura:handler name="change" value="{! v.paymentOptionsRaw }" action="{!c.formatPaymentOptions}"/>
+    <aura:handler name="change" value="{! v.invoicesRaw }" action="{!c.formatInvoices}"/>    
+    <aura:handler name="change" value="{! v.invoicesRaw }" action="{!c.expandInvoice}"/>
+    <aura:handler name="change" value="{! v.invoicePageNumber }" action="{!c.onChangeInvoicePageNumber}"/>
+    <aura:handler name="change" value="{! v.isLoading }" action="{!c.onChangeLoading}"/>
+    <aura:handler name="change" value="{! v.invoiceType }" action="{!c.onChangeInvoiceType}"/>
+    
+    <aura:handler name="change" value="{! v.invoiceSource }" action="{!c.onChangeInvoiceSource}"/>
+    <aura:handler event="c:UpdateInvoiceRowEvent" action="{!c.handleUpdateInvoiceRow}" />
+    <aura:handler name="setInvoiceType" event="c:BillingEvt" action="{!c.setInvoiceType}"/>
+    <aura:handler name="searchByDate" event="c:BillingEvt" action="{!c.searchByDate}"/>
+    <aura:handler name="change" value="{! v.selectedPaymentOption }" action="{!c.onSelectedPaymentOptionChange}"/>
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="List" />
+    <aura:attribute name="isDeletePaymentInfo" type="Boolean" default="true"/>
+    <aura:attribute name="isEditPaymentInfo" type="Boolean" default="true"/>
+    <aura:attribute name="isIssueRefund" type="Boolean" default="true"/>
+    
+    <!--
+    <aura:set attribute="auraPreInitBlock">
+        <auraStorage:init
+          name="actions"
+          persistent="false"
+          secure="false"
+          maxSize="1024"
+          defaultExpiration="0"
+          defaultAutoRefreshInterval="0" />
+    </aura:set>-->
+    
+    <aura:if isTrue="{! v.isLoadedFirstTime }">
+        <!-- TSM-640 -->
+        <c:TransactionFiltering showModal="{! v.showPaymentSearchModal }"                              
+                                invoiceSource="{! v.invoiceSource }"
+                                invoices="{! v.invoicesRaw }"
+                                nucleusId="{! v.nucleusId }"
+                                totalInvoiceCount="{!v.totalInvoiceCount}"
+                                selectedPaymentOption="{! v.selectedPaymentOption }"
+                                accountData="{!v.accountData}"
+                                caseId="{!v.caseId}" />
+    </aura:if>
+    
+    <div class="slds-is-relative" style="min-height:100px">
+        <lightning:spinner variant="brand" size="small" aura:id="differentTabSpinner" class="slds-hide"/>
+        <aura:if isTrue="{! v.isLoading }">
+            <lightning:spinner variant="brand" size="small"/>
+            <aura:set attribute="else">
+                <aura:if isTrue="{! or(v.invoiceSource == 'search') }">
+                    <!-- Nothing -->
+                    <aura:set attribute="else">
+                        <!-- TSM-634 -->                      
+                        <c:PaymentOption paymentOptions='{!v.paymentOptions}'
+                                         isInvoiceLoading="{!v.isInvoiceLoading}"
+                                         invoicesRaw="{!v.invoicesRaw}"
+                                         totalInvoiceCount="{!v.totalInvoiceCount}"
+                                         invoicePageNumber="{!v.invoicePageNumber}"
+                                         invoiceSource="{!v.invoiceSource}"
+                                         showPaymentSearchModal="{!v.showPaymentSearchModal}"
+                                         isLoading="{!v.isPaymentOptionLoading}"
+                                         selectedPaymentOption="{!v.selectedPaymentOption}"
+                                         nucleusId="{! v.nucleusId }"
+                                         invoiceType="{!v.invoiceType}"
+                                         accountMaskingList="{!v.accountMaskingList}"
+                                         caseId="{!v.caseId}"
+                                         accountId="{!v.accountId}"/>
+                    </aura:set>  
+                </aura:if>
+                <!-- TSM-634 -->
+                <div class="slds-m-top_medium">
+                    <c:PaymentHistory nucleusId="{! v.nucleusId }"
+                                      invoices="{! v.invoices }" 
+                                      pageNumber="{! v.invoicePageNumber }" 
+                                      totalInvoiceCount="{!v.totalInvoiceCount}" 
+                                      isLoading="{!v.isInvoiceLoading}"
+                                      invoiceSource="{!v.invoiceSource}" 
+                                      selectedInvoiceType="{!v.invoiceType}"
+                                      accountMaskingList="{!v.accountMaskingList}"
+                                      caseId="{!v.caseId}"
+                                      accountId="{!v.accountId}"/>
+                </div>
+            </aura:set>   
+        </aura:if>
+    </div>    
+</aura:component>

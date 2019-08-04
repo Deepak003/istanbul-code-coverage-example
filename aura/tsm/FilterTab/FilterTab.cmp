@@ -1,0 +1,41 @@
+<aura:component >
+    <aura:attribute name="filterData" type="Object" />
+    <aura:attribute name="categoryVal" type="String" />
+    <aura:attribute name="productVal" type="String" />
+    <aura:attribute name="personaVal" type="String" />
+	<aura:attribute name="categories" type="List" 
+                    default="[{'label': 'New', 'value': 'new'},
+                             {'label': 'Category', 'value': 'category'},
+    						 {'label': 'Finished', 'value': 'finished'}]" />
+    <aura:attribute name="products" type="List" 
+                    default="[{'label': 'New', 'value': 'new'},
+                             {'label': 'Product', 'value': 'product'},
+    						 {'label': 'Finished', 'value': 'finished'}]" />
+    <aura:attribute name="personas" type="List" 
+                    default="[{'label': 'New', 'value': 'new'},
+                             {'label': 'Petition Age', 'value': 'petition-age'},
+    						 {'label': 'Finished', 'value': 'finished'}]" />
+    <aura:attribute name="selectedTabId" type="String"/>
+    <!-- Register FilterQueueEvt event handler to filter Queue data -->
+    <aura:registerEvent name="FilterQueueEvtApp" type="c:FilterQueueEvt"/>
+    <aura:handler name="change" value="{!v.filterData}" action="{!c.filterDataChanged}" /> 
+         
+	<lightning:layout verticalAlign="center" 
+                      class="slds-p-bottom_small slds-p-top_small slds-p-left_xx-large">
+    	<lightning:layoutItem class="slds-p-right_small">
+        	<lightning:combobox aura:id="filterCateg" id="filterCategory" name="category" value="" 
+                        placeholder="Categories" options="{! v.filterData.categories }"
+                                onchange="{!c.categorySelected}" />
+        </lightning:layoutItem>
+        <lightning:layoutItem class="slds-p-right_small">
+        	<lightning:combobox aura:id="filterProd" id="filterProduct" name="product" value="" 
+                        placeholder="Products" options="{! v.filterData.products }"
+                                onchange="{!c.productSelected}" />
+        </lightning:layoutItem>
+        <lightning:layoutItem class="slds-p-right_small">
+        	<lightning:combobox aura:id="filterPersona" id="filterPersona" name="petition-age" value="" 
+                        placeholder="Target personas" options="{! v.filterData.personas }"
+                                onchange="{!c.personaSelected}" />
+        </lightning:layoutItem>
+    </lightning:layout>
+</aura:component>

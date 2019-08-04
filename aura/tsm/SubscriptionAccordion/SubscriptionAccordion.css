@@ -1,0 +1,96 @@
+.THIS .originAvatar img{
+    width:18px;
+    height:24px;
+}
+
+.THIS.backgroundColor{
+    /*background-color:#F5F8FA;*/
+}
+
+.THIS.backgroundColor svg{
+    fill:grey;
+}
+
+.THIS .fontStyle{
+    color:#706E6B;
+    font-size:10px;
+}
+.THIS .lineHeight{
+    line-height:15px;
+}
+.THIS .buttonMenuMargin{
+    margin-top:-31px;
+}
+.THIS .badgeMarginOrigin{
+    margin-right: 40px;
+}
+.THIS .badgeBackground{
+    background-color:#4BCA81;
+    color:white;
+    position:absolute;
+    right:0;
+    top:5px;
+}
+.THIS .badgeBackground_yellow {
+    background-color:orange;
+}
+.THIS .edit-field-label{
+   color:#706E6B; 
+}
+
+/**
+ * 	 Common css for all child components
+ * =========================================
+ **/
+
+/* ================================ Table headings ================================ */
+
+.THIS .tsm-table-heading {    
+    background-color: #FAFAF9;
+    line-height: 32px; 
+}
+
+.THIS .tsm-table-heading_label {
+    line-height: 32px; 
+    vertical-align: middle;
+    font-size: 12px;
+    color: #514f4d;
+}
+
+/* Table row */
+.THIS .tsm-table-row {
+   height: 50px;
+}
+
+.THIS .tsm-table-row_success {
+	background-color: #D8D8D8;
+}
+
+.THIS .tsm-table-row_suspcious-failed {
+	background-color: #FFF8E1;
+}
+
+.THIS .tsm-table-row_suspcious-success {
+	background-color: #D4162D;
+}
+
+/* =================================== Table column ==================================== */
+
+.THIS .tsm-table-col {
+    display: flex;
+}
+
+.THIS .tsm-table-col_text-primary-item {
+    font-size: 12px;
+    color: #2B2826;
+}
+
+.THIS .tsm-table-col_text-sub-item {
+    font-size: 10px;
+    color: #706E6B;
+}
+
+.THIS .tsm-table-expand-heading_label {
+    font-size: 12px;
+    color: #706E6B;
+}

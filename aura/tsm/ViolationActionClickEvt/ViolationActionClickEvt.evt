@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Violation Action Click event">
+    <aura:attribute name="violationFlag" type="boolean" default="false" />
+    <aura:attribute name="lstOfViolationMsg" type="Array" default="[]" />
+</aura:event>

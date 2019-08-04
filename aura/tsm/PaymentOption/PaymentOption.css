@@ -1,0 +1,34 @@
+.THIS {
+	min-height: 100px;
+}
+
+.THIS .billing-icon {
+    width : 24px; 
+    /*height : 20px;*/
+}
+
+.THIS .active-badge {
+    background: #61CC80;
+}
+
+.THIS .disabled-badge {
+    background: #EBA932;
+}
+
+.THIS .expired-badge {
+    background: #C61134;
+}
+
+.THIS .single-payment .slds-item {
+	padding: 12px;
+    min-height: 100px;
+    cursor: pointer;
+}
+
+.THIS .payment-card-body {
+    
+}
+
+.THIS .selected-payment-card .slds-item {
+    border : 1px solid blue;
+}

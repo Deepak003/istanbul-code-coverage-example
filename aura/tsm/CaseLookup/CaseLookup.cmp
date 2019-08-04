@@ -1,0 +1,83 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"  access="global" controller="CaseManagementAuraController"> <!--controller="CaseQueryByRecordTypeAuraCtl" -->
+    <!--declare attributes--> 
+    <aura:attribute name="selectedRecord" type="sObject" default="{}" description="Use,for store SELECTED sObject Record"/>
+    <aura:attribute name="listOfSearchRecords" type="List" description="Use,for store the list of search records which returns from apex class"/>
+    <aura:attribute name="listOfSearchRecordsLast" type="List" description="Last search records"/>
+    <aura:attribute name="SearchKeyWord" type="string" default=""/>
+    <aura:attribute name="objectAPIName" type="string" default=""/>
+    <aura:attribute name="IconName" type="string" default=""/>
+    <aura:attribute name="label" type="string" default=""/>
+    <aura:attribute name="placeHolder" type="string" default=""/>
+    <aura:attribute name="Message" type="String" default=""/>
+    <aura:attribute name="oRecord" type="sObject" />
+    <aura:attribute name="sRecord" type="sObject" />
+    <aura:attribute name="eventType" type="String" default=""/>
+    <aura:attribute name="required" type="String" default="false"/>
+    <aura:attribute name="tpFlag" type="Boolean" default="false"/>
+    <aura:attribute name="dependentEVType" type="String" default=""/>
+    <aura:attribute name="listOfLastViewed" type="List" description="search records order by LastViewedDate"/>
+    
+    <!--declare events hendlers-->    
+    <aura:registerEvent name="ProductSelection" type="c:ProductSelectEventApp"/>    
+    <aura:handler event="c:ProductSelectEventApp" action="{!c.productSelectEvent}"/>
+    <aura:handler name="change" value="{! v.listOfSearchRecords }" action="{! c.updateListOfSearchRecordsOrderByLastViewedDate }"/>
+    <aura:handler name="change" value="{! v.SearchKeyWord }" action="{! c.handleEmpty }"/>
+    
+    <!-- https://www.lightningdesignsystem.com/components/lookups/ --> 
+
+    
+    <div onmouseleave="{!c.onblur}" aura:id="searchRes" class="slds-form-element slds-lookup slds-is-close" data-select="single">
+        <aura:if isTrue="{!v.label}">
+            <label class="slds-form-element__label" for="lookup-348">{!v.label}</label>
+        </aura:if>
+        <!--This part is for display search bar for lookup-->  
+        <div class="slds-form-element__control">
+            
+            <div class="slds-input-has-icon slds-input-has-icon--right">
+                
+                <aura:if isTrue="{! empty(v.oRecord) }">
+                    <lightning:icon class="slds-input__icon" iconName="utility:search" size="x-small" alternativeText="search"/>
+                </aura:if>
+                <aura:if isTrue="{! !empty(v.oRecord) }">
+                    <div class="close-icon" onclick="{!c.closeIconClick}">
+                        <lightning:icon class="slds-input__icon" iconName="utility:close" size="x-small" alternativeText="close"/>
+                    </div>                    
+                </aura:if>               
+                
+
+                <!-- This markup is for when an record is selected -->
+                <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                    <lightning:pill class="pillSize" label="{!v.selectedRecord.Name}" name="{!v.selectedRecord.Name}" onremove="{! c.clear }">
+                        <aura:set attribute="media">
+                            <lightning:icon iconName="{!v.IconName}" size="x-small" alternativeText="{!v.IconName}"/>
+                        </aura:set>
+                    </lightning:pill>
+                </div>
+                <div aura:id="lookupField" class="slds-show" id="{!v.eventType}">
+                    
+                    <ui:inputText click="{!c.onfocus}" updateOn="keyup" keyup="{!c.keyPressController}" 
+                                  class="slds-lookup__search-input slds-input" 
+                                  value="{!v.SearchKeyWord}" placeholder="{!v.placeHolder}"
+                                  required="{!v.required}"  />
+                </div>   
+            </div>
+        </div>
+        <!--This part is for Display typehead lookup result List-->  
+        <ul style="min-height:40px;margin-top:0px !important; max-height:20rem;" class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid slds-lookup__menu slds slds-scrollable_y" role="listbox">
+            <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="mySpinner"/>
+            <center> {!v.Message}</center>            
+            <aura:iteration items="{! v.SearchKeyWord == '' ? v.listOfLastViewed : v.listOfSearchRecords }" var="singleRec">                
+            <!-- <aura:iteration items="{! v.listOfLastViewed }" var="singleRec">                 -->
+                <li role="presentation" data-id="{!singleRec.Id}" class="slds-listbox__item" onclick="{!c.selectRecord}">
+                    <span id="listbox-option-unique-id-01" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                        <span class="slds-media__body">  
+                            <span class="slds-listbox__option-text slds-listbox__option-text_entity">
+                                {!singleRec.Name}
+                            </span>
+                        </span>
+                    </span>
+                </li>                                    
+            </aura:iteration>
+        </ul>
+    </div>    
+</aura:component>

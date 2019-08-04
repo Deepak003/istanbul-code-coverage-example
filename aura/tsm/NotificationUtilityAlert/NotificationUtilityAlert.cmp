@@ -1,0 +1,12 @@
+<aura:component controller="NotificationAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global"> 
+    <!-- Local variable -->     
+    <aura:attribute name="notificationCount" type="Integer" default="0"/>
+    
+    <!-- Register Handlers --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{!v.notificationCount}" action="{!c.updateUtilityBar}"/>
+    <aura:handler event="c:AcknowledgementAlertEvent" action="{!c.init}"/>   
+    
+    <!-- Utility bvar API --> 
+    <lightning:utilityBarAPI aura:id="utilitybar" />
+</aura:component>

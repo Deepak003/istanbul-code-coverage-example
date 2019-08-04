@@ -1,0 +1,141 @@
+<aura:component controller="SubscriptionsAuraCtl">
+    <aura:attribute name="subscription" type="Object" access="public"/>
+    <aura:attribute name="subscriptionOptions" type="List" access="public" default=""/>
+    <aura:attribute name="modifySubscriptionObj" type="Object" access="public"/>
+    <aura:attribute name="selectedSubsOption" type="String" access="public" default=""/>
+    <aura:attribute name="caseId" type="String" access="public"/>
+    <aura:attribute name="nucleusId" type="String" access="public"/>
+    <aura:attribute name="memberAccLabel" type="String" access="public"/>
+    <aura:attribute name="billingAccountOptions" type="List" access="public"/>
+    <aura:attribute name="selectedBillingAccountId" type="String" access="public" default=""/>
+    <aura:attribute name="billingAccountName" type="String" access="public"/>
+    <aura:attribute name="showModifySubSection" type="Boolean" default="true"/>
+    <aura:attribute name="enableNextButton" type="boolean" default="true"/>
+    <aura:attribute name="isDisabled" type="boolean" default="false"/>
+	 <aura:attribute name="accountId" type="String"/>
+    
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+      <aura:registerEvent name="refundSubscriptionEventAction" type="c:RefundSubscriptionEvent"/> 
+    
+    <aura:if isTrue="{!v.showModifySubSection}">
+        <div class="slds-is-relative">
+            <section role="dialog" class="slds-modal slds-fade-in-open modal-large backdropClass" aura:id="dialog">
+                <div class="slds-modal__container">        
+                    <header class="widthClass slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 class="slds-text-heading_medium slds-hyphenate" style="font-weight:normal;">
+                            Modify Subscription
+                        </h2>
+                    </header>
+                    <div class="modalbody slds-is-relative slds-modal__content slds-modal__content slds-p-left_xx-large 
+                                slds-p-right_xx-large slds-p-top_large slds-p-bottom_large" style="padding-bottom: 100px;width:110%;" >
+                        
+                        <!--<lightning:spinner alternativeText="Loading..." size="large" variant="brand" class="slds-show footerSpinner" aura:id="spinnerIcon"/>-->
+                        <!-- product title -->
+                        <div class="backgroundColor">
+                            <b>Current: {!v.subscription.ofbItemTitle}</b>
+                        </div>
+                        
+                        <!-- Membership Options -->
+                        <div class="slds-m-top_medium">
+                            <lightning:combobox aura:id="membershipOption" name="membershipOption" label="New Subscription" value="{!v.selectedSubsOption}" placeholder="Select an Option" options="{! v.subscriptionOptions }" onchange="{!c.handleSubscriptionChange}"/>
+                        </div>
+                        
+                        <!-- modify subscription details data block-->
+                        <div class="slds-hide slds-m-top_small" aura:id="modifySubscriptionDataBlock">
+                            <div aura:id="textBlock">
+                                <p>Customer's Origin Access Membership is going to change from {!v.subscription.ofbItemTitle} to <b>{!v.memberAccLabel}</b>.
+                                </p>
+                            </div>
+                            <aura:if isTrue="{!v.modifySubscriptionObj.prorationAmount == '0'}">
+                                <div>The new membership change will take effect at the end of their current billing period.</div>
+                                <div>No refund will be issued.</div>
+                                <aura:set attribute="else">
+                                    <div>
+                                        <div>Upgrading the membership will take effect after payment is processed.</div>
+                                        <dl class="slds-list_horizontal slds-wrap slds-p-bottom_medium">
+                                            <dt class="slds-item_label slds-text-color_weak slds-truncate slds-p-top_small" title="New Membership Cost">New Membership Cost</dt>
+                                            <dd class="slds-item_detail slds-truncate slds-p-top_small">{!v.modifySubscriptionObj.membershipCost}* </dd>
+                                            <dt class="slds-item_label slds-text-color_weak slds-truncate slds-p-top_small" title="Today's Partial Refund">Today's Partial Refund</dt>
+                                            <dd class="slds-item_detail slds-truncate slds-p-top_small">{!v.modifySubscriptionObj.prorationAmount}</dd>
+                                            <dt class="slds-item_label slds-text-color_weak slds-truncate slds-p-top_small"></dt>
+                                            <dd class="slds-item_detail slds-truncate slds-p-top_small">*Tax may be added at checkout, depending on where the <br/>
+                                                                                                         player lives.</dd>
+                                        </dl>
+                                    </div>
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                        
+                        <div class="backgroundColor slds-m-top_large">
+                            <b>Current Payment Method: {!v.billingAccountName}</b>
+                        </div>
+                        
+                        <!-- Membership Options -->
+                        <div class="slds-m-top_medium">
+                            <lightning:combobox aura:id="billingAccount" name="billingAccount" label="New Billing Account(optional)" value="{!v.selectedBillingAccountId}" placeholder="Select an option" options="{! v.billingAccountOptions }"/>
+                        </div>
+                        
+                        <!--  <div  aura:id="reasonMessageBlock">
+                <lightning:textarea name="reasonField" label="Reason" placeholder="Enter message here"/>
+            </div>-->
+                    </div>    
+                    <footer class="widthClass slds-modal__footer">
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"
+                                          disabled="{!v.enableNextButton}"/>
+                        <lightning:button variant="brand" 
+                                          label="Save"
+                                          title="Save"
+                                          onclick="{! c.onClickModifySubscription }"
+                                          disabled="{!v.enableNextButton}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open backdropClass"></div>    
+        </div>
+        <aura:set attribute="else">
+            <div class="slds-is-relative">
+                <section role="dialog" class="slds-modal slds-fade-in-open modal-large backdropClass" aura:id="dialog">
+                    <div class="slds-modal__container">        
+                        <header class="widthClass slds-modal__header">
+                            <lightning:buttonIcon iconName="utility:close"
+                                                  onclick="{! c.closeModal }"
+                                                  alternativeText="close"
+                                                  variant="bare-inverse"
+                                                  class="slds-modal__close"/>
+                            <h2 class="slds-text-heading_medium slds-hyphenate" style="font-weight:normal;">
+                                Modify Subscription
+                            </h2>
+                        </header>
+                        <div class="modalbody slds-is-relative slds-modal__content slds-modal__content slds-p-left_xx-large 
+                                    slds-p-right_xx-large slds-p-top_large slds-p-bottom_large" style="padding-bottom: 100px;width:110%;height:40%;">
+                            <span style="margin-left:7%"><b>Customer does not have a saved billing account.</b></span>
+                            <br/>
+                            <div class="slds-m-top_medium" style="margin-left:7%">
+                                You can prompt them to update their subscription through a secure purchase portal by
+                                <lightning:button variant="base" class="buttonClass" label="Copy Secure Purchase Link" iconPosition="left" onclick="{!c.copy}"/>
+                                <TEXTAREA ID="holdtext" style="width: 0px; height: 0px; opacity: 0;">
+                                    https://integration.www.x.origin.com/store/origin-access/wwce
+                                </TEXTAREA>
+                            </div>
+                        </div>    
+                        <footer class="widthClass slds-modal__footer">
+                            <lightning:button variant="neutral" 
+                                              label="Close"
+                                              title="Close"
+                                              onclick="{! c.closeModal }"/>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open backdropClass"></div>    
+            </div>
+        </aura:set>
+    </aura:if>
+</aura:component>

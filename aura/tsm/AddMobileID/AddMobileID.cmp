@@ -1,0 +1,114 @@
+<aura:component controller="MobileProductAuraCtl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="addmobileId" type="boolean" description="Used to manipulate Modal Box"/>
+    <aura:attribute name="associatedGamerResponse" type="Object" description="Used to manipulate Modal Box"/>
+    <aura:attribute name="items" type="List" default="" description="Data shown in the modal box"/>
+    <aura:attribute name="cols" type="List" default="" description="Coloumns shown in the modal box"/>
+    
+    <aura:attribute name="gamerIdTypeName" type="String" default="" description="Stores gamerIdTypeName"/> <!-- FifaMobileId (selected value)-->
+    <aura:attribute name="gamerId" type="String" default="" description="Stores gamer ID"/> <!-- value entered in associated ID -->
+    <aura:attribute name="gamerIdType" type="String" default="" description="Stores gamerIdType"/> <!-- gamer identity type SFID-->
+    <aura:attribute name="nucleusId" type="String" default="" description="Stores Nucleus ID"/> 
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="productName" type="String"/>
+    <aura:attribute name="prodName" type="String"/>
+    <aura:attribute name="product" type="Object" />
+    <aura:attribute name="email" type="String" access="public" description="Player Email ID" />
+    <aura:attribute name="selectedProduct" type="String" access="public" description="Selected Product's Name"/>
+    <aura:attribute name="isIDLinked" type="boolean" default="false"/>
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <aura:registerEvent name="addMobileIDEvt" type="c:addMobileIDCmpEvt" />
+    
+    <!-- TSM 2242  Can be Deleted-->
+    <aura:attribute name="consumeCodes" type="boolean" description="Used to manipulate Modal Box"/>
+    <aura:attribute name="isViewCode" type="Boolean" default="true" description="Identifier for Codes"/>
+    <aura:attribute name="formattedProdName" type="String" default="" description="Stores formatted name of Product"/>
+    <aura:attribute name="isSearching"  type="Boolean" default="false"/>
+    <aura:attribute name="noResults" type="Boolean" default="false"/>
+    <aura:attribute name="codeSearchResult" type="Object"/>
+    <aura:attribute name="code" type="String" default="" description="searched code string"/>
+    
+    <aura:attribute name="codeIsConsumed" type="Boolean" default="false"/>
+    <aura:attribute name="codeNotConsumed" type="Boolean" default="false"/>
+    <aura:attribute name="codeAllowdForMultipleUse" type="Boolean" default="false"/>
+    <aura:attribute name="showAccountButton" type="Boolean" default="false"/>
+    <aura:attribute name="showConsumeButton" type="Boolean" default="false"/>
+    <!-- TSM 2242  Can be Deleted-->
+    
+    <div>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" >
+                <header class="slds-modal__header" style="border-bottom: 2px solid #f0f2f7;">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeAddMobileId}"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight: normal">ID Already Linked to Others Account(s).</h2>
+                </header>
+                
+                <!-- Formatted Table -->
+                <div class="modalBody slds-modal__content slds-p-top_small slds-p-right_x-large slds-p-left_x-large setting-height">
+                    <div class="slds-p-bottom_small slds-m-bottom_large slds-m-top_large">
+                      <aura:if isTrue="{! not(v.isIDLinked)}">
+                            The identity is already linked to the following account(s).                            
+                        <aura:set attribute="else">
+                            The identity is already linked to the current account.
+                        </aura:set>
+                    </aura:if>
+                    </div>
+                    <div aura:id="resultContainer" > <!-- class="slds-hide"> -->
+                        <table class="slds-table slds-table_cell-buffer">
+                          <thead>
+                            <tr class="slds-line-height_reset">
+                              <th class="tableHeader" scope="col">
+                                <div class="slds-truncate" title="GAMER ID">GAMER ID</div>
+                              </th>
+                                <th class="tableHeader" scope="col">
+                                <div class="slds-truncate" title="NUCLEUS ID">NUCLEUS ID</div>
+                              </th>
+                                <th class="tableHeader" scope="col">
+                                <div class="slds-truncate" title="EMAIL">EMAIL</div>
+                              </th>
+                            </tr> 
+                           </thead>
+                            <tbody>
+                            	<aura:iteration items="{!v.associatedGamerResponse}" var="assocGamerDetail" indexVar="index">
+                            		<tr class="slds-hint-parent tableValues">
+                                      	<th data-label="" scope="row">
+                                        	<div class="slds-truncate" title="NucleusID">{!v.gamerId}</div>
+                                      	</th>
+                                        <th data-label="" scope="row">
+                                        <div class="slds-truncate" title="NucleusID">{!assocGamerDetail.nucleusId}</div>
+                                      </th>
+                                      <th data-label="" scope="row">
+                                        <div class="slds-truncate" title="Email">{!assocGamerDetail.emailId}</div>
+                                      </th>
+                                    </tr>
+                        		</aura:iteration>        
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                     <aura:if isTrue="{! not(v.isIDLinked)}">
+                        <div class="slds-p-bottom_small slds-m-bottom_xxx-small slds-m-top_xx-large">
+                            Do you want to link this account to this ID?
+                        </div>
+                    </aura:if>
+                    
+                </div>
+                <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                    <aura:if isTrue="{! not(v.isIDLinked)}">
+                        <lightning:button aura:id="closeButton"  class="noBtn" label="No" onclick="{!c.closeAddMobileId}" />
+                        <lightning:button aura:id="yesButton" class="addBtn" variant="brand" label="Yes" onclick="{!c.addMobileID}" />
+                        <aura:set attribute="else">
+                            <lightning:button aura:id="closeButton"  class="noBtn" label="Close" onclick="{!c.closeAddMobileId}" />
+                        </aura:set>
+                    </aura:if>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

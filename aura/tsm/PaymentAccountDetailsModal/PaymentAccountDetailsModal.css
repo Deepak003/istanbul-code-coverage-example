@@ -1,0 +1,20 @@
+.THIS .text-bold {
+    font-weight : t(fontWeightBold); 
+    /*height : 20px;*/
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS .wrap-text{
+    word-wrap: break-word;
+    white-space: normal;    
+}
+.THIS .item-padding{
+    padding-top: t(spacingSmall);
+	padding-right: t(spacingSmall);    
+}
+
+.THIS .pillsBlock{
+    display:inline-block;
+    margin-right:10px
+}

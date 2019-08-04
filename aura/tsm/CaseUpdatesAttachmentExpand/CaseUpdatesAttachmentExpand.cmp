@@ -1,0 +1,37 @@
+<aura:component >
+    <aura:attribute name="attachments" type="List"/>
+    
+    <div class="case-updates-attachement-expand-container">
+        
+        <div class="case-attachement-title slds-m-bottom_medium slds-m-top_medium">Attachments</div>
+        
+        <aura:iteration items="{!v.attachments}" var="row" indexVar="idx">
+            <div class="slds-m-bottom_medium">
+                <div><a>{! row.details.label }</a></div>
+                <aura:if isTrue="{! row.details.type == 'png' }">
+                    <div>
+                        <aura:if isTrue="{! row.details.url }">
+                            <img class="attachment-img" src="{! row.details.url }" />
+                            <aura:set attribute="else">
+                                <lightning:fileCard fileId="{! row.details.attachmendId }"/>
+                            </aura:set>
+                        </aura:if>
+                        <div>
+                            Uploaded on
+                            <lightning:formattedDateTime 
+                                     value="{!row.date}" 
+                                     year="numeric" month="2-digit" day="2-digit" 
+                                     hour="2-digit" minute="2-digit"
+                                     hour12="false"/>
+                        </div>
+                        
+                        
+                    </div> 
+                </aura:if>
+                
+            </div>
+        </aura:iteration>    
+        
+    </div>
+    
+</aura:component>

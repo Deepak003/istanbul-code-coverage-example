@@ -1,0 +1,12 @@
+<aura:component controller="FraudAdminToolController">
+    <aura:attribute name="options" type="List"/>
+    <aura:registerEvent name="localeEvent" type="c:localeEvent"/>
+    <aura:attribute name="defaultOption" type="String" default="English"/>
+    <aura:attribute name="selectedOption" type="String" default="English"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:select aura:id="LocaleSelectComponent" name="locale" class="select-locale" label="Locale: " onchange="{!c.onChangeLocale}">
+        <aura:iteration var="option" items="{! v.options }">
+            <option value="{!option}" selected="{!option==v.defaultOption}">{!option}</option>
+        </aura:iteration>
+    </lightning:select>
+</aura:component>

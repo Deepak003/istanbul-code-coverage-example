@@ -1,0 +1,57 @@
+<aura:component>
+    <aura:attribute name="totalPages" type="Integer" default="6" access="public" description="Total number of pages" />    
+    <aura:attribute name="activePage" type="Integer" default="1" access="public" description="Landing page number"  />
+    
+    <aura:attribute name="pageControl" type="Integer" default="6" access="private" description="Number of page control to be visible" />    
+    <aura:attribute name="pageList" type="Integer[]" access="private" description="This will be generated from totalPages" />
+    <aura:attribute name="firstPageControl" type="Integer" default="1" access="private" />
+    <aura:attribute name="lastPageControl" type="Integer" access="private" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.totalPages}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.activePage}" action="{!c.onChangeActivePage}" />
+    
+    
+    <!--<aura:if isTrue="{!v.totalPages}">-->
+        <div class="pagination">            
+            <lightning:buttonGroup>
+                <a href="" class="side btn" onclick="{! c.onPrevSelect }">
+                    <lightning:icon iconName="utility:left" alternativeText="" size="xx-small" />            
+                </a>
+                <aura:iteration items="{!v.pageList}" var="row" indexVar="idx">
+                    <aura:if isTrue="{! and( greaterthanorequal(row, v.firstPageControl) , lessthanorequal(row, v.lastPageControl) ) }">
+                        <lightning:button class="{! join(' ',
+                                                 'btn',
+                                                 if(v.activePage==row,'active') 
+                                                 )}" 
+                                          label="{!row}" onclick="{! c.onClickPage }" 
+                                          value="{! idx + 1 }" />
+                    </aura:if>
+                </aura:iteration>      
+                <a href="" class="side btn" onclick="{! c.onNextSelect }">
+                    <lightning:icon iconName="utility:right" alternativeText="" size="xx-small" />
+                </a>
+            </lightning:buttonGroup>       
+        </div>
+        <!--
+    <div class="pagination">
+        <a href="#" class="side" onclick="{! c.onPrevSelect }">
+            <lightning:icon iconName="utility:left" alternativeText="" size="xx-small" />
+        </a>        
+        <aura:iteration items="{!v.pageList}" var="row" indexVar="idx">
+            <aura:if isTrue="{! and( greaterthanorequal(row, v.firstPageControl) , lessthanorequal(row, v.lastPageControl) ) }">
+                <a href="#">
+                    <lightning:button class="{! if(v.activePage==row,'active') }" 
+                                      label="{!row}" onclick="{! c.onClickPage }" value="{! idx + 1 }" />
+                </a>
+            </aura:if>
+        </aura:iteration>
+        <a href="#" class="side" onclick="{! c.onNextSelect }">
+            <lightning:icon iconName="utility:right" alternativeText="" size="xx-small" />
+        </a>
+    </div>
+ -->
+        
+    <!--</aura:if>-->
+    
+</aura:component>

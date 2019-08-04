@@ -1,0 +1,105 @@
+@media (max-width: 767px) {
+ .THIS .hiddenColumn {
+    display: none !important;
+ }
+}
+
+.THIS .headerColor{
+    color:#C8C7C7;
+}
+.THIS .data-table{
+    width:100%;
+}
+.THIS .input-group .lightningInput {
+    display: inline-block;
+    margin-right: 10px;
+}
+.THIS.slds-cell-fixed {
+    background-color: #fff;
+}
+
+.THIS.slds-table th {
+    padding-top: .25em;
+    padding-bottom: .25em;
+    background-color: #fff;
+    border-bottom: 1px solid rgb(221, 219, 218);
+    padding-bottom: 1em;
+}
+
+.THIS.slds-table tbody tr > * {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border: none;
+}
+
+.THIS.slds-table tbody tr > * > span {
+    padding: 1.5px 0px;
+}
+
+.THIS.slds-table thead tr > * > span {
+    padding: 1.5px 0px;
+}
+.THIS.slds-table .slds-checkbox {
+    
+}
+.THIS[is="lightning-primitive-cell-checkbox"] {
+    position: absolute;
+    width: 100%;
+    z-index: 9;
+    background-color: transparent !important;
+    height: 1%;
+}
+.THIS.slds-table .slds-is-selected td {
+    background-color: #1589ee !important;
+    color: #fff;
+}
+.THIS.slds-table.slds-table_striped tbody tr:nth-of-type(even) > td {
+    background-color: #f4f6f9;
+}
+
+.THIS.slds-table .slds-icon {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+.THIS .title {
+    max-width:20rem;
+}
+
+.THIS .filterButtonInline{
+    display:inline;
+}
+.THIS .boxStyle{
+    margin:auto;
+    width:200px;
+    background-color:white;
+    z-index:10000;
+    position:absolute;
+    top:110%;
+    left:-18%;
+}
+.THIS .boxToggle{
+    display:none;
+}
+.THIS table{
+    border-collapse: collapse;
+}
+
+.THIS .leftPaddingClass{
+    padding-left:40px;
+}
+
+.THIS .pillsBlock{
+    display:inline-block;
+    margin-right:10px
+}
+.THIS .spinnerBlock{
+   width:100px;
+   height:100px;
+}
+.THIS .buttonHeight{
+    height:2.2rem;
+}
+.THIS .leftMarginSmall{
+    margin-left:0.75rem;
+}

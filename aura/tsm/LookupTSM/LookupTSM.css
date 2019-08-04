@@ -1,0 +1,10 @@
+.THIS label.slds-form-element__label {
+    color: #706e6b;
+}
+.THIS .custom-focus{
+    background-color: rgb(243, 242, 242);
+    text-decoration: none;
+}
+.THIS .disable-highlight{
+    user-select: none;
+}

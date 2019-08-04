@@ -1,0 +1,33 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" controller="EntitlementAuraController">    
+    <aura:attribute name="isOpen" type="Boolean" default="false"/>
+    <aura:attribute name="selectedEntitlement" type="Object" />
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="false" />
+    
+    <aura:attribute name="nucleusId" type="Id"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="accountId" type="String" />
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="true" title="Reset Trial">       
+            <aura:set attribute="class" value="modal-small"/>      
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <div class="modalbody" aura:id="updateDataBlock">
+                    <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/> 
+                    <div>
+                        The trial time will be restore to original total hours. Are you sure you want to proceed?
+                    </div> 
+                </div>
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="cancel" value="Cancel"/>  
+            <aura:set attribute="success" value="Reset"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.successModal}"/>
+        </c:ParentModal>
+    </aura:if>	
+</aura:component>

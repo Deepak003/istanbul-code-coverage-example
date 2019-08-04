@@ -1,0 +1,44 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" controller="QueueListAuraCtl" access="global">
+    <!-- Attributes for the count in the tabs -->
+    <aura:attribute name="queueCnt" type="Integer" default="0" />
+    <aura:attribute name="completedCnt" type="Integer" default="0" />
+    <aura:attribute name="data" type="List"/>
+    <aura:attribute name="dataLength" type="Integer" default="0" />
+    <aura:attribute name="completedData" type="List" />
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="ackMsg" type="Boolean" default="false" />
+    <aura:attribute name="queueComplete" type="Boolean" default="false" />
+    <aura:attribute name="queuedLabel" type="String" default="Queued - 0" />
+    <aura:attribute name="tabFlag" type="String" default="Queued" />
+    <aura:attribute name="filterData" type="Object" />
+    <aura:attribute name="roleOptions" type="List" default=""/>
+    <aura:attribute name="selectedTabId" type="String" default="petitionQueue"/>
+    <aura:attribute name="queueSelectionPermission" type="Boolean"/>
+    <aura:attribute name="filterQueData" type="List"/>
+    
+    <!-- Register a event Component -->
+    <aura:registerEvent name="tabViewClick" type="c:TabViewClickAppEvt"/>
+    <aura:registerEvent name="RoleQueueAppEvt" type="c:RoleQueueAppEvt"/>
+    <aura:registerEvent name="RowClickAppEvent" type="c:RowClickAppEvent"/>
+    <aura:handler event="c:DataGridRowClickApp" action="{!c.handleRowClickAppEvent}" />
+    <aura:handler name="tabViewCountEvent" event="c:TabViewCountEvent" action="{!c.handleComponentEvent}"/>
+    <aura:handler name="change" value="{!v.queueCnt}" action="{!c.updateQueuedLabel}"/>
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:tabset aura:id="ptabs" selectedTabId="{!v.selectedTabId}">
+            <lightning:tab label="{!v.queuedLabel}" class="petitionQueueTab" id="petitionQueue" aura:id="qtabLabel" onactive="{!c.setTabFlagQueued}">
+                <c:QueuedList data="{!v.data}" 
+                              queueSelectionPermission="{!v.queueSelectionPermission}" 
+                              columns="{!v.columns}" 
+                              ackMsg="{!v.ackMsg}"
+                              queueComplete="{!v.queueComplete}"
+                              roleOptions="{!v.roleOptions}" 
+                              aura:id="qList"/>
+            </lightning:tab>
+            <lightning:tab label="{!'Completed - ' + v.completedCnt}" class="petitionCompletedTab" id="petitionCompleted" aura:id="ctabLabel" onactive="{!c.setTabFlagCompleted}">
+                <c:CompletedList data="{!v.completedData}" completedCnt="{!v.completedCnt}" aura:id="compList"/>
+            </lightning:tab>   
+        
+    </lightning:tabset>
+    <lightning:spinner class="tabViewSpin slds-hide" aura:id="TabViewSpinner" variant="brand" size="small"/>
+    
+</aura:component>

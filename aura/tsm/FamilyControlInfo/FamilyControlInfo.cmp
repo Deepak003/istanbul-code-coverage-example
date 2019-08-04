@@ -1,0 +1,26 @@
+<aura:component controller="AccountBasicInfoAuraController">
+    <aura:attribute name="nucleusId" type="String" />
+    <aura:attribute name="email" type="String" />
+    <aura:attribute name="familyControlObj" type="Object"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	<aura:method name="getFamilyControlInfo" 
+                 action="{!c.getFamilyControlInfo}" 
+                 access="PUBLIC"
+                 description="call the get family control info method" />
+    
+     <div class="slds-border_top slds-m-bottom--large"></div>
+     <div class="slds-m-top--x-small">
+         <div class="text-bold">Family Control Info</div>         
+         <lightning:layout class="slds-m-bottom--medium">             
+             <lightning:layoutItem size="4">
+                 <div class="slds-text-body_small edit-field-label">Single Purchase Spend Limits</div>
+                 <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.familyControlObj.singlePurchase}</bdi></div>
+             </lightning:layoutItem>
+             <lightning:layoutItem size="4">
+                 <div class="slds-text-body_small edit-field-label">Micro Content Spend Limits</div>
+                 <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.familyControlObj.microContent}</bdi></div>
+             </lightning:layoutItem>
+         </lightning:layout>
+    </div>
+</aura:component>

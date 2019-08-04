@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Expand/Collapse All" >
+	<aura:attribute name="id" type="String" default="" description="If there is a need to expand (or) collapse indivisual row" />
+    <aura:attribute name="isExpanded" type="Boolean" default="false" description="This will inform either expand (or) collapse" />
+    <aura:attribute name="targetComponent" type="String" description="Which component should react for (i.e. component Name)" />
+</aura:event>

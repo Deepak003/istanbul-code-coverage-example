@@ -1,0 +1,447 @@
+<aura:component controller="ProductAuraController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <ltng:require scripts="{!$Resource.Util}" />
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Selected persona object from ProductSnapshort" />
+    <aura:attribute name="nucleusId" type="Id" access="public" />
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="selectedProduct" type="Object" access="public" description="Selected product object"  />
+    <aura:attribute name="selectedPlatform" type="Object" access="public" description="Selected platform object"  />
+    <aura:attribute name="gameMode" type="String" />
+    <aura:attribute name="pageNumber" type="Integer" access="private" />
+    <aura:attribute name="perPage" type="Integer" default="10" access="private" />
+    <aura:attribute name="searchedcount" type="List" access="private" />
+    <aura:attribute name="paginatedData" type="List" access="private" />
+    <aura:attribute name="itemData" type="List" access="private" />
+    <aura:attribute name="packsData" type="List" access="private" />
+    <aura:attribute name="searchString" type="String" access="private" default=""/>
+    <aura:attribute name="inventoryUpdated" type="Boolean"/>
+    <aura:attribute name="isModifyCurrency" type="Boolean" default="false"/>
+    <aura:attribute name="selectedCurrencyText" type="String" default="Currency"/>
+    <aura:attribute name="selectedCurrency" type="String" default="Currency"/>
+    <aura:attribute name="currentBalance" type="Integer"/>
+    <aura:attribute name="inventoryStats" type="List" default="" description="Formatted Row Data"/>
+    <aura:attribute name="selectedRowForModal" type="Object"/>
+    <aura:attribute name="hasModifyCurrencyPermission" type="Boolean" default="false"/>
+    <aura:attribute name="hasModifyDraftTokenPermission" type="Boolean" default="false"/>
+    <aura:attribute name="tradePilesData" type="List"  access="private" />
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    
+    <!-- Item from filter to search TSM-3872 -->
+    <aura:attribute name="categoryValue" type="String" default="" access="public"/>
+
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <!--ConfigUI Values-->
+    <aura:attribute name="configUIData" type="Object"/>
+    
+    <aura:attribute name="types" 
+                    type="List" 
+                    description="Values for Type"/>
+    
+    <aura:attribute name="categories" 
+                    type="List" 
+                    default="[{'label': 'Category 1', 'value': 'Category 1'}, 
+                             {'label': 'Category 2', 'value': 'Category 2'}, 
+                             {'label': 'Category 3', 'value': 'Category 3'}]"
+                    description="Values for Category"/>
+    
+    <aura:attribute name="cols" 
+                    type="List" 
+                    default="" 
+                    description="Column Heading"/>
+    
+    <aura:attribute name="items" 
+                    type="List" 
+                    default="" 
+                    description="Formatted Row Data"/>
+    <aura:attribute name="BUitems" 
+                    type="List" 
+                    default="" 
+                    description="Formatted Row Data"/>
+    
+    <aura:attribute name="disableCategories"
+                    type="Boolean" 
+                    default="true"
+                    description="Decides whether to disble Categories or not"/>
+    
+     <aura:attribute name="showModifyCurrency"
+                    type="Boolean" 
+                    default="false"
+                    description="Decides whether to disble Modify Currency or not"/>
+    
+    <aura:registerEvent name="navigateTab" type="c:NavigateToCurrentHistoryEvent"/>
+    
+    <!-- <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{! v.inventoryUpdated }" action="{! c.init }"/>
+    <aura:handler name="change" value="{! v.pageNumber }" action="{! c.handlePageChange }"/>
+    <aura:handler event="c:CloseModifyCurrencyModal" action="{!c.closeModal}"/>
+    <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>
+    
+<!--tsm 4114-->
+<aura:attribute name="allItems" type="List" access="private"/>
+<aura:handler name="change" value="{!v.items}" action="{!c.setPageData}" />
+<aura:handler name="change" value="{!v.tradePilesData}" action="{!c.setPageData}"/>
+<aura:handler name="change" value="{!v.packsData}" action="{!c.setPageData}"/>
+<aura:handler name="change" value="{!v.itemData}" action="{!c.setPageData}" />
+<aura:handler name="change" value="{!v.searchedcount}" action="{!c.setPageData}"/>
+
+    <!-- Generic permission variables - TSM-2910, TSM-2911, TSM-2912 -->
+    <aura:attribute name="genericConfigurationData" type="Object" default="{}"/>
+
+    <!-- Filters -->
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_4-of-12" onkeyup="{! c.searchItems}">
+            <!--<lightning:icon iconName="utility:search" size="x-small"/>-->
+            <lightning:input placeholder="Search for Items, Packs, Currency, Trade Piles" title="Search for Items, Packs, Currency, Trade Piles" type="search" onchange="{!c.getSearchResult}" value="{!v.searchString}"/>
+        </div>
+        <div class="slds-col slds-size_3-of-12">
+            <lightning:combobox  aura:id="types" placeholder="Select type" options="{!v.types }" onchange="{!c.handleChange}"/>
+        </div>
+        <div class="slds-col slds-size_4-of-12">
+            <lightning:combobox aura:id="categories" name="general" placeholder="Select Category" options="{!v.categories }" 
+                                value="{!v.categoryValue}" disabled="{!v.disableCategories}" onchange="{!c.onCategoryChange}"/>
+        </div>
+    </div>
+    
+    <!-- Formatted Table -->
+    <div class="slds-p-top_small">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        <table class="slds-table slds-wrap slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <aura:if isTrue="{!v.items.length > 0}">
+                        <th class="HeadingContent slds-text-title_caps"  scope="col" style="width:10px">
+                            <div class="slds-truncate" title="Icon"></div>
+                        </th>
+                    </aura:if>
+                    <aura:iteration items="{!v.cols}" var="col">
+                        <th class="HeadingContent slds-text-title_caps"  scope="col">
+                            <div class="slds-truncate" title="NAME">{!col}</div>
+                        </th>
+                    </aura:iteration>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:if isTrue="{!v.selectedCurrency == 'ITEM_CATEGORY'}">
+                    <aura:if isTrue="{!v.paginatedData != null}">
+                        <aura:iteration items="{!v.paginatedData}" var="item" indexVar="itemIndex">
+                            
+                            <tr class="slds-hint-parent" data-index="{!itemIndex}" onclick="{!c.toggleExpand}">
+                                <div class="slds-p-around_small RowContent" data-label="Icon" scope="row"> 
+                                    <lightning:buttonIcon value="{!itemIndex}" variant="bare" 
+                                                          iconName="{!item.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                </div>
+                                <td class="RowContent" data-label="NAME" scope="row">
+                                    <div title="FUT Wallet">{!item.name}</div>  
+                                </td>
+                                <td class="RowContent" data-label="CATEGORY">
+                                    <div  title="CATEGORY">{!item.category == '' ? '-': item.category}</div>
+                                </td>
+                              <!--  <td class="RowContent" data-label="LEVEL">
+                                    <div title="LEVEL">{!item.level == null ? '-': item.level}</div>
+                                </td> -->
+                                <td class="RowContent" data-label="QUANTITY">
+                                    <div  title="QUANTITY">{!item.quantity == null ? '-': item.quantity}</div>
+                                </td>
+                            </tr>
+                            <aura:if isTrue="{!item.expanded}">
+                                <div style="display: contents;">
+                                    <td colspan="5" style="border-top: 0;">
+                                        <div class="c-container slds-p-top_x-small" style="padding-left:4rem;width:100%">
+                                            <span class="ExpandedContentHeading">Details</span>
+                                            <dl class="slds-list_horizontal slds-wrap dlCSS  slds-m-top_x-small">
+                                                <aura:iteration items="{!item.details}" var="itemDetails">
+                                                    <aura:if isTrue="{!itemDetails.value != null}">
+                                                        <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!itemDetails.key}">{!itemDetails.key} : </dt>
+                                                        <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!itemDetails.value  == '' ? 'None' : itemDetails.value}</dd>
+                                                    </aura:if>
+                                                </aura:iteration>
+                                                <div class="slds-col slds-size_2-of-12 slds-p-top_large slds-p-bottom_x-large" style="margin-left: -1rem;">
+                                                    <div>
+                                                        <lightning:button class="newSearchBtnWidth" variant="neutral" label="New Search" value = "{!itemIndex}" onclick="{!c.navigateTab}"/>
+                                                    </div>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    </td>
+                                </div>
+                            </aura:if>
+                        </aura:iteration>
+                    </aura:if>
+                    
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!v.selectedCurrency == 'PACK_TYPE'}">
+                            <aura:if isTrue="{!v.paginatedData != null}">
+                                <aura:iteration items="{!v.paginatedData}" var="item" indexVar="itemIndex">
+                                    
+                                    <tr class="slds-hint-parent" data-index="{!itemIndex}" onclick="{!c.toggleExpand}">
+                                        <div class="slds-p-around_small RowContent" data-label="Icon" scope="row"> 
+                                            <lightning:buttonIcon value="{!itemIndex}" variant="bare" 
+                                                                  iconName="{!item.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                        </div>
+                                        <td class="RowContent" data-label="NAME" scope="row">
+                                            <div  title="FUT Wallet">{!item.name}</div>  
+                                        </td>
+                                        <td class="RowContent" data-label="CATEGORY">
+                                            <div title="CATEGORY">{!item.category}</div>
+                                        </td>
+                                     <!--    <td class="RowContent" data-label="LEVEL">
+                                             <div class="slds-truncate" title="LEVEL">{!item.level == ''? '-': item.level}</div>
+                                            <div  title="LEVEL">-</div>
+                                        </td>-->
+                                        <td class="RowContent" data-label="QUANTITY">
+                                            <div title="QUANTITY">{!item.quantity == '' ? '-': item.quantity}</div>
+                                        </td>
+                                    </tr>
+                                    <aura:if isTrue="{!item.expanded}">
+                                        <div style="display: contents;">
+                                            <td colspan="5" style="border-top: 0;">
+                                                <div class="c-container slds-p-top_x-small" style="padding-left:4rem;width:100%">
+                                                    <span class="ExpandedContentHeading">Details</span>
+                                                    <dl class="slds-list_horizontal slds-wrap dlCSS slds-m-top_x-small">
+                                                        <aura:iteration items="{!item.details}" var="packDetails">
+                                                            <aura:if isTrue="{!packDetails.value != null}">
+                                                                <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!packDetails.key}">
+                                                                    <aura:if isTrue="{!packDetails.key == 'earnedBy'}">
+                                                                        Obtained by : 
+                                                                        <aura:set attribute="else">
+                                                                        {!packDetails.key} : 
+                                                                        </aura:set>
+                                                                    </aura:if>
+                                                                </dt>
+                                                                <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!packDetails.value  == '' ? 'None' : packDetails.value}</dd>
+                                                            </aura:if>
+                                                        </aura:iteration>
+                                                        
+                                                        <aura:if isTrue="{!and(item.contents != null , item.contents.length > 0)}">
+                                                            <span class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate slds-p-bottom_small">Pack details : </span>
+                                                            <table class="slds-table slds-wrap slds-table_cell-buffer slds-table_bordered">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>ID</th>
+                                                                        <th>TYPE</th>
+                                                                        <th>DETAILS</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <aura:iteration items="{!item.contents}" var="itemContents">
+                                                                        <tr>
+                                                                            <td>{!itemContents.itemDefinitionId == '' ? '-' : itemContents.itemDefinitionId}</td>
+                                                                            <td>{!itemContents.type == '' ? '-' : itemContents.type}</td>
+                                                                            <td>
+                                                                                <aura:if isTrue="{!itemContents.details != undefined}">
+                                                                                    <div class="slds-grid">
+                                                                                        <div class="slds-col">
+                                                                                            <b>Rewarded : </b><br/>
+                                                                                            <b>RewardedStartDate : </b><br/>
+                                                                                            <b>RewardedEndDate: </b><br/>
+                                                                                        </div>
+                                                                                        <div class="slds-col">
+                                                                                            {!itemContents.details.rewarded == null ? '-' : itemContents.details.rewarded}<br/>
+                                                                                            {!itemContents.details.rewardStartDate == null ? 'None' : itemContents.details.rewardStartDate}<br/>
+                                                                                            {!itemContents.details.rewardEndDate == null ? 'None' : itemContents.details.rewardEndDate}<br/>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <aura:set attribute="else">-</aura:set>
+                                                                                </aura:if>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </aura:iteration>
+                                                                </tbody>
+                                                            </table>
+                                                        </aura:if>
+                                                        <div class="slds-col slds-size_2-of-12 slds-p-top_large slds-p-bottom_x-large" style="padding-left:-1rem;">
+                                                            <div>
+                                                                <lightning:button class="newSearchBtnWidth" variant="neutral" label="New Search" value = "{!itemIndex}" onclick="{!c.navigateTab}"/>
+                                                            </div>
+                                                        </div>
+                                                    </dl>
+                                                </div>
+                                            </td>
+                                        </div>
+                                    </aura:if>
+                                </aura:iteration>
+                            </aura:if>
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!v.selectedCurrency == 'Trade Piles'}">
+                                <aura:if isTrue="{!v.paginatedData != null}">
+                                    <aura:iteration items="{!v.paginatedData}" var="item" indexVar="itemIndex">
+                                        
+                                        <tr class="slds-hint-parent" data-index="{!itemIndex}" onclick="{!c.toggleExpand}">
+                                            <div class="slds-p-around_small RowContent TradePilesRow" data-label="Icon" scope="row"> 
+                                                <lightning:buttonIcon value="{!itemIndex}" variant="bare" 
+                                                                      iconName="{!item.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                            </div>
+                                            <td class="RowContent TradePilesRow" data-label="NAME" scope="row">
+                                                <div title="FUT Wallet">{!item.itemData.name}</div>  
+                                            </td>
+                                            <td class="RowContent TradePilesRow" data-label="CATEGORY">
+                                                <div title="CATEGORY">Trade Pile</div>
+                                            </td>
+                                            <td class="RowContent TradePilesRow" data-label="RATING">
+                                                <div title="RATING">{!item.itemData.rating}</div>
+                                            </td>
+                                            <td class="RowContent TradePilesRow" data-label="STATE">
+                                                <div title="STATE">{!item.state} </div>
+                                            </td>
+                                        </tr>
+                                        <aura:if isTrue="{!item.expanded}">
+                                            <div style="display: contents;">
+                                                <td colspan="5" style="border-top: 0;">
+                                                    <div class="c-container slds-p-top_x-small" style="padding-left:4rem;width:100%">
+                                                        <span class="ExpandedContentHeading">Details</span>
+                                                        <dl class="slds-list_horizontal slds-wrap dlCSS  slds-m-top_x-small">
+
+                                                        <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.itemData.preferredPosition}">Position: </dt>
+                                                        <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.itemData.preferredPosition}</dd>  
+
+                                                          <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Offers: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.offers}</dd>
+                                                          
+                                                           <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Seller Name: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.sellerName}</dd>
+                                                            
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Warnings: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.warnings}</dd>
+                                                            
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Starting Bid: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.startingBid}</dd>
+                                                            
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Current Bid : </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.currentBid}</dd>
+                                                            
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Buy It Now Price: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.buyItNowPrice}</dd>
+                                                            
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Trade State: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.state}</dd>
+                                                            
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="{!item.buyItNowPrice}">Time Remaining: </dt>
+                                                          <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.secondsRemaining}</dd>
+                                                            <div class="slds-col slds-size_2-of-12 slds-p-top_large slds-p-bottom_x-large" style="margin-left: -1rem;">
+                                                               <!-- <div>
+                                                                    <lightning:button class="newSearchBtnWidth" variant="neutral" label="New Search" value = "{!itemIndex}" onclick="{!c.navigateTab}"/>
+                                                                </div>-->
+                                                            </div>
+                                                        </dl>
+                                                    </div>
+                                                </td>
+                                            </div>
+                                        </aura:if>
+                                    </aura:iteration>
+                                </aura:if>
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!v.paginatedData != null}">
+                                    <aura:iteration items="{!v.paginatedData}" var="item" indexVar="itemIndex">
+                                        
+                                        <tr class="slds-hint-parent" data-index="{!itemIndex}" onclick="{!c.toggleExpand}">
+                                            <div class="slds-p-around_small RowContent" data-label="Icon" scope="row"> 
+                                                <lightning:buttonIcon value="{!itemIndex}" variant="bare" 
+                                                                      iconName="{!item.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                            </div>
+                                            <td class="RowContent" data-label="NAME" scope="row">
+                                                <div title="FUT Wallet">{!item.name}</div>  
+                                            </td>
+                                            <td class="RowContent" data-label="CATEGORY">
+                                                <div title="CATEGORY">{!item.type}</div>
+                                            </td>
+                                          <!--   <td class="RowContent" data-label="LEVEL">
+                                                <div class="slds-truncate" title="LEVEL">{!item.maximumValue == '' ? '-': item.maximumValue}</div>
+                                                <div title="LEVEL">-</div>
+                                            </td>-->
+                                            <td class="RowContent" data-label="QUANTITY">
+                                                <div title="QUANTITY">{!item.balance}</div>
+                                            </td>
+                                        </tr>
+                                        <aura:if isTrue="{!item.expanded}">
+                                            <div style="display: contents;">
+                                                <td colspan="5" style="border-top: 0;">
+                                                    <div class="c-container slds-p-top_x-small" style="padding-left:4rem;width:100%">
+                                                        <span class="ExpandedContentHeading">Details</span>
+                                                        <dl class="slds-list_horizontal slds-wrap dlCSS slds-m-top_x-small">
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate">Name : </dt>
+                                                            <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.name == '' ? 'None' : item.name}</dd>
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate">Balance : </dt>
+                                                            <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.balance == '' ? 'None' : item.balance}</dd>
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate">Type : </dt>
+                                                            <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.type == '' ? 'None' : item.type}</dd>
+                                                            <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate">Description : </dt>
+                                                            <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace" title="{!item.description}">{!item.description == '' ? 'None' : item.description}</dd>
+                                                            
+                                                            <div class="slds-col slds-size_2-of-12 slds-p-top_large slds-p-bottom_x-large" style="margin-left:-1rem">
+                                                                <aura:if isTrue="{!item.name == 'DRAFT_TOKEN'}">
+                                                                    <aura:if isTrue="{!and((item.canModify), v.hasModifyDraftTokenPermission)}">
+                                                                        <lightning:button class="btnWidth" value="{!item}" variant="neutral" label="Modify Currency" onclick="{!c.modifyCurrency}" disabled="{! not(v.productMaskingData.ModifyCurrency)}"/>
+                                                                    </aura:if>                            
+                                                                    <aura:set attribute="else">
+                                                                        <aura:if isTrue="{!and((item.canModify), v.hasModifyCurrencyPermission)}">
+                                                                            <lightning:button class="btnWidth" value="{!item}" variant="neutral" label="Modify Currency" onclick="{!c.modifyCurrency}" disabled="{! not(v.productMaskingData.ModifyCurrency)}"/>
+                                                                        </aura:if>
+                                                                    </aura:set>
+                                                               </aura:if>
+                                                            </div>
+                                                        </dl>
+                                                    </div>
+                                                </td>
+                                            </div>
+                                        </aura:if>
+                                    </aura:iteration>
+                                </aura:if>
+                            </aura:set>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+         </aura:if>
+            </tbody>
+            <div class="{! or(empty(v.allItems), empty(v.paginatedData)) ? 'slds-hide' : ''}">
+                
+                <div class="{! join(' ',
+                            'slds-text-align_center slds-p-vertical_large',
+                            if(lessthanorequal(div(v.allItems.length,v.perPage), 1), 'slds-hide')
+                            
+                            )}" style="position: absolute;width:100%">
+                    <c:Pagination totalPages="{! div(v.allItems.length,v.perPage) }" activePage="{!v.pageNumber}" />
+                </div>
+                
+            </div>
+        </table>
+    </div>
+    <aura:if isTrue="{! and(v.paginatedData != null , v.paginatedData.length > 0)}">
+        <!-- Assistive Text -->
+        <div class="pLarge">
+            <div class="slds-align_absolute-center parentfont">
+                Looking for More?
+            </div>
+            <div class="slds-p-top_large slds-align_absolute-center childfont" style="text-align: center;width: 65%;">
+                To view more current inventory data, such as the items and packs a player has, use the smart search and filters above.
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <div class="pLarge">
+                <div class="slds-align_absolute-center parentfont">
+                    <aura:if isTrue="{!v.categoryValue == ''}">
+                        Pick a category to get started
+                        <aura:set attribute="else">
+                            No {!v.selectedCurrencyText} to Display    
+                        </aura:set>
+                    </aura:if>
+                </div>
+                <div class="slds-p-top_large slds-align_absolute-center childfont" style="text-align: center;width: 65%;">
+                    <aura:if isTrue="{!v.categoryValue == ''}">
+                        To view {!v.selectedCurrencyText} data, please select a category above.
+                        <aura:set attribute="else">
+                            To view more current inventory data, such as the items and packs a player has, use the smart search and filters above.
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+        </aura:set>
+    </aura:if>
+    <aura:if isTrue="{!v.isModifyCurrency}">
+        <c:ModifyCurrency configUIData="{!v.configUIData}" currentBalance="{!v.currentBalance}" selectedRowForModal="{!v.selectedRowForModal}" selectedPersona="{!v.selectedPersona}" selectedProduct="{!v.selectedProduct}" selectedPlatform ="{!v.selectedPlatform}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" />
+    </aura:if>
+</aura:component>

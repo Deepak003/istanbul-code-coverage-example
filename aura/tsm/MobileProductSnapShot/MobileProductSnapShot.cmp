@@ -1,0 +1,142 @@
+<aura:component controller="MobileProductAuraCtl" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">    
+    
+    <ltng:require scripts="{!$Resource.Util}" />
+    <aura:attribute name="personas" type="List" />
+    <aura:attribute name="productName" type="String"/>
+    <aura:attribute name="prodName" type="String"/>
+    <aura:attribute name="gameModes" type="object" />
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="selectedProduct" type="Map" access="public"/>
+    <aura:attribute name="platformStatus" type="Map" access="public"/>
+    <aura:attribute name="platformStatusDate" type="String" access="public"/>
+    <aura:attribute name="openProductChange" type="boolean" default="false"/>
+    <aura:attribute name="viewcodes" type="boolean" default="false"/>
+    <aura:attribute name="searchCodes" type="boolean" default="false"/>
+    <aura:attribute name="consumeCodes" type="boolean" default="false"/>
+    <aura:attribute name="codeSearchData" type="Object"/>
+    <aura:attribute name="discountsandpromos" type="boolean" default="false"/>
+    <aura:attribute name="changedProduct" type="String" default=""/>
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="platform" type="Object" />
+    <aura:attribute name="category" type="Object" />
+    <aura:attribute name="allProducts" type="String"/> 
+    <aura:attribute name="product" type="Object" />
+    <aura:attribute name="isGameMode" type="boolean" default="false"/>
+    <aura:attribute name="productSnapShotData" type="Object" />
+    <aura:attribute name="personaList" type="List" />
+    
+    <aura:attribute name="defaultPersonaList" type="String" />
+    <aura:attribute name="featuredProduct" type="Object" />
+    <aura:attribute name="clubList" type="Object" />
+    <aura:attribute name="isFIFA" type="boolean" default="false"/>
+    <aura:attribute name="gameModeComboValue" type="List"
+                    default="[{'label': 'FUT', 'value': 'FUTClub'},{'label': 'WC', 'value': 'WCClub'}]" />  
+    
+    <aura:attribute name="selectedGameMode" type="String" access="public" default=""/>
+    <aura:registerEvent name="addMobileIDEvt" type="c:addMobileIDCmpEvt" />
+    <aura:registerEvent name="showMobileIDEvt" type="c:showMobileConfigCmpEvt" />
+    <aura:registerevent name="ProductSnapShotAction" type="c:ProductSnapShotAction" /> 
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:attribute name="inGameEntitlement" type="boolean" default="false"/>
+    <aura:attribute name="email" type="String" access="public" description="Player Email ID" />
+    
+     <!-- Config UI Values -->
+    <aura:attribute name="configUIData" type="Object" />
+    <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>
+    <aura:attribute name="isModesExist" type="boolean" default="false"/>
+    
+    <!-- For grant Items flow -->
+    <aura:attribute name="viewGrantItems" type="boolean" default="false"/> 
+    <aura:attribute name="selectedPersona" type="Map" />
+    <aura:attribute name="inventoryUpdated" type="Boolean"/>
+    <aura:attribute name="currencyList" 
+                    type="List" 
+                    default="" 
+                    description="Formatted Row Data"/>
+    <aura:attribute name="openGrantInfoDefault" type="boolean" default="true"/>
+   
+
+    <aura:attribute name="gamerIdTypeName" type="String" />
+    <aura:attribute name="mobilePersonaList" type="List" />
+    <aura:attribute name="mobileProducstMap" type="Object" />
+    <aura:attribute name="mobileProducstList" type="Object" />
+    <aura:attribute name="rootIdentities" type="Object" />
+    
+    <aura:attribute name="isMobileProdSelected" type="boolean" default="true" />
+    <aura:attribute name="isAddMobileID" type="boolean" default="false" /> 
+    <aura:attribute name="gamerId" type="String" />
+    <aura:attribute name="gamerIdType" type="string" />
+    <aura:attribute name="selectedLabel" type="string" default="Select an ID Type to begin" />
+    <aura:attribute name="associatedGamerResponse" type="Object" />
+    <aura:attribute name="hasMobileIdAdded" type="boolean" default="false" />
+    <aura:attribute name="hasMobileIDForAccount" type="boolean" default="false" />
+    <aura:attribute name="isAddMobileBtn" type="boolean" default="true" />
+    <aura:attribute name="isIDLinked" type="boolean" default="false"/>
+    
+    <!-- TSM-4025 -->
+    <aura:handler name="change" value="{!v.product}" action="{!c.doInit}" />
+
+    <!-- TSM-3948 -->
+    <aura:attribute name="isMobileProductAttached" type="Boolean" />
+    <aura:attribute name="isAddId" type="Boolean" />
+    
+    <!-- TSM 2244 -->
+    <div class="slds-is-relative">
+        <lightning:layout class="bottom-spacing-medium">
+            <lightning:layoutItem size="10">
+                <div class="prodCSS">{!v.product.Name}</div>                        
+            </lightning:layoutItem>  
+            
+            <lightning:layoutItem size="2" class="action-container">
+                <lightning:buttonMenu iconSize="x-small" menuAlignment="right"
+                                      onselect="{! c.handleActionMenuSelect }">                            
+                    <lightning:menuItem label="Change Product" value="change-product" />
+                </lightning:buttonMenu>
+            </lightning:layoutItem>                
+        </lightning:layout>
+
+        <lightning:layout>
+            <lightning:layoutItem size="12" class="">                                                                      
+                <lightning:avatar class="product-image"  src="{!'https://eaassets-a.akamaihd.net/eahelp/images/box-art/x2/'+v.product.Url_Name__c+'.jpg'}" initials="EA"  alternativeText="Player games"/>
+                <aura:if isTrue="{! not(v.isAddId)}">
+                    <span class="slds-p-xx_small slds-p-left_large">Product Information unavailable. Add an Identity to load user Information.</span>
+                </aura:if>
+                <lightning:layout class="slds-p-top-xx_small">
+                    <lightning:layoutItem size="6" class="slds-p-xx_small slds-p-left_large">                       
+                        <lightning:combobox name="selectComboValue"   value="{!v.gamerIdType}"  label="{!v.selectedLabel}"  class=""  placeholder="Select ID Type"
+                                            options="{!v.mobileProducstList}" onchange="{!c.onMobileProductSelect}"/> 
+                    </lightning:layoutItem>
+                    
+                    <lightning:layoutItem size="6" class="slds-p-left_small slds-p-xx_small"> 
+                        <lightning:input aura_id="associatedGamerID" name="associatedIDValue" value="{!v.gamerId}" label="Associated ID Value" placeholder="Enter ID Value" onchange="{!c.onAssociatedID}" disabled="{!v.isMobileProdSelected}"  />
+                    </lightning:layoutItem>
+                </lightning:layout>
+                
+                <lightning:layout class="slds-p-top_small">
+                    <lightning:layoutItem size="10" class="slds-p-xx_small slds-p-left_large"></lightning:layoutItem>
+                    
+                    <lightning:layoutItem size="1" class="slds-p-xx_small"> 
+                        <aura:if isTrue="{!v.isAddId}">
+                            <lightning:button label="Cancel" title="Cancel" class="addBtn" onclick="{!c.goToProduct}" />
+                        </aura:if>
+                    </lightning:layoutItem>
+                    
+                    <lightning:layoutItem size="1" class="slds-p-xx_small"> 
+                        <lightning:button variant="brand" label="Add" title="Add" class="addBtn" onclick="{!c.addMobileID}" disabled="{!v.isAddMobileBtn}" />
+                    </lightning:layoutItem>
+       
+                </lightning:layout>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+    <aura:if isTrue="{!v.isAddMobileID}">
+        <c:AddMobileID  gamerId="{!v.gamerId}"  gamerIdType="{!v.gamerIdType}" gamerIdTypeName="{!v.gamerIdTypeName}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" customerProduct="{!v.customerProduct}" 
+                            accountId="{!v.accountId}" productName="{!v.productName}" prodName="{!v.prodName}" email="{!v.email}"  product="{!v.product}"   
+                    addmobileId="{!v.isAddMobileID}" associatedGamerResponse="{!v.associatedGamerResponse}"  isIDLinked = "{!v.isIDLinked}"/>
+    </aura:if>
+</aura:component>

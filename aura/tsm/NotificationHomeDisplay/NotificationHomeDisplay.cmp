@@ -1,0 +1,39 @@
+<aura:component controller="NotificationAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" extends="c:Base" access="global">
+    <!-- Local variables --> 
+    <aura:attribute name="mandatoryNotificationList" type="List"/>
+    <aura:attribute name="currentNotificationBody" type="Map"/> 
+    <aura:attribute name="selectedIndex" type="Integer"/> 
+    <aura:attribute name="isData" type="Boolean" default="false"/>
+    
+    <!-- Register Handlers -->
+    <aura:registerEvent name="acknowledgementAlert" type="c:AcknowledgementAlertEvent"/>    
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <aura:if isTrue="{!v.isData}">
+        <div onkeyup="{!c.handleEscapeKeyPress}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Dialog headers -->
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeNotification}" alternativeText="Close" />
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Mandatory Notification</h2>
+                    </header>
+                    <!-- Dialog body -->
+                    <div class="slds-modal__content slds-p-right_x-large slds-p-left_x-large setting-height setting-height">
+                        <div class="notification-pannel message-content" aura:id="notificationDOM">
+                            <c:NotificationBodyPannel currentNotificationBody="{!v.currentNotificationBody}"/>
+                        </div> 
+                    </div>
+                    <!-- Dialog footers -->
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" label="Acknowledge" onclick="{!c.acknowledgeNotification}"/> 
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+</aura:component>

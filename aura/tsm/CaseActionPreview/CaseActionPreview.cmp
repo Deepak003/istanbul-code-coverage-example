@@ -1,0 +1,166 @@
+<aura:component extends="c:CaseActionMain" >    
+    <!-- Aura Attribs -->
+    <aura:attribute name="workId" type="String" />
+    <aura:attribute name="simpleCase" type="Object" />    
+    <aura:attribute name="petitionActionsPrev" type="List" default="[]" />
+    <aura:attribute name="queueOptions" type="Object" />
+    <aura:attribute name="strikeLevels" type="Object" />
+    <aura:attribute name="petitionActionSelected" type="String" />
+    <aura:attribute name="selectedPetitionAction" type="String" />
+    <aura:attribute name="objectApiName" type="string" />    
+    <aura:attribute name="violationSelectedOptionList" type="Object"/>
+    <aura:attribute name="violationActionOptionList" type="object"/>
+    <aura:attribute name="petitionCommitFlg" type="Boolean" default="false" />    
+    <aura:attribute name="products" type="List" />
+    <aura:attribute name="platforms" type="List" default="[]" />
+    <aura:attribute name="categories" type="List" default="[]" />    
+    <aura:attribute name="contentTypes" type="List" default="[]" />
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="selectedPlatform" type="Object" />
+    <aura:attribute name="selectedCategory" type="Object" />
+    <aura:attribute name="selectedCtType" type="Object" />    
+    <aura:attribute name="newCase" type="String[]" default="[]" />
+    <aura:attribute name="recordId" type="String" default=""/>    
+    <aura:attribute type="string" name="caseNote"   />
+    <aura:attribute type="string" name="accNote"   />
+    <aura:attribute type="string" name="note"   />    
+    <aura:attribute name="tabViewFlag" type="String" default="Queued" />
+    <aura:attribute name="petitionActionFlag" type="Boolean" default="true" />
+    <aura:attribute name="caseAction" type="String"/>
+    <aura:attribute name="queueSelect" type="String"/>
+    <aura:attribute name="selectedQueue" type="List" />
+    <aura:attribute name="userType" type="String"/>
+    <aura:attribute name="contentPenaltyActionEventParam" type="Object" />
+    <aura:attribute name="strContentVO" type="Object" />
+    <aura:attribute name="strPersonaVO" type="Object" />    
+    <aura:attribute name="targetAccount" type="Object" />    
+    <aura:attribute name="productObj" type="Object" />    
+    <aura:attribute name="contentActPermsHide" type="Boolean" default="false" />
+    <aura:attribute name="contentActPermsShow" type="Boolean" default="false" />
+    
+    <!-- Aura handler  --> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>    
+    <aura:handler event="c:GetNextRowClickApp" action="{!c.getNextRowClickEvent}" />
+	<aura:handler event="c:DataGridRowClickApp" action="{!c.handleRowClickAppEvent}" />
+	<aura:handler event="c:ViolationActionClickEvt" action="{!c.violationSelectEvent}" />
+    
+    <aura:method name="clearHideUnhieCheckboxes" action="{!c.clearHideUnhieCheckboxes}" />
+    
+    <!-- OMNI API and WorkSpace API  --> 
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <!-- Aura Method -->
+    <aura:method name="updatePetitionActions" 
+                 action="{!c.updatePetitionActions}" 
+                 access="PUBLIC"
+                 description="Updating pet actions" />
+    
+    <div class="slds-is-relative petition-actions slds-border_left slds-border_right slds-border_bottom slds-border_top" 
+         aura:id="petition-actions" id="petition-actions">
+        <div class="">
+            <div class="petition-actions-header-main slds-grid slds-m-bottom_none slds-p-left_large slds-p-right_large slds-p-top_large">
+                <div class="slds-media slds-media_center slds-has-flexi-truncate" > 
+                    <div class="slds-media__figure slds-align-top">
+                        <h2><lightning:icon iconName="utility:list"
+                                            title="Petition Actions" /></h2>
+                    </div>
+                    <div class="slds-media__body">
+                        <!-- Inserts the  current number, pulled from the flow, into the script -->
+                        <ui:outputRichText class="petition-actions-header" value="{!'Petition Actions'}"/>                        
+                    </div> 
+                </div>
+            </div>            
+        </div>
+        <aura:if isTrue="{!v.tabViewFlag == 'Completed'}">
+            <div class="slds-p-top_small">
+                <aura:if isTrue="{!v.simpleCase.Status == 'Transferred' || v.simpleCase.Status == 'Escalated'}">
+                    <div class="slds-p-bottom_small slds-p-left_large slds-p-right_large slds-border_bottom">
+                        <span class="slds-p-top_small ">
+                            <ui:outputRichText value="Transfer the case to T2 queue."/>   
+                        </span>
+                    </div>
+                </aura:if>
+                <div class="slds-p-top_small slds-p-left_large slds-p-right_large slds-has-flexi-truncate slds-border_bottom slds-p-bottom_small">
+                    <div class="slds-media slds-media_center ">
+                        <div class="slds-media__figure slds-align-top">
+                            <h2><lightning:icon iconName="utility:note"
+                                                title="Petition Notes" /></h2>                    
+                        </div>
+                        <div class="slds-media__body">
+                            <!-- Inserts the user's current number, pulled from the flow, into the script -->
+                            <ui:outputRichText class="petition-actions-header" value="{!'Petition Notes'}"/>                        
+                        </div>
+                    </div>
+                    <div class="slds-p-top_small"><c:CaseNotes caseId="{!v.simpleCase.Id}" tabViewFlag="Completed" aura:id="petitionNotes"/></div>
+                </div>
+                
+                <div class="slds-p-left_large slds-p-right_large slds-p-top_small slds-text-align_left">
+                    <lightning:button variant="neutral"
+                                      class="slds-m-bottom_small"
+                                      label="Open Case" title="Open Case"
+                                      onclick="{!c.clickOpenCase }" aura:id="openCaseBtn"/>
+                    <div class="slds-media slds-hide" aura:id="appendActions">
+                        <div class="slds-media__figure slds-align-top">
+                            <h2><lightning:icon iconName="utility:list"
+                                                title="Append Actions" /></h2>
+                        </div>
+                        <div class="slds-media__body">
+                            <!-- Inserts the user's current number, pulled from the flow, into the script -->
+                            <ui:outputRichText class="petition-actions-header" value="{!'Append Actions'}"/>                        
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!or(v.petitionActionFlag, v.isAccount)}">
+            <div class="slds-p-bottom_medium">
+                <div class="slds-p-left_large slds-p-right_large">
+                    <lightning:combobox id="selectPetition" aura:id="selectPetitionAction" name="petitionAction" label=""
+                                        placeholder="Select an action"
+                                        value="{!v.caseAction}"
+                                        onchange="{!c.handlePetitionActions}"
+                                        onfocus="{!c.handlePetitionClickActions}"
+                                        options="{!v.petitionActionsPrev}"/>
+                    <lightning:combobox class="slds-hide" aura:id="queueSelectDropdown"
+                                        placeholder="Select a queue"
+                                        value="{!v.queueSelect}"
+                                        onchange="{!c.handleQeueueSelectActions}"
+                                        options="{!v.queueOptions}"/>
+                </div>
+            </div>
+        </aura:if>
+        <div>
+            <aura:if isTrue="{!and(v.contentActPermsHide, v.tabViewFlag == 'Queued')}">
+                <div data-id="{!v.simpleCase.Petition_Details__r.Hide_Url__c}" class="slds-p-left_large slds-p-right_large image-hide" id="hideImageChk">
+                    <ui:inputCheckbox aura:id="hideContent" label="Hide Image Content Permanently" click="{!c.imageHidePermanent}"/>
+                </div>
+            </aura:if>
+            <aura:if isTrue="{!and(v.simpleCase.Petition_Details__r.Unhide_Url__c , v.tabViewFlag == 'Queued')}">
+                <div data-id="{!v.simpleCase.Petition_Details__r.Unhide_Url__c}" class="slds-p-left_large slds-p-right_large image-hide" id="hideImageChk">
+                    <ui:inputCheckbox aura:id="unHideContent" label="Unhide Image Content" click="{!c.imageUnHidePermanent}"/>
+                </div>
+            </aura:if>
+            <div class="petition-footer slds-m-left_large slds-m-right_large">                
+                <aura:if isTrue="{!and(v.petitionCommitFlg, or(v.tabViewFlag == 'Queued', v.tabViewFlag == 'Completed'))}">                        
+                    <div class="notesArea slds-p-bottom_medium" onkeyup="{!c.keyPressController}">
+                        <lightning:textarea id="makeNote" name="makeNotes" value="{!v.caseNote}"
+                                            label="Make Notes" maxlength="3900" />
+                    </div>
+                    <div class="actions-buttons slds-p-bottom_medium">
+                        <aura:if isTrue="{!v.tabViewFlag == 'Completed'}">                             
+                            <lightning:button variant="brand"                                          
+                                              label="Commit" title="Commit" 
+                                              onclick="{!c.handlePetitionCommitCompleted }" class="" aura:id="commit_button"/>
+                            <aura:set attribute="else">                            	
+                                <lightning:button variant="brand" 
+                                                  label="Commit" title="Commit" class="" aura:id="commit_button"
+                                                  onclick="{!c.handlePetitionCommitNext }"/>
+                            </aura:set>
+                        </aura:if>                        
+                    </div>
+                </aura:if>
+                
+            </div>
+        </div>
+    </div>
+</aura:component>

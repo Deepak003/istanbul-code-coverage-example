@@ -1,0 +1,111 @@
+<aura:component>
+    
+    <aura:attribute name="cols" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid columns."/> 
+    
+    <aura:attribute name="rows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid row data."/>
+    
+    <aura:attribute name="filteredRows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The filtered grid row data." />
+    
+    <aura:attribute name="cmpName" 
+                    type="String" 
+                    default="" 
+                    description="Expandable section component name (e.g c:AccountNotes)" />
+    
+    <aura:attribute name="cmpParams" 
+                    type="Map" 
+                    access="public" description="Parameters for Expandable section component" />
+    
+    <aura:attribute name="externalData"
+                    type="Map" 
+                    access="public"
+                    description="External data to the grid."/>
+    
+    <aura:attribute name="mouseoverIndex" type="Integer" default="-1" />
+    
+    <aura:handler name="change" value="{! v.rows }" action="{! c.init }"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="c:Expand" action="{! c.handleExpand }"/>
+    
+    <div class="slds-border_bottom slds-grid slds-p-vertical_xx-small" id="{!v.cmpName}"
+         style="background: #F3F2F2;height: 32px;padding-top: 8px;">
+        <aura:iteration items="{!v.cols}" var="col" indexVar="idx">            
+            <div class="{! join(' ',
+                        'slds-text-heading--label slds-col ',
+                        col.class,
+                        v.mouseoverIndex == idx ? 'mouseover-col' : ''
+                        )}" data-index="{! idx }" onmouseover="{! c.onmouseover }" onmouseout="{! c.onmouseout }">
+                <span class="{! join(' ',
+                             'slds-truncate',
+                             idx==0 ? 'slds-p-left_medium' : ''
+                             )}">{! col.label}</span>
+                <aura:if isTrue="{! col.isSortable }">
+                    <span class="ico_container slds-hide">
+                        <div onclick="{!c.sortDesc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-hide arrowdown">
+                            <lightning:icon iconName="utility:arrowdown" size="xx-small" alternativeText="Sort by"/>
+                        </div>
+                        <div onclick="{!c.sortAsc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container  arrowup">
+                            <lightning:icon iconName="utility:arrowup" size="xx-small" alternativeText="Sort by"/>
+                        </div>
+                    </span>
+                </aura:if>
+            </div>            
+        </aura:iteration>
+    </div>
+    <!-- Data Iteration -->
+    <aura:iteration items="{!v.filteredRows}" var="row" indexVar="idx">                
+        <div class="slds-border_bottom slds-p-bottom_small slds-section" aria-controls="{!idx}" aria-expanded="false">
+            <div class="slds-has-flexi-truncate slds-grid" data-index="{!idx}" onclick="{!c.expandRow1}">
+                <aura:iteration items="{!row.data}" var="colData" indexVar="id">                    
+                    <div class="{!'slds-col slds-p-right--small '+ colData.label + ' ' + colData.class}">                        
+                        <div class="slds-truncate">
+                            <aura:if isTrue="{! id == 0 }">
+                                <!--removed as per tsm2929onclick="{!c.expandClick}"-->
+                                <lightning:buttonIcon value="{!idx}" variant="bare" size="small" 
+                                                      
+                                                      iconName="{!row.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                            </aura:if>
+                            <aura:if isTrue="{!colData.type == 'Date'}">
+                                <div>
+                                    <!--<ui:outputDateTime value="{!colData.value}" format="MMM/dd/yy"/>-->
+                                    <c:FormattedDateTime value="{!colData.value}" format="only-date"/>
+                                </div>
+                                <div class="section-2">
+                                    <!--<lightning:relativeDateTime value="{!colData.value}"/>-->
+                                    <c:FormattedDateTime value="{!colData.value}" format="only-time"/>
+                                </div>                                
+                                <aura:set attribute="else">
+                                    <aura:if isTrue="{!colData.label == 'STATUS'}">
+                                        <div class="{! join(' ', 
+                                                    'slds-truncate',
+                                                    'status',
+                                                    colData.values[0]
+                                                    )}">{!colData.values[0]}</div>
+                                        <div class="section-2 slds-truncate">{!colData.values[1]}</div>
+                                        <aura:set attribute="else">
+                                            <span title="{!colData.value}">{!colData.value}</span>
+                                        </aura:set>
+                                    </aura:if>                                        
+                                </aura:set>
+                            </aura:if>                     
+                        </div>                
+                    </div>                    
+                </aura:iteration> 
+            </div>
+            <div class="{! join(' ',
+                        row.expanded ? 'slds-show' : 'slds-hide',
+                        'container-' + idx,
+                        'slds-border_top slds-m-top_x-small slds-p-top_medium'
+                        ) }" aura:id="container"></div>
+            
+        </div>        
+    </aura:iteration>
+</aura:component>

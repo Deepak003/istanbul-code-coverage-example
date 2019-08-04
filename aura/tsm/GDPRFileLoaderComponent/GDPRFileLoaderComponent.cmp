@@ -1,0 +1,30 @@
+<aura:component controller="GDPRRequestController" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <!--file upload properties-->
+    <aura:attribute name="bulkUploadFlag" type="Boolean"/>
+    <aura:attribute name="spinner" type="Boolean" default="false"/> 
+    <aura:attribute name="accept" type="List" default="['.csv']"/>
+    <aura:attribute name="multiple" type="Boolean" default="false"/>
+    <aura:attribute name="disabled" type="Boolean" default="false"/>
+    <aura:attribute name="recordId" type="String"/>
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <lightning:fileUpload name="fileUploader" 
+                          label= ""
+                          multiple="{!v.multiple}"
+                          accept="{!v.accept}"
+                          disabled="{!v.disabled}"
+                          recordId="{!v.recordId}"
+                          onuploadfinished="{! c.handleUploadFinished }"/>
+</aura:component>

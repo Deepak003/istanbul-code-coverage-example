@@ -1,0 +1,140 @@
+<aura:component controller="KnowledgeBaseAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">   
+    <!-- List of variables used in KB -->
+    <aura:attribute name="featuredProduct" type="List" />
+    <aura:attribute name="currentSelectionId" type="String" />
+    <aura:attribute name="currentSelectionValue" type="String" />
+    <aura:attribute name="articleList" type="Map" default="{}"/>
+    <aura:attribute name="relatedList" type="List" default="[]"/>
+    <aura:attribute name="lastUpdatedList" type="List" default="[]"/>
+    <aura:attribute name="isData" type="Boolean" default="false" />
+    <aura:attribute name="showArticleSharing" type="Boolean" default="false" />
+    <aura:attribute name="localStorage" type="Object" default="{}"/>
+    <aura:attribute name="selectedArticle" type="Object" default="{}"/>
+    <aura:attribute name="isArticleLoading" type="Boolean" default="false" access="public"/>
+    
+    <!-- Action listeners -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />    
+    <aura:handler name="change" value="{!v.articleList}" action="{!c.articleDOMBuilder}" />
+    <aura:registerEvent name="articleSelectEvent" type="c:KnowledgeComponentEvent" />
+    
+    <div class="c-container slds-is-relative slds-m-top--x-small">
+        <lightning:spinner variant="brand" size="small" class="{! v.isArticleLoading ? 'slds-show' : 'slds-hide' }"/>
+        <div class="custom-margin">
+            <div class="slds-text-heading_large slds-m-bottom--medium slds-p-top--xx-large slds-p-left--small">Search or select an article to begin</div>        
+            <div class="font-bold slds-m-bottom--medium slds-p-left--small">Top Products</div>
+            <div class="slds-grid slds-p-left--small slds-wrap">
+                <!-- Getting the featured products -->
+                <aura:iteration items="{!v.featuredProduct}" var="item" indexVar="idx">
+                    <div class="slds-m-bottom--small slds-m-right--small">
+                        <div class="slds-visual-picker slds-visual-picker_small">   
+                            <aura:if isTrue="{!idx == 0}"> 
+                                <input type="radio" aura:id="{!item.urlName}" id="{!item.urlName}" name="product-change" value="{!item.name}" onchange="{!c.toggleProductChange}" checked="checked"/>
+                                <aura:set attribute="else">
+                                    <input type="radio" aura:id="{!item.urlName}" id="{!item.urlName}" name="product-change" value="{!item.name}" onchange="{!c.toggleProductChange}"/>
+                                </aura:set>
+                            </aura:if>
+                            <label for="{!item.urlName}">
+                                <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+                                    <lightning:avatar class="product-image" src="{!'https://eaassets-a.akamaihd.net/eahelp/images/box-art/x2/'+item.urlName+'.jpg'}" initials="EA"  alternativeText="Player games"/>
+                                </span>    
+                                <span class="slds-icon_container slds-visual-picker__text-check">
+                                    <lightning:icon class="display-none" iconName="utility:check" size="xx-small" />
+                                </span> 
+                            </label>
+                        </div>
+                    </div>
+                </aura:iteration>
+            </div>
+            <!-- Getting the relavent data -->
+            <div class="slds-m-bottom--large edit-field-label slds-p-left--small">To view other products, please use search</div>
+            <aura:if isTrue="{!v.isData == true}"> 
+                <div class="slds-grid">
+                    <div class="slds-size_1-of-2 slds-m-bottom--small slds-p-right--small slds-p-left--small">
+                        <div class="font-bold">Trending Topics for {!v.currentSelectionValue}</div>
+                        <div>
+                            <aura:iteration items="{!v.relatedList}" var="item" indexVar="idx">
+                                <div data-value="{!idx}" class="card-height slds-m-top--medium card-details" onclick="{!c.selectRelatedArticleCard}">
+                                    <lightning:card aura:id="foundArticles" class="" title="{!item.fields.title}">
+                                        <aura:set attribute="actions">
+                                            <aura:if isTrue="{!item.fields.scope == 'external'}">
+                                                <div style="z-index:1;">
+                                                    <lightning:buttonIcon iconName="utility:share" alternativeText="Share " size="small" value="{!item}" onclick="{!c.sendToPlayerAction}" class="shareBtn" />
+                                                </div>
+                                            </aura:if>
+                                        </aura:set>
+                                        <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                            <div class="slds-p-horizontal_small slds-m-top--small edit-field-label body-text-small">Last updated <lightning:formattedDateTime value="{!item.fields.last_modified_at}"/></div>
+                                        </aura:if>
+                                        <p class="slds-p-horizontal_small slds-m-top--small subject-wrap">
+                                            {!item.fields.summary}
+                                        </p>
+                                        <div class="slds-grid slds-m-top--small">
+                                            <div class="slds-size_2-of-3 slds-m-left--small">
+                                                <lightning:badge class="{! join(' ',
+                                                                        if(item.fields.scope == 'external', 'scope-external'),
+                                                                        if(item.fields.scope == 'internal', 'scope-internal')                          
+                                                                        )}" label="{!item.fields.scope}"/>
+                                            </div>
+                                            <aura:if isTrue="{!item.fields.total_votes != undefined}"> 
+                                                <div class="edit-field-label text-center slds-float_right body-text-small slds-size_1-of-3">
+                                                    {!item.fields.helpful_votes} found helpful
+                                                </div>
+                                            </aura:if>
+                                        </div>
+                                    </lightning:card>
+                                </div>
+                            </aura:iteration>
+                        </div>
+                    </div>
+                    <!-- Getting the recent updated data -->
+                    <div class="slds-size_1-of-2 slds-p-right--small slds-m-bottom--small">
+                        <div class="font-bold">Recently Updated for {!v.currentSelectionValue}</div>
+                        <div>
+                            <aura:iteration items="{!v.lastUpdatedList}" var="item" indexVar="idx">
+                                <div data-value="{!idx}" class="card-height slds-m-top--medium card-details" onclick="{!c.selectLatestArticleCard}">
+                                    <lightning:card aura:id="foundArticles" class="" title="{!item.fields.title}">
+                                        <aura:set attribute="actions">
+                                            <aura:if isTrue="{!item.fields.scope == 'external'}">
+                                                <div style="z-index:1;">
+                                                    <lightning:buttonIcon iconName="utility:share" alternativeText="Share " size="small" value="{!item}" onclick="{!c.sendToPlayerAction}" class="shareBtn" />
+                                                </div>
+                                            </aura:if>
+                                        </aura:set>
+                                        <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                            <div class="slds-p-horizontal_small slds-m-top--small edit-field-label body-text-small">Last updated <lightning:formattedDateTime value="{!item.fields.last_modified_at}"/></div>
+                                        </aura:if>
+                                        <p class="slds-p-horizontal_small slds-m-top--small subject-wrap">
+                                            {!item.fields.summary}
+                                        </p>
+                                        <div class="slds-grid slds-m-top--small">
+                                            <div class="slds-size_2-of-3 slds-m-left--small">
+                                                <lightning:badge class="{! join(' ',
+                                                                        if(item.fields.scope == 'external', 'scope-external'),
+                                                                        if(item.fields.scope == 'internal', 'scope-internal')                          
+                                                                        )}" label="{!item.fields.scope}"/>
+                                            </div>
+                                            <aura:if isTrue="{!item.fields.total_votes != undefined}"> 
+                                                <div class="edit-field-label text-center slds-float_right body-text-small slds-size_1-of-3">
+                                                    {!item.fields.helpful_votes} found helpful
+                                                </div>
+                                            </aura:if>
+                                        </div>
+                                    </lightning:card>
+                                </div>
+                            </aura:iteration>
+                        </div>
+                    </div>
+                </div> 
+                <!-- Error is no data -->
+                <aura:set attribute="else">
+                    <c:EmptyState message="{!'No relevant articles found for \''+v.currentSelectionValue + '\''}"></c:EmptyState>   
+                </aura:set>
+            </aura:if>
+            <div id="articleDiv">
+                <aura:if isTrue="{!v.showArticleSharing}">
+                    <c:ArticleSharing isOpen="{!v.showArticleSharing}" selectedArticle="{!v.selectedArticle}" localStorage="{!v.localStorage}"/>
+                </aura:if>
+            </div>
+        </div>
+    </div> 
+</aura:component>

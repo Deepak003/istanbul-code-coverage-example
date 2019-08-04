@@ -1,0 +1,139 @@
+<aura:component controller="KnowledgeBaseAuraCtl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="items" type="List" default="" description="Formatted Row Data"/>
+    <aura:attribute name="openBookMarkModal" type="Boolean" default="false"/>
+    <aura:attribute name="openDeleteModal" type="Boolean" default="false"/>
+    <aura:attribute name="openDeleteLinkModal" type="Boolean" default="false"/>
+    <aura:attribute name="openEditModal" type="Boolean" default="false"/>
+    <aura:attribute name="delIndex" type="String" default=""/>
+    <aura:attribute name="editIndex" type="String" default=""/>
+    <aura:attribute name="folderName" type="String" default=""/>
+    <aura:attribute name="delLinkIndex" type="String" default=""/>
+    <aura:attribute name="delLinkParentIndex" type="String" default=""/>
+    
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit}"/>
+    <aura:handler event="c:CloseBookMarkModalEvent" action="{!c.closeModal}"/>
+    <aura:handler event="c:BookMarkBubbleEvent" action="{!c.bubbleEvtModal}"/>
+    <aura:registerEvent name="articleSelectEvent" type="c:KnowledgeComponentEvent" />
+    <aura:handler event="c:RefreshBookmark" action="{!c.doInit}"/>
+    
+    <div>
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+            <thead>
+                <tr class="slds-line-height_reset" style="height:32px;">
+                    <th colspan="3" class="slds-text-title_caps"  scope="col" style="width:100%">
+                        <div class="slds-truncate">YOUR BOOKMARKS</div>
+                    </th>
+                    <th class="slds-text-title_caps"  scope="col">
+                        <div class="slds-truncate" onclick="{!c.openBookmarkModal}" style="cursor:pointer">
+                            <lightning:icon iconName="utility:add" size="x-small"/>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.items}" var="item" indexVar="itemIndex">
+                    <tr class="slds-hint-parent" data-index="{!itemIndex}">
+                        <td scope="row" style="width:1%;"> 
+                            <lightning:buttonIcon value="{!itemIndex}" variant="bare" iconName="{!item.expanded?'utility:chevrondown':'utility:chevronright'}" onclick="{!c.toggleExpand}"/>
+                        </td>
+                        <td data-label="NAME" scope="row" data-index="{!itemIndex}"  >
+                            <aura:if isTrue="{!and(v.openEditModal , v.editIndex == itemIndex)}">
+                                <ui:inputText class="slds-input" aura:id="newfolderName" value="{!item.NAME}"/>
+                                <aura:set attribute="else">
+                                    <b><ui:outputText aura:id="oldfolderName" value="{!item.NAME}"/></b>
+                                </aura:set>
+                            </aura:if><br/>
+                            <span style="font-size:11px;color:#A9A9A9;">{!item.LinksCnt} Saved Articles</span>
+                        </td>
+                        <td style="width:1%;">
+                            <div class="slds-truncate" title="EDIT">
+                                <lightning:buttonIcon value="{!itemIndex}" iconName="utility:edit" variant="bare" onclick="{!c.editBookMark}"/>
+                            </div>
+                        </td>
+                        <td style="width:1%;">
+                         <aura:if isTrue="{!not(item.NAME == 'Default')}">
+                            <div class="slds-truncate" title="DELETE">
+                                <lightning:buttonIcon value="{!itemIndex}" iconName="utility:delete" variant="bare" onclick="{!c.deleteBookMark}"/>
+                            </div>
+                           </aura:if>
+                        </td>
+                    </tr>
+                    
+                    <aura:if isTrue="{!and(v.openEditModal , v.editIndex == itemIndex)}">
+                        <tr>
+                            <td></td>
+                            <td colspan="4" style="width:100%">
+                                <div class="slds-float_right">
+                                    <lightning:button  aura:id="closeButton" label="Cancel" onclick="{!c.closeEditModal}"/>
+                                    <lightning:button  aura:id="saveButton" value="{!itemIndex}" variant="brand" label="Save" onclick="{!c.saveEdits}"/>
+                                </div>
+                            </td>
+                        </tr> 
+                    </aura:if>
+                    
+                    
+                    <aura:if isTrue="{!and(v.openDeleteModal , v.delIndex == itemIndex)}">
+                        <div class="deletPopover">
+                            <section class="deletPopoverSection slds-popover slds-popover_medium slds-nubbin_top-right-corner" role="dialog" aria-labelledby="dialog-heading-id-8" aria-describedby="dialog-body-id-8">
+                                <div class="slds-popover__body slds-p-around_none" id="dialog-body-id-8">
+                                    <button class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close" title="Close dialog">
+                                        <lightning:icon class="close-icon" value="{!v.itemIndex}" iconName="utility:close" size="xx-small" onclick="{!c.closeDeleteModal}"/>
+                                        <span class="slds-assistive-text">Close</span>
+                                    </button>
+                                    <div class="slds-popover__body" id="dialog-body-id-8">
+                                        <b>Are you sure?</b>
+                                        <br/>
+                                        <p>Are you sure you want to delete this folder?</p>
+                                    </div>
+                                    <footer class="slds-popover__footer slds-float_right" style="border-top:none">
+                                        <lightning:button aura:id="cclButton" value="{!v.itemIndex}" label="Cancel" onclick="{!c.closeDeleteModal}"/>
+                                        <lightning:button aura:id="confirmButton" variant="brand" label="Confirm" onclick="{!c.deleteArticle}"/>
+                                    </footer>
+                                </div>
+                            </section>
+                        </div>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!item.expanded}">
+                        <aura:iteration items="{!item.links}" var="link" indexVar="linkIndex">
+                            <tr>
+                                <td colspan="3">
+                                    <div style="display:inline-block;" data-index="{!linkIndex}" data-parentindex="{!itemIndex}" onclick="{!c.selectArticleCard}">{!link.Name}</div>
+                                    <lightning:button variant="base" label="" title="Bookmarked" iconName="utility:bookmark" iconPosition="right"/>
+                                </td>
+                                <td colspan="1" style="width:1%;">
+                                    <div class="c-container" style="display: flex;">
+                                        <lightning:buttonIcon value="{!linkIndex}" name="{!itemIndex}" iconName="utility:delete" variant="bare" onclick="{!c.deleteLinkModal}"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <aura:if isTrue="{!and(and(v.openDeleteLinkModal , v.delLinkParentIndex == itemIndex), v.delLinkIndex == linkIndex )}">
+                                <div class="deletPopover">
+                                    <section class="deletPopoverSection slds-popover slds-popover_medium slds-nubbin_top-right-corner" role="dialog" aria-labelledby="dialog-heading-id-8" aria-describedby="dialog-body-id-8">
+                                        <div class="slds-popover__body slds-p-around_none" id="dialog-body-id-8">
+                                            <button class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close" title="Close dialog">
+                                                <lightning:icon class="close-icon" iconName="utility:close" size="xx-small" onclick="{!c.closeDeleteLinkModal}"/>
+                                                <span class="slds-assistive-text">Close</span>
+                                            </button>
+                                            <div class="slds-popover__body" id="dialog-body-id-8">
+                                                <p>Are you sure you want to delete this Article/Link?</p>
+                                            </div>
+                                            <footer class="slds-popover__footer slds-float_right" style="border-top:none">
+                                                <lightning:button aura:id="cclButton" label="Cancel" onclick="{!c.closeDeleteLinkModal}"/>
+                                                <lightning:button aura:id="confirmButton" variant="brand" label="Confirm" onclick="{!c.deletLink}"/>
+                                            </footer>
+                                        </div>
+                                    </section>
+                                </div>
+                            </aura:if>
+                        </aura:iteration>
+                    </aura:if>
+                </aura:iteration>
+            </tbody>
+        </table>
+    </div>
+    <aura:if isTrue="{!v.openBookMarkModal}">
+        <c:AddBookmarkManual isOpen="true"/>
+    </aura:if>
+</aura:component>

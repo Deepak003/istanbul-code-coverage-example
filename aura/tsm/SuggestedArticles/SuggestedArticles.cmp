@@ -1,0 +1,90 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">  
+     <!-- Local vaiables -->
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="selectedPlatform" type="Object" />
+    <aura:attribute name="selectedCategory" type="Object" />
+    <aura:attribute name="isData" type="Boolean" default="false" />
+    <aura:attribute name="articleList" type="List" default="[]"/>
+     <!-- Initilization function -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+     <!-- Handling the change event -->
+    <aura:handler name="change" value="{!v.selectedProduct}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.selectedPlatform}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.selectedCategory}" action="{!c.doInit}" />
+    
+    <aura:attribute name="isArticleLoading" type="Boolean" default="false" access="public"/>
+    
+    <!-- TSM-3745 Attribute added for case id validation-->
+    <aura:attribute name="caseId" type="String"/>
+
+     <!-- Outer container for suggested articles -->
+    <div class="c-container slds-is-relative">
+         <!-- Suggested Articles header -->
+            <div class="slds-grid slds-p-horizontal_large">
+                <div class="slds-size_1-of-2">
+                    <div class=""><lightning:icon class="" iconName="custom:custom55" alternativeText="Knowledge" size="small"/>
+                        <span class="slds-m-left_xx-small slds-text-heading_small font-bold"> Recommended </span>
+                    </div>
+                </div>
+                <div class="slds-size_1-of-2">
+                    <a class="slds-float_right" onclick="{!c.openKnowledgeBaseArticles}"> Knowledge Base </a>
+                </div>
+            </div> 
+            
+            <div class="slds-p-horizontal_large slds-p-vertical--small">Here are recommended articles based on case criteria and information from the player.</div>
+            
+         <!-- Suggested articles list -->
+            <div class="container-height slds-is-relative">
+                <lightning:spinner variant="brand" size="small" class="{! v.isArticleLoading ? 'slds-show' : 'slds-hide' }"/>
+                <!-- Display cards for data -->
+                <aura:if isTrue="{!v.isData == true}">
+                    <aura:iteration items="{!v.articleList}" var="item" indexVar="idx">
+                        <div data-value="{!idx}" class="card-details slds-m-horizontal_large slds-m-vertical_x-small" onclick="{!c.selectArticleCard}">
+                             <!-- Each card data -->
+                            <lightning:card aura:id="foundArticles" title="{!item.fields.title}">
+                                <aura:set attribute="actions">
+                                    <aura:if isTrue="{!item.fields.scope == 'external'}">
+                                        <div style="z-index:1;">
+                                            <lightning:buttonIcon iconName="utility:share" alternativeText="Share " size="small" value="{!item}" class="shareBtn" onclick="{!c.handleShareButtonClick}" />
+                                        </div>
+                                    </aura:if>
+                                </aura:set>
+                                <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                    <div class="slds-p-horizontal_medium edit-field-label body-text-small">Last updated <lightning:formattedDateTime value="{!item.fields.last_modified_at}"/></div>
+                                </aura:if>
+                                <p class="slds-p-horizontal_medium slds-m-top_x-small summary-ellipsis">
+                                    {!item.fields.summary}
+                                </p>
+                                <div class="slds-grid slds-p-horizontal--medium slds-p-top_x-small slds-p-bottom_xx-small">
+                                    <div class="slds-size_1-of-2">
+                                        <lightning:badge class="{! join(' ','slds-p-bottom_xx-small',
+                                                                if(item.fields.scope == 'external', 'scope-external'),
+                                                                if(item.fields.scope == 'internal', 'scope-internal')                          
+                                                                )}" label="{!item.fields.scope}"/>
+                                    </div>
+                                    <aura:if isTrue="{!item.fields.total_votes != undefined}"> 
+                                        <div class="edit-field-label text-center body-text-small slds-size_1-of-2">
+                                            <p class="slds-float_right">{!item.fields.helpful_votes} found helpful</p>
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </lightning:card>
+                        </div>
+                    </aura:iteration>
+                    
+                    <!-- Error is no data -->
+                    <aura:set attribute="else">
+                        <div class="slds-p-around_small">
+                            <c:EmptyState>
+                                <aura:set attribute="message">
+                                    <div> No Recommended Articles </div>
+                                    <div class="slds-p-around_small slds-text-body_regular"> There is no recommended article for this case. You could search all articles in Knowledge Base. </div>
+                                </aura:set>
+                            </c:EmptyState>
+                        </div> 
+                    </aura:set>
+                </aura:if>
+            </div>
+        </div>
+</aura:component>

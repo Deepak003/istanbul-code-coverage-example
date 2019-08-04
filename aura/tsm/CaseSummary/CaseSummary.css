@@ -1,0 +1,34 @@
+.THIS {
+}
+
+
+.THIS.case-container {
+    margin-top: t(spacingMedium);
+    /*margin-left: t(spacingLarge);*/
+}
+
+.THIS.case-container:last-child {
+    margin-bottom: t(spacingMedium);
+}
+
+.THIS .case-date {
+    font-weight: bold;
+    font-size: .75rem;
+    margin-bottom: t(spacingXSmall);
+}
+
+.THIS .case-summary-transcript {
+    margin-bottom: t(spacingXSmall);
+}
+.THIS .case-action-p2 {
+    margin-bottom: t(spacingXxSmall)
+}
+
+.THIS .heading {
+    color: #908b8b;
+    font-size: .75rem;
+}
+
+.THIS .note-list {
+    /*padding: 5px 0;*/
+}

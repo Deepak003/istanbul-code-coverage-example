@@ -1,0 +1,31 @@
+.THIS .create-case-icon-container {
+    background-color: transparent;
+}
+.THIS .slds-media__figure{
+    margin-right: unset;
+}
+.THIS .bColor{
+    background-color: #16325C;
+}
+.THIS .buttonFullWidth {
+    width:100%;
+}
+.THIS lightning-click-to-dial span:nth-child(2) {
+    display:none;
+}
+.THIS .no-asterisk abbr[title='required'] {
+    display: none;
+}
+.THIS lightning-click-to-dial span{
+    display: inline-block;
+    border-radius: .25rem;
+    line-height: 1.875rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    vertical-align: middle;
+    transition: border .15s linear;
+    background-color: rgba(0, 112, 210, 1);
+    border-color: rgba(0, 112, 210, 1);
+    color: rgb(255, 255, 255);
+    margin-top: 1.5rem;
+}

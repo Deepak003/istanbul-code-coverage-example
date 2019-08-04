@@ -1,0 +1,19 @@
+.THIS {
+}
+
+.THIS .case-notes-title {
+    font-size : 12px;
+    color : #3E3E3C;
+    padding-bottom : t(spacingXxSmall)
+}
+
+.THIS .case-notes-title.part-1 {
+}
+
+.THIS .case-notes-title.part-2 {
+    padding-top : t(spacingMedium)
+}
+
+.THIS .case-notes-advisor-actions {
+    font-style: italic;
+}

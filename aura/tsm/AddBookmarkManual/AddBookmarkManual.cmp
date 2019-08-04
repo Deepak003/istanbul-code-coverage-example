@@ -1,0 +1,59 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" controller="KnowledgeBaseAuraCtl"> 
+    <aura:attribute name="createOptions" type="List" default="[{'label': 'A Folder', 'value': 'Folder'},
+                                                              {'label': 'A Link', 'value': 'Link'}]"/>
+    <aura:attribute name="isOpen" type="Boolean" default="false"/>
+    <aura:attribute name="showLinkSection" type="Boolean" default="false"/>
+    <aura:attribute name="showFolderSection" type="Boolean" default="false"/>
+    <aura:attribute name="selFolder" type="String"/>
+    <aura:attribute name="options" type="List"/>
+    <aura:attribute name="askFolderName" type="Boolean" default="false"/>
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="true" description="Add Button Disable/Enable"/>    
+    
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+    <aura:registerEvent name="closeBookMarkModal" type="c:CloseBookMarkModalEvent"/>
+    <aura:registerEvent name="BookMarkBubbleEvt" type="c:BookMarkBubbleEvent"/>
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="true" title="Add Bookmark">
+            <aura:set attribute="class" value="modal-large"/>            
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <!-- Add Bookmark details data block-->
+                <div class="modalbody" aura:id="addBookmarkDataBlock">
+                    <div>
+                        <lightning:combobox aura:id="mode" placeholder="Select an Option"  label="What would you like to add?" options="{!v.createOptions}" onchange="{!c.validateBookmarkSection}"/>
+                    </div> 
+                    <aura:if isTrue="{!v.showFolderSection}">
+                        <div class="slds-m-top_medium">
+                            <lightning:input aura:id="folderName" label="Name of Folder" placeholder="New Folder Name" onchange="{!c.validate}"/>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{!v.showLinkSection}">
+                        <div class="slds-m-top_medium">
+                            <lightning:combobox aura:id="folders" placeholder="Select an Option" options="{!v.options}"  
+                                 value="{!v.selFolder}" label="Choose a Folder" onchange="{!c.onchangeAction}"/>          
+                        </div> 
+                        <aura:if isTrue="{!v.askFolderName}">
+                            <div class="slds-m-top_medium">
+                                <lightning:input aura:id="folderName1" label="Folder Name" onchange="{!c.onchangeAction}"/>
+                            </div>
+                        </aura:if>
+                        <div class="slds-m-top_medium">
+                            <lightning:input aura:id="title" label="Title" placeholder="Enter Title Here" onchange="{!c.onchangeAction}"/>
+                        </div>
+                        <div class="slds-m-top_medium">
+                            <lightning:input aura:id="url"  label="URL" type="url" placeholder="http://" onchange="{!c.onchangeAction}"/>
+                        </div>
+                    </aura:if>
+                </div>
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="cancel" value="Cancel"/>  
+            <aura:set attribute="success" value="Add"/>  
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.successModal}"/>
+        </c:ParentModal>
+    </aura:if>  
+</aura:component>

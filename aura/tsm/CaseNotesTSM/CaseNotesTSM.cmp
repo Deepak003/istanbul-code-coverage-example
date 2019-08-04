@@ -1,0 +1,44 @@
+<aura:component extends="c:TranscriptSubTab" controller="CaseSummaryAuraController">
+    <!--Declare Attributes-->    
+    <aura:attribute name="responseResult" type="List" access="private" />
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <!--Declare Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!-- Component Body-->
+    <div class="c-container slds-is-relative">
+        <lightning:layout class="slds-p-vertical_xx-small x-large" verticalAlign="stretch" multipleRows="true">
+            <aura:if isTrue="{! v.isLoading }">
+                <lightning:spinner variant="brand" size="small" />
+                <aura:set attribute="else">
+                    <aura:if isTrue="{! empty(v.responseResult) }">
+                        <c:EmptyState>
+                            <aura:set attribute="message">
+                                <b>No result found</b>
+                            </aura:set>
+                        </c:EmptyState>                
+                        <aura:set attribute="else">
+                            <aura:iteration var="row" items="{!v.responseResult}" >
+                                <lightning:layoutItem flexibility="auto" padding="around-small" class="custom-box" size="12">    
+                                    <p class="slds-p-vertical_xx-small section-title">                        
+                                        <aura:if isTrue="{! row.agentName }">
+                                            {! row.agentName }
+                                        </aura:if>
+                                        <aura:if isTrue="{! row.agentJobRole }">
+                                            ({! row.agentJobRole })
+                                        </aura:if>                        
+                                    </p>
+                                    <p class="slds-p-vertical_xx-small section-subtitle">Case Notes</p>                  
+                                    <p class="slds-p-vertical_xx-small section-body"><lightning:formattedText value="{!row.commentBody}" /></p>                    
+                                </lightning:layoutItem>
+                            </aura:iteration>
+                        </aura:set>
+                    </aura:if>
+                </aura:set>
+            </aura:if>            
+        </lightning:layout>
+    </div>
+</aura:component>

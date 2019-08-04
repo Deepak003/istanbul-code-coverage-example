@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT">
+    <aura:attribute name="pk" type="String"/>
+    <aura:attribute name="rec" type="Object"/>
+</aura:event>

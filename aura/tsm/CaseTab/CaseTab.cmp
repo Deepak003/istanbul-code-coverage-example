@@ -1,0 +1,13 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId">
+    <aura:attribute name="caseId" type="String" access="public" />
+    <aura:attribute name="nucleusId" type="String" access="public" /> 
+    <aura:attribute name="accountId" type="String" access="public" />
+    <aura:attribute name="archivedCaseId" type="String" access="public" />
+    
+    <aura:attribute name="isCaseTableVisible" type="Boolean" default="true" access="private" />
+        
+   
+    <aura:if isTrue="{!v.isCaseTableVisible}">
+        <c:CaseTable caseId="{!v.caseId}" nucleusId="{! v.nucleusId}" accountId="{! v.accountId}" isVisible="{!v.isCaseTableVisible}" archivedCaseId="{!v.archivedCaseId}"/>
+    </aura:if>    
+</aura:component>

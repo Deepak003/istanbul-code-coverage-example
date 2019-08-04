@@ -1,0 +1,13 @@
+<aura:component>    
+    <aura:attribute name="height" type="String" required="true" />
+    <aura:attribute name="pageNo" type="Integer" required="true" default="1" />
+        
+    <aura:attribute name="intervalId"
+                    type="String"
+                    description="In the renderer.js, the interval id for periodically checking scroll position. Used when unrendering component to cancel interval check."
+                    access="private"/> 
+    
+    <div aura:id="scroll_container" class="infinite-container" style="{! 'height:'+v.height }">
+        {! v.body}
+    </div>
+</aura:component>

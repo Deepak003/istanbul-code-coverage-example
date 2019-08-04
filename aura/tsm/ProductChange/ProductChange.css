@@ -1,0 +1,39 @@
+.THIS .font-bold{
+    font-weight:bold;
+}
+.THIS .float-right{
+    float:right;
+}
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS .center-align{
+    text-align: center;
+}
+.THIS .display-none{
+    display:none;
+}
+.THIS .display-none svg{
+    fill:#FFFFFF;
+}
+.THIS input[type='radio']:checked ~ label .display-none{
+    display:block;
+}
+.THIS .remove-padding{
+    padding:0;
+}
+.THIS .setting-height{
+    min-height:60%;
+    max-height:60%;    
+}
+.THIS .cEmptyState.empty-list{
+    left: 1rem;
+    position: relative;
+    margin:0;
+}
+.THIS .cEmptyState.empty-list img{
+    width: 70%;
+}

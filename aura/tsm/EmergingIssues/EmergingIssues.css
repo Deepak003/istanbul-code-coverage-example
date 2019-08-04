@@ -1,0 +1,54 @@
+.THIS {
+    background: token(homepageComponentBackgroundColor);
+    height: token(homepageComponentHeight);
+    overflow-y: auto;
+}
+.THIS .card-details {
+    height: t(homepageComponentCardHeight1); 
+    cursor: pointer;
+}
+.THIS .card-details2 {
+    height: t(homepageComponentCardHeight2);
+    cursor: pointer;
+}
+.THIS .bColor{
+    background-color: #d4504c;
+}
+
+.THIS .marginCSS{
+    margin-left: 2%;
+}
+.THIS .slds-card__header{
+    margin-bottom: -0.75rem;
+    margin-left: -0.25rem;
+    font-weight: bold;
+}
+.THIS .textField{
+    font-size: 12px;
+}
+.THIS .dateField{
+    color: grey;
+    font-size: 10px;
+}
+.THIS .marginTop{
+    margin-bottom: 20px;
+}
+.THIS .slds-p-around_small.slds-size_6-of-12 {
+    /*
+    margin-top: -15px;
+    padding-right: 4px;
+    margin-left: -12px;
+    */
+}
+.THIS .colorCss{
+    color: t(colorGray9);
+    /*padding-left: 0.65rem;*/
+}
+.THIS .bold {
+    font-weight: bold;
+}
+
+.THIS .icon-container lightning-primitive-icon svg{
+    height: token(homepageComponentIconHeight);
+    width: token(homepageComponentIconWidth);
+}

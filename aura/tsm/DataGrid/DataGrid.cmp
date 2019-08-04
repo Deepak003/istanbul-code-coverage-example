@@ -1,0 +1,118 @@
+<aura:component >
+    <aura:attribute name="cols" 
+                    type="Object[]" 
+                    access="PRIVATE" description="The grid columns."/>  
+    <aura:attribute name="expandAll" type="Boolean" default="false" />
+
+    <aura:attribute name="rows" 
+                    type="Object[]" 
+                    access="PRIVATE" description="The rows"/>  
+    
+    <aura:attribute name="data" 
+                    type="Object[]" 
+                    access="public"
+                    description="The grid row data."/> 
+
+	<aura:attribute name="externalData" 
+                    type="Map" 
+                    access="public"
+                    description="External data to the grid."/>  
+    
+    <aura:attribute name="pkField" 
+                    type="String" 
+                    access="public" 
+                    required="true"
+                    description="Primary key field in each data row"/>
+    
+    <aura:attribute name="gridName" 
+                    type="String" 
+                    access="public"
+                    default="normal" 
+                    description="Name of the grid"/>
+    
+    <aura:attribute name="type" 
+                    type="String" 
+                    default="normal" />
+    
+    <aura:attribute name="Id" 
+                    type="String" 
+                    default="" />
+    
+    <aura:attribute name="cmpName" 
+                    type="String" 
+                    default="" 
+                    description="Expandable section component name (e.g c:AccountNotes)" />
+
+    <aura:attribute name="cmpParams" 
+                    type="Map" 
+                    access="public" description="Parameters for Expandable section component" />
+    
+    <aura:attribute name="filterDataList" type="List"/>
+	
+    
+    <aura:handler name="init" 
+                  value="{!this}" 
+                  action="{!c.doInit}"/>
+    
+    <aura:handler name="change" 
+                  value="{!v.data}" 
+                  action="{!c.doInit}"/>
+    
+    <aura:method name="setSelection" 
+                 action="{!c.setSelection}" 
+                 access="PUBLIC"
+                 description="Set selected row, by ID">
+        
+        
+    </aura:method>
+    
+    <aura:if isTrue="{!v.type == 'expand'}">
+        <!-- Persona Grid Expand-->
+        <aura:if isTrue="{!v.gridName == 'personaGrid'}">
+            <c:PersonaGridTableExpand rows="{!v.rows}" 
+                                      cols="{!v.cols}"
+                                      cmpName="{!v.cmpName}"
+									  nucleusId="{!v.externalData.nucleusId}"
+									  caseObj="{!v.externalData.caseObj}"
+                                      aura:Id="datagridtableexpand" />        
+        </aura:if>
+        
+        <!-- CaseActivity Grid Expand-->
+        <aura:if isTrue="{!v.gridName == 'caseActivityGrid'}">
+            <c:CaseActivityTableExpand rows="{!v.rows}" 
+                                       cols="{!v.cols}"
+                                       cmpName="{!v.cmpName}"
+                                       aura:Id="datagridtableexpand" />        
+        </aura:if>
+        
+        <!-- PaymentHistory Grid Expand-->
+        <aura:if isTrue="{!v.gridName == 'paymentHistoryGrid'}">
+            <c:PaymentHistoryTableExpand rows="{!v.rows}" 
+                                         cols="{!v.cols}"
+                                         cmpName="{!v.cmpName}"
+                                         aura:Id="datagridtableexpand" 
+										 externalData="{!v.externalData}"/>        
+        </aura:if>
+        
+        <!-- Product History Grid Expand-->
+        <aura:if isTrue="{!v.gridName == 'historyGrid'}">
+            <c:HistoryTableExpand rows="{!v.rows}" 
+                                         cols="{!v.cols}"                                    
+                                         aura:Id="datagridtableexpand" externalData="{!v.externalData}" />        
+        </aura:if>
+        
+        <!-- default grid Expand for all -->
+        <aura:if isTrue="{!v.gridName == 'normal'}">
+            <c:DataGridTableExpand rows="{!v.rows}" 
+                                   cols="{!v.cols}"
+                                   cmpName="{!v.cmpName}"
+                                   aura:Id="datagridtableexpand"/>
+        </aura:if>
+        <aura:set attribute="else">
+            <c:DataGridTable rows="{!v.rows}" 
+                             cols="{!v.cols}"
+                             cmpName="{!v.cmpName}"
+                             aura:Id="datagridtable" />
+        </aura:set>
+    </aura:if>      
+</aura:component>

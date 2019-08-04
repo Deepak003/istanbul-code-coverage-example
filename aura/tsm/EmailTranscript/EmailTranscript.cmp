@@ -1,0 +1,56 @@
+<aura:component extends="c:TranscriptSubTab" controller="CaseSummaryAuraController">
+    <!--Declare Attributes-->
+    <aura:attribute name="transcripts" type="List" access="private" />
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <!--Declare Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <lightning:layout class="slds-p-vertical_xx-small x-large" verticalAlign="stretch" multipleRows="true">
+        
+        <aura:if isTrue="{! v.isLoading }">
+            <lightning:spinner variant="brand" size="small" />
+            <aura:set attribute="else">
+                <aura:if isTrue="{! empty(v.transcripts) }">
+                    <c:EmptyState>
+                        <aura:set attribute="message">
+                            <b>No result found</b>
+                        </aura:set>
+                    </c:EmptyState>                
+                    <aura:set attribute="else">                        
+                        <aura:iteration var="row" items="{!v.transcripts}" > 
+                            <aura:if isTrue="{! or(row.inboundEmail, row.outboundEmail) }">
+                                <lightning:layoutItem flexibility="auto" padding="around-small" class="custom-box" size="12">
+                                    <p class="slds-p-vertical_xx-small section-title">                        
+                                        <aura:if isTrue="{! row.agentName }">
+                                            {! row.agentName }
+                                        </aura:if>
+                                        <aura:if isTrue="{! row.agentJobRole }">
+                                            ({! row.agentJobRole })
+                                        </aura:if>                        
+                                    </p>
+                                    
+                                    <aura:if isTrue="{! row.inboundEmail }">
+                                        <p class="slds-p-vertical_xx-small section-subtitle">Inbound Email</p>
+                                        <p class="slds-p-vertical_xx-small section-body">
+                                            <lightning:formattedRichText value="{!row.inboundEmail}"/> 
+                                        </p>
+                                    </aura:if>
+                                    
+                                    <aura:if isTrue="{! row.outboundEmail }">
+                                        <p class="slds-p-vertical_xx-small section-subtitle">Outbound Correspondence</p>
+                                        <p class="slds-p-vertical_xx-small section-body">
+                                            <lightning:formattedRichText value="{!row.outboundEmail}"/>
+                                        </p>
+                                    </aura:if>
+                                </lightning:layoutItem>
+                            </aura:if>
+                        </aura:iteration>                        
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>        
+    </lightning:layout>
+</aura:component>

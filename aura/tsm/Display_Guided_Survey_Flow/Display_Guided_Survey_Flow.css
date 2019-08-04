@@ -1,0 +1,15 @@
+.THIS .slds-m-bottom_large.flowruntimeRichTextWrapper {
+    padding-top: 15px;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 20px;
+}
+.THIS .slds-text-heading_small{
+    font-size: .8125rem;
+    color: #706e6b
+}
+
+.THIS .slds-card__header-link {
+    font-weight: 400;
+}
+    

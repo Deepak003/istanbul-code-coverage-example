@@ -1,0 +1,12 @@
+.THIS {
+    /*margin-top: -0.9em;
+    margin-left: -0.75em;
+    margin-right: -0.75em;
+    height: 100%;*/
+}
+.THIS.player-search {
+    position: fixed;
+    top: 2rem;
+    z-index: 999;
+    width: 100%;
+}

@@ -1,0 +1,167 @@
+<aura:component controller="AccountBasicInfoAuraController">
+    <aura:attribute name="gameStatus" type="String" default=""/>
+    <aura:attribute name="nucleusId" type="String" />
+    <aura:attribute name="accountId" type="String" />
+    <aura:attribute name="caseId" type="String" />
+    <aura:attribute name="gameStatusObj" type="Object"/>	
+    <aura:attribute name="gameStatusReasons" type="Object"/>
+    <aura:attribute name="showStatus" type="boolean" default="false" />
+    <aura:attribute name="addSuspensionModal" type="boolean" default="false" />
+    <aura:attribute name="openSpinner" type="boolean" default="false" />
+    <aura:attribute name="endDate" type="String" />
+    <aura:attribute name="endDateTime" type="String" />
+    <aura:attribute name="suspendReason" type="String" />
+    <aura:attribute name="currReason" type="String" />
+    <aura:attribute name="currEndDateTime" type="String" />
+    <aura:attribute name="editSuspendFlag" type="boolean" default="false" />
+    <aura:attribute name="isSuccessDisable" type="boolean" default="true" />
+    <aura:attribute name="restoreSuspensionModal" type="boolean" default="false" />
+    <aura:attribute name="displayTooltip" type="Boolean" default="false"/>
+    <aura:attribute name="suspendButton" type="String" default="Suspend" />
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="List" />
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.nucleusId}" action="{!c.doInit}" />
+    
+    <aura:method name="gameStatusMethod" action="{!c.getGameStatus}" access="public">
+        <aura:attribute name="gameStatus" type="Object"/>        
+    </aura:method>
+    <!-- Register Events -->
+    <aura:registerEvent name="gameStatusAllRefresh" type="c:GameStatusAllRefresh"/>
+    
+    <aura:if isTrue="{!v.showStatus}">
+        <aura:if isTrue="{! and(v.gameStatus != 'Active', v.gameStatus != '')}">
+            <div onclick="{!c.gameStatusFocusIn}"  onfocusout="{!c.gameStatusFocusOut}">
+    			<span class="slds-badge badgecolor .slds-badge_inverse">ALL GAMES {!v.gameStatus}</span>
+            </div>
+            <aura:if isTrue="{!v.displayTooltip}">
+                <c:Popover classes="slds-is-absolute slds-nubbin_top-left slds-m-top_medium">
+                    <aura:set attribute="state" value="{!v.displayTooltip}"/>
+                    <aura:set attribute="hideCloseBtn" value="true"/>
+                    <aura:set attribute="content">
+                    <div class="slds-grid slds-grid_vertical slds-p-around_medium">
+                            <div class="slds-col ">
+                                All Games suspended on this account.
+                            </div>
+                            <div class="slds-col slds-p-top_small">                                
+                            	<span class="label-tooltip"><b>Created :</b></span> {!v.gameStatusObj.created}
+                            </div>
+                            <div class="slds-col slds-p-top_x-small">                                
+                                <span class="label-tooltip"><b>Ends :</b></span> {!v.gameStatusObj.susEnds}                                 
+                            </div>
+                            <div class="slds-col slds-p-top_x-small">
+                                <span class="label-tooltip"><b>Reason :</b> </span>{!v.gameStatusObj.reason}
+                            </div>
+                        </div>
+                    </aura:set>
+                </c:Popover>
+            </aura:if>
+        </aura:if>
+        <aura:set attribute="else">
+            <div class="slds-text-title_bold slds-text-body_small slds-m-vertical_medium">
+                All Game Status <span class="{!'type-'+v.gameStatus}">{!v.gameStatus}</span>
+            </div>
+            <aura:if isTrue="{!v.gameStatus != 'Active'}">
+                <div class="gameStatusGroupButtons">
+                	<lightning:layout class="slds-m-bottom--medium">
+	                	<lightning:layoutItem size="4">
+	                        <div class="slds-text-body_small edit-field-label">Created</div>
+	                        <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.gameStatusObj.created}</bdi></div>
+	                    </lightning:layoutItem>
+	                    
+	                    <lightning:layoutItem size="4">
+	                        <div class="slds-text-body_small edit-field-label">Suspension Ends</div>
+	                        <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.gameStatusObj.susEnds}</bdi></div>
+	                    </lightning:layoutItem>
+	                    
+	                    <lightning:layoutItem size="4">
+	                        <div class="slds-text-body_small edit-field-label">Reason</div>
+	                        <div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.gameStatusObj.reason}</bdi></div>
+	                    </lightning:layoutItem>
+                    </lightning:layout>
+                    <lightning:button class="margin-right-custom" variant="neutral" onclick="{!c.editDurationGameStatus}" 
+                                      label="Edit Duration" /> <!-- disabled="{! not(v.accountMaskingList.ResetPassword)}" -->
+                    <lightning:button class="margin-right-custom" variant="neutral" onclick="{!c.resetGameStatus}"
+                                      label="Reset" /> <!-- disabled="{! not(v.accountMaskingList.ResetPassword)}" -->                    
+                </div>
+                <aura:set attribute="else">
+					<lightning:button class="margin-right-custom" variant="neutral" onclick="{!c.addSuspension}"
+                                      label="Add Suspension"/> <!--  disabled="{! not(v.accountMaskingList.ResetPassword)}" -->                    
+                </aura:set>                
+            </aura:if>
+        </aura:set>
+    </aura:if>
+    <!-- Add Suspension Modal STARTS -->
+    <aura:if isTrue="{!v.addSuspensionModal}">
+        <c:ParentModal isModalOpen="{!v.addSuspensionModal}">  
+            <aura:set attribute="class" value="slds-modal_xx-small" />
+            <aura:set attribute="outerClass" value="modal-container" />
+            <aura:set attribute="content">                
+                <div class="slds-grid slds-grid_vertical">
+                    <div class="slds-col ">
+                    	<aura:if isTrue="{!v.editSuspendFlag}">
+	                    	<div>
+	                    		<div class="slds-text-body_small edit-field-label">Current Suspension Ends</div>
+	                        	<div class="slds-text-body_regular wrap-text slds-size_11-of-12"><bdi>{!v.gameStatusObj.susEnds}</bdi></div>
+	                    	</div>
+                    	</aura:if>
+                        <span>                              
+                			<lightning:input label="Set Suspension end date/time" class="date-time" aura:id="endDateTime" type="datetime" value="{!v.endDateTime}" onchange="{! c.validateDate}" timezone="GMT"/>
+                        </span>
+                    </div>
+                    <div class="slds-col ">
+                        <span>
+                            <lightning:combobox aura:id="suspendReason" name="reason" label="Reason" onchange="{!c.validateDate}" value="{!v.suspendReason}" 
+                                                placeholder="Select a Reason" options="{! v.gameStatusReasons }" />
+                        </span>
+                    </div>
+                </div>
+            </aura:set>
+            <aura:set attribute="title">
+            	<aura:if isTrue="{!v.editSuspendFlag}">
+            		<p>Edit Suspension Duration</p>
+            		<aura:set attribute="else">
+            			<p>Suspend All Games</p>
+            		</aura:set>
+            	</aura:if>
+            </aura:set>
+            <aura:set attribute="clickClose" value="false"/>
+            <aura:set attribute="escapeClose" value="false"/>
+            <aura:set attribute="showSpinner" value="{!v.openSpinner}"/>
+            <aura:set attribute="success" value="{!v.suspendButton}"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="cancel" value="Cancel"/>
+            <aura:set attribute="onSuccess" value="{!c.addSuspendClick}"/>
+            <aura:set attribute="onCancel" value="{!c.closeSuspendModal}"/>            
+        </c:ParentModal>
+    </aura:if>
+    <!-- Add Suspension Modal ENDS -->
+    <!--  Restore All Game Status STARTS -->
+    	<aura:if isTrue="{!v.restoreSuspensionModal}">
+    		<c:ParentModal isModalOpen="{!v.restoreSuspensionModal}">  
+	            <aura:set attribute="class" value="slds-modal_xx-small" />
+	            <aura:set attribute="outerClass" value="modal-container" />
+	            <aura:set attribute="content">                
+	                <div class="slds-grid slds-grid_vertical">
+	                    <div class="slds-col ">	                    	
+	                        <span>                              
+	                			Are you sure you want to restore the All Games Status on this account? All Games Status will set to Active.
+	                        </span>
+	                    </div>	                    
+	                </div>
+	            </aura:set>
+	            <aura:set attribute="title">
+	            	<p>Restore All Games Status</p>
+	            </aura:set>
+	            <aura:set attribute="clickClose" value="false"/>
+	            <aura:set attribute="escapeClose" value="false"/>	           
+	            <aura:set attribute="success" value="Yes, Restore"/>
+	            <aura:set attribute="showSpinner" value="{!v.openSpinner}"/>	            
+	            <aura:set attribute="cancel" value="No"/>
+	            <aura:set attribute="onSuccess" value="{!c.restoreSuspendClick}"/>
+	            <aura:set attribute="onCancel" value="{!c.closeRestoreModal}"/>            
+	        </c:ParentModal>
+    	</aura:if>
+    <!--  Restore All Game Status ENDS -->
+</aura:component>

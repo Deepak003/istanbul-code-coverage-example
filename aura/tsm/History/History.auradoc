@@ -1,0 +1,10 @@
+<aura:documentation>
+    <aura:description>
+        <h5>Container for Hisotry sub-tab components</h5>
+        <p>This component acts as a container to hold the HisdtoryFilter, HistoryTable and HistoryGrant.</p>
+        <p>It is connected to the backend via ProductAuraController which is responsible to make call to get the 'GrantCategories'</p>
+        <p>This call is done because current back end API for History Transactions (Item Transactions) does not return the required informations for granting the item.</p>
+        <p>The code is added to support the new feature adde in TSM where advisor can grant from History-Tab (Eg: OpenPacks)</p>
+    </aura:description>
+                    
+</aura:documentation>

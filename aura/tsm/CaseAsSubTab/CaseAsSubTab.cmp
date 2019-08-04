@@ -1,0 +1,14 @@
+<aura:component controller="CaseActivitiesAuraCtl">
+	<aura:attribute name="caseId" type="String" access="public" description="Salesforce Record ID" />
+    <aura:attribute name="caseNumber" type="String" access="public" description="Salesforce CaseNumber" />
+    <aura:attribute name="isLoading" type="Boolean" access="public" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <span onclick="{!c.openSubTab}">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner variant="brand" size="small"/>
+        </aura:if>
+        {!v.body}
+    </span>
+</aura:component>

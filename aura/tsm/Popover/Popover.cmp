@@ -1,0 +1,18 @@
+<aura:component extensible="true">
+    <aura:attribute name="state" type="Boolean" description="Popover State" access="public" />
+    
+    <aura:attribute name="hideCloseBtn" type="Boolean" default="false" access="public" />
+    <aura:attribute name="classes" type="String" default="slds classes from Popovers" access="public" />    
+    <aura:attribute name="onClose" type="Aura.Action" access="public" default="{!c.handleClose}" />
+    <aura:attribute name="content" type="Aura.Component[]" required="true" description="Popover Body" />
+        
+    <section aria-describedby="dialog-body-id-2" aria-label="Dialog Title" class="{!join(' ', 'slds-popover', v.classes)}" role="dialog" aura:id="container">
+        <aura:if isTrue="{!not(v.hideCloseBtn)}">        
+            <lightning:buttonIcon iconName="utility:close" size="small" variant="bare" alternativeText="Close" class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close slds-button_icon slds-m-around_x-small"  onclick="{!v.onClose}" />
+        </aura:if>
+        
+        <div class="slds-popover__body slds-is-relative container">
+            {!v.content}
+        </div>
+    </section>            
+</aura:component>

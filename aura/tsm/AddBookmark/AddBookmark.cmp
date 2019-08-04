@@ -1,0 +1,47 @@
+<aura:component controller="KnowledgeBaseAuraCtl">
+    <aura:attribute name="isOpen" type="Boolean" default="false" />
+    <aura:attribute name="selFolder" type="String"/>
+    <aura:attribute name="newFolderName" type="String" default=""/>
+    <aura:attribute name="isNewFolder" type="Boolean" default="false" />
+    <aura:attribute name="title" type="String"/>
+    <aura:attribute name="selectedArticle" type="Object" default="{}"/>
+    <aura:attribute name="selIndex" type="String" default=""/>
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+    <aura:attribute name="options" type="List" default="[
+    {'label': 'F1', 'value': 'F1'},
+    {'label': 'F2', 'value': 'F2'},
+    {'label': 'F3', 'value': 'F3'},
+    {'label': 'New Folder', 'value': 'New'}
+    ]"/>
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="true" description="Add Button Disable/Enable"/>    
+    
+    <aura:registerEvent name="addBookmarkEvt" type="c:AddBookMarkEvt"/>
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="true" title="Add Bookmark">
+            <aura:set attribute="class" value="modal-large"/>            
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <!-- Add Bookmark details data block-->
+                <div aura:id="addBookmarkDataBlock">
+                    <lightning:combobox aura:id="folderOptions" name="folder" value="{!v.selFolder}" label="Choose a Folder" placeholder="Select Folder" options="{! v.options }" onchange="{! c.handleChange }"/>                 
+                    <br/>
+                    <aura:if isTrue="{!v.isNewFolder}">
+                        <lightning:input aura:id="newFolderText" name="NewFolder" required="true" value="{!v.newFolderName}" label="New Folder" maxlength="50" placeholder="New folder name" onchange="{!c.validate}"/>
+                    </aura:if>
+                    <br/>
+                    
+                    <lightning:input aura:id="title" name="title" required="true" value="{!v.selectedArticle.fields.title}" label="Title" maxlength="50" />
+                </div>  
+                
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="cancel" value="Cancel"/>  
+            <aura:set attribute="success" value="Add"/>  
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.successModal}"/>
+        </c:ParentModal>
+    </aura:if>  
+</aura:component>

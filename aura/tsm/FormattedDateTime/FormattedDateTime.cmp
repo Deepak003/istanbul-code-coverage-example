@@ -1,0 +1,12 @@
+<aura:component >    
+    <aura:attribute name="value" type="String" access="public" description="Date value"/>
+    <aura:attribute name="format" type="String" access="public" description="Date format (e.g only-date, only-time)"/>
+    <aura:attribute name="alternative" type="Object" access="public" description="Alternative date value (or) string" />
+    
+    <aura:attribute name="formattedString" type="String" access="private"/>
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/>
+    <aura:handler name="change" value="{! v.value }" action="{! c.doInit }"/>
+    
+    <span>{!v.formattedString}</span>    
+</aura:component>

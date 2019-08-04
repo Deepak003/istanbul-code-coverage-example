@@ -1,0 +1,34 @@
+<aura:component controller="CaseActivitiesAuraCtl">
+    <aura:attribute name="historyData" type="List" default="[]" access="private" />
+    <aura:attribute name="caseId" type="String" />
+    <aura:attribute name="accountId" type="String" default="" />
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+    <aura:attribute name="accountFlag" type="Boolean" default="true" />
+    <aura:attribute name="searchTerm" type="String"/>
+    
+    <aura:attribute name="pageNo" type="Integer" default="1"/>
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="c:Filter" action="{!c.handleFilterChange}"/>
+    
+    <aura:if isTrue="{! !empty(v.historyData) }">    
+        <!--<c:InfiniteScrolling height="200px" pageNo="{! v.pageNo }">-->
+            <c:DataGrid data="{!v.historyData}" 
+                        pkField="caseId" 
+                        aura:id="datagrid" 
+                        type="expand"
+                        gridName="caseActivityGrid">
+                <c:DataGridColumn fieldName="caseNumber" label="Case ID" class="slds-size_2-of-12"/>
+                <c:DataGridColumn fieldName="subject" label="Subject" class="lds-size_5-of-12"/>
+                <c:DataGridColumn fieldName="type" label="Type" class="slds-size_2-of-12"/>        
+                <c:DataGridColumn fieldName="dateValue" label="Date" class="slds-is-sortable slds-size_2-of-12"/>
+                <c:DataGridColumn fieldName="status" label="Status" class="slds-size_2-of-12"/>       
+            </c:DataGrid>
+        <!--</c:InfiniteScrolling>-->
+        <aura:set attribute="else">
+            <c:EmptyState message="There is no other cases for this account."></c:EmptyState>                
+        </aura:set>
+    </aura:if>
+    <lightning:spinner class="slds-hide" aura:id="spinner" variant="brand" size="small"/> 
+</aura:component>

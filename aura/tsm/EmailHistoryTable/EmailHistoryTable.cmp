@@ -1,0 +1,24 @@
+<aura:component access="global">
+    <aura:attribute name="emailFilteredData" type="List" default="[]"/>
+    <aura:attribute name="cmpName" type="String" default=""/>
+    
+    <div id="emailDataSection">
+    <aura:iteration items="{!v.emailFilteredData}" var="row" indexVar="idx">
+        <div class="slds-grid bodySection">
+            <div class="slds-size_2-of-12 slds-p-top_small slds-p-right_small slds-p-bottom_small">
+                  <div>
+                      <!--<lightning:formattedDateTime value="{!row.time}" year="numeric" month="numeric" day="numeric" timeZone="GMT" hour12="false"/>-->
+                      <c:FormattedDateTime value="{!row.time}" format="only-date"/>
+                  </div>
+                  <div>
+                  	  <!--<lightning:formattedDateTime value="{!row.time}" hour="2-digit" minute="2-digit" timeZone="GMT" hour12="false" class="secondLineRow"/> <span class="secondLineRow">&nbsp;GMT</span>-->
+                      <c:FormattedDateTime value="{!row.time}" format="only-time"/>
+                  </div>
+            </div>
+            <div class="slds-size_10-of-12 slds-p-top_small slds-p-right_small slds-p-bottom_small autoMargin">
+                    <ui:outputRichText value="{!row.activity}" linkify="false"></ui:outputRichText>
+            </div>
+        </div>
+    </aura:iteration>
+    </div>
+</aura:component>

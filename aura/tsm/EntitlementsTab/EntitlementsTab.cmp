@@ -1,0 +1,334 @@
+<aura:component controller="EntitlementAuraController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" >
+    
+    <ltng:require scripts="{!$Resource.Util}" />
+    <aura:attribute name="entitlementData" type="List" access="private"/>
+    <aura:attribute name="paginatedData" type="List" access="private" default="[]"/>   
+    <aura:attribute name="entitlementOriginalData" type="List" access="private"/>
+    <aura:attribute name="updateValue" type="Boolean" default="true"/>
+    <aura:attribute name="loaded" type="Boolean" default="false" />
+    <aura:attribute name="isSpinner" type="Boolean" default="true"/>
+    <aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="isSuccessDisable" type="Boolean" access="private" default="true" />
+    <aura:attribute name="accountSummary" type="Object" />
+    <aura:attribute name="parentEmail" type="string"/>
+    <aura:attribute name="pcCount" type="Integer" default='0'/>
+    <aura:attribute name="isTransfer" type="Boolean" access="private" default="false" />
+    <aura:attribute name="isTransferButton" type="Boolean" access="private" default="true" />
+    <aura:attribute name="canDelete" type="Boolean" access="private" default="false" />
+    <aura:attribute name="selectedEntitlement" type="Object" />
+    <aura:attribute name="selectedEntitlements" type="Object" />
+    <aura:attribute name="deleteAccount" type="Boolean" default="false" />
+    <aura:attribute name="targetUserId" type="Id"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="isSelectedAll" type="Boolean" default="false" />
+    
+    <aura:attribute name="accountCols" 
+                    type="List" 
+                    default="Name, Product, Platform, Status,Grant Date" 
+                    description="Column Heading"/>
+    
+    <aura:attribute name="cols" 
+                    type="List" 
+                    default="Name, Platform, Status,Grant Date" 
+                    description="Column Heading"/>
+    
+    <aura:attribute name="items" 
+                    type="List" 
+                    default="" 
+                    description="Formatted Row Data"/>
+                    
+    <aura:attribute name="types" 
+                    type="List"   
+                    default="[{'label': 'All', 'value': 'All'},
+                             {'label': 'PC', 'value': 'PC'},
+                             {'label': 'XBOX ONE', 'value': 'Microsoft XBOX ONE'},
+                             {'label': 'XBOX 360', 'value': 'XBOX 360'},
+                             {'label': 'PS4', 'value': 'PS4'},
+                             {'label': 'SWITCH', 'value': 'SWITCH'}]"
+                    description="Values for Type"/>
+                    
+    <aura:attribute name="pageNumber" type="Integer" access="private" />
+    <aura:attribute name="isDescending" type="Boolean" default="true" access="private" />
+    <aura:attribute name="isNameDescending" type="Boolean" default="true" access="private" />
+    <aura:attribute name="updateEntitlement" type="Boolean"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <!--<aura:attribute name="accountId" type="String"/>-->
+    <aura:attribute name="selEntitlement" type="List" />
+    <aura:attribute name="perPage" type="Integer" default="20" access="private" />
+    <aura:attribute name="searchedcount" type="List" access="private" />
+    <aura:attribute name="allProducts" type="Object"/>
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="nucleusId" type="Id"/>
+    <aura:attribute name="isOpen" type="Boolean" default="false"/>
+    <aura:attribute name="canGrant" type="Boolean" default="false"/>
+    <aura:attribute name="from" type="String"/>
+    <aura:attribute name="isDisabled" type="Boolean" default="true"/>
+    <aura:attribute name="showUpdateStatus" type="Boolean" default="false"/>
+    <aura:attribute name="showResetTrial" type="Boolean" default="false"/>
+    <aura:attribute name="inGameEntitlement" type="Boolean" default="false"/>
+    <aura:attribute name="searchString" type="String" access="private" />
+    <aura:attribute name="email" type="String" access="public" description="Player Email ID" /> 
+    <aura:attribute name="totalSize" type="Integer" default=''/>
+    <aura:attribute name="counter" type="Integer" default='0'/>
+    <aura:attribute name="totalCalls" type="Integer" default='0'/>  
+    
+    <!-- Function used to show Entitlement Level Ban TSM-3024 -->
+    <aura:attribute name="status" type="String" default=''/>
+    <aura:attribute name="statusDescription" type="String" default=''/>
+    <aura:attribute name="customerProduct" type="String"/> 
+    
+    
+    <aura:handler event="c:EntitlementRefreshEvent" action="{!c.refreshEntitlement}"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler event="c:CloseBookMarkModalEvent" action="{!c.closeModal}"/>
+    <aura:handler name="change" value="{! v.pageNumber }" action="{! c.handlePageChange }"/>
+    <aura:handler name="change" value="{! v.updateEntitlement }" action="{! c.init }"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="Map" />
+    
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleBubbling}"/>
+    
+    <!-- Function used to show Entitlement Level Ban TSM-3024 -->
+    <aura:if isTrue="{!and(v.from != 'Account', v.status !='')}">
+        <h1 style="font-weight: bold;font-size: 16px;margin-bottom: -1%;">Product Entitlement</h1><br/>
+        <div class="slds-box slds-p_top_xxx_small">
+            <span class="{! join(' ',
+                         'status',
+                         v.status
+                         )}">{!v.status}</span><br/>
+            <span class="statusDescription">{!v.statusDescription}</span>
+        </div>
+    </aura:if>
+    
+    <!-- Filters -->
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_6-of-12">
+            <div class="slds-grid slds-gutters slds-m-top_xx-small">
+                <div class="slds-col slds-size_7-of-12 slds-p-right--none">
+                    <lightning:input placeholder="Search entitlement" title="Search" type="search" onchange="{!c.getSearchResult}" value="{!v.searchString}"/>
+                </div>
+                <aura:if isTrue="{!v.selectedProduct.Url_Name__c!='origin'}" >
+                <div class="filter-look-up slds-col slds-size_5-of-12 slds-p-left--small">
+                    <c:LookupTSM selectedName="All" fieldName="Filter" lookupData="{!v.types}"/>
+                </div>
+            </aura:if>
+            </div>
+        </div>
+        <div class="slds-grid slds-col slds-size_6-of-12">
+            <div class="slds-grid slds-gutters slds-p-top_large">
+                <div class="slds-p-right_xxx-small">
+                    <lightning:button label="Update Status" disabled="{!v.isDisabled}" onclick="{!c.updateStatus}"/>
+                </div>&nbsp;&nbsp;
+                <aura:if isTrue="{!v.accountSummary}">
+                    <div class="slds-p-right_xxx-small">
+                        <lightning:button label="Transfer" onclick="{!c.transferEvent}" disabled="{!v.isTransferButton}" class="entitlementTransfer"/>
+                    </div>
+                </aura:if>
+                &nbsp;&nbsp;
+                <div class="slds-p-right_xxx-small">
+                    <lightning:button label="Add New" iconName="utility:add" iconPosition="left" onclick="{!c.addNewEntitlement}" disabled="{!not(v.canGrant)}"/>
+                </div>
+            </div>
+        </div>        
+    </div>
+    
+    <!-- Formatted Table -->
+    <div class="slds-p-top_small">
+    <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        <aura:if isTrue="{! and(v.paginatedData != null , v.paginatedData.length > 0)}">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-no-row-hover" style="table-layout:fixed;">
+                <thead>
+                    <tr class="">
+                        <aura:if isTrue="{!v.paginatedData.length > 0}">
+                            <th class="HeadingContent"  scope="col" style="width:60px;">
+                                <div title="Icon">
+                                    <ui:inputCheckbox value="{!v.isSelectedAll}" change="{!c.onChangeAll}" />
+                                </div>
+                            </th>
+                        </aura:if>
+                        <aura:if isTrue="{!v.from == 'Account'}">
+                            <aura:iteration items="{!v.accountCols}" var="col">
+                                <th class="HeadingContent slds-text-title_caps"  scope="col">
+                                    <div class="slds-truncate" title="NAME">{!col}
+                                        <aura:if isTrue="{!col == 'Name'}">
+                                            <lightning:icon class="pointer" onclick="{!c.sortByName}" iconName="{! if(v.isNameDescending,'utility:arrowdown','utility:arrowup') }" size="xx-small" alternativeText="Sort by"/>                                  
+                                        </aura:if>
+                                        <aura:if isTrue="{!col == 'Grant Date'}">
+                                            <lightning:icon class="pointer" onclick="{!c.sortByDate}" iconName="{! if(v.isDescending,'utility:arrowdown','utility:arrowup') }" size="xx-small" alternativeText="Sort by"/>                                  
+                                        </aura:if>
+                                    </div> 
+                                </th>
+                            </aura:iteration>
+                            <aura:set attribute="else">
+                                <aura:iteration items="{!v.cols}" var="col">
+                                    <th class="HeadingContent slds-text-title_caps"  scope="col">
+                                        <div class="slds-truncate" title="NAME">{!col}
+                                            <aura:if isTrue="{!col == 'Name'}">
+                                                <lightning:icon class="pointer" onclick="{!c.sortByName}" iconName="{! if(v.isNameDescending,'utility:arrowdown','utility:arrowup') }" size="xx-small" alternativeText="Sort by"/>                                  
+                                            </aura:if>
+                                            <aura:if isTrue="{!col == 'Grant Date'}">
+                                                <lightning:icon class="pointer" onclick="{!c.sortByDate}" iconName="{! if(v.isDescending,'utility:arrowdown','utility:arrowup') }" size="xx-small" alternativeText="Sort by"/>                                  
+                                            </aura:if>
+                                        </div>
+                                    </th>
+                                </aura:iteration>
+                            </aura:set>
+                        </aura:if>
+                    </tr>
+                </thead>
+                <tbody>
+                            <aura:iteration items="{!v.paginatedData}" var="item" indexVar="itemIndex">
+                                
+                                <tr class="slds-hint-parent" data-index="{!itemIndex}" onclick="{!c.toggleExpand}">
+                                    <td>
+                                        <div class="slds-grid" style="margin-inline-end: -24px;"> 
+                                            <span id="chkBoxDiv" class="RowContent slds-m-top_small" data-label="Icon" scope="row" style=" display: -webkit-box;"> 
+                                                <ui:inputCheckbox aura:id="checkbox" name="{!item}" label="" change="{!c.onCheck}" class="chkBoxCSS"  text="{!item}"/> 
+                                            </span>
+                                            <span  class="RowContent slds-m-top_small" data-label="Icon" scope="row" style=" display: -webkit-box;"> 
+                                                <lightning:buttonIcon value="{!itemIndex}" variant="bare"  onclick="{!c.toggleExpand}" name="{!itemIndex}"
+                                                                      iconName="{!item.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="RowContent" data-label="NAME" scope="row">
+                                        <div class="slds-truncate" title="{!item.name}">{!item.name}</div>    
+                                    </td>
+                                    <aura:if isTrue="{!v.from == 'Account'}">
+                                        <td class="RowContent" data-label="ASSOCIATED PRODUCT">
+                                            <div class="slds-truncate" title="{!item.crmProductName}">{!item.crmProductName == '' ? '-': item.crmProductName}</div>
+                                        </td>
+                                    </aura:if>
+                                    <td class="RowContent" data-label="CATEGORY">
+                                        <div class="slds-truncate" title="{!item.crmProductPlatform}">{!item.crmProductPlatform == '' ? '-': item.crmProductPlatform}</div>
+                                    </td>
+                                    <td class="RowContent" data-label="LEVEL">
+                                        <div class="{! join(' ',
+                                                    'slds-truncate',
+                                                    item.status
+                                                    )}" title="{!item.status}">
+                                            {!item.status == null ? '-': item.status}
+                                        </div>
+                                    </td>
+                                    <td class="RowContent" data-label="QUANTITY">
+                                        <div class="slds-truncate" title="{!item.grantDate}">{!item.grantDate == null ? '-': item.grantDate}</div>
+                                        
+                                    </td>
+                                </tr>
+                                <aura:if isTrue="{!item.expanded}">
+                                    <div style="display: contents;">
+                                        <td colspan="5" style="border-top: 0;">
+                                            <div class="c-container slds-p-top_x-small" style="padding-left:4rem;width:100%">
+                                                <span class="ExpandedContentHeading">Details</span>
+                                                <dl class="slds-list_horizontal slds-wrap dlCSS  slds-m-top_x-small">
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Entitlement Tag">Entitlement Tag </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.entitlementTag  == '' ? 'None' : item.entitlementTag}</dd>
+                                                    
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Source">Source </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.entitlementSource  == '' ? 'None' : item.entitlementSource}</dd>
+                                                    
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Persona">Persona </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.persona  == '' ? 'None' : item.persona}</dd>
+                                                    
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Reason">Reason </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.statusReasonCode  == '' ? 'None' : item.statusReasonCode}</dd>
+                                                    
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Product ID">Product ID </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.ofbProductId  == '' ? 'None' : item.ofbProductId}</dd>
+                                                    
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Group Name">Group Name </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.groupName  == '' ? 'None' : item.groupName}</dd>
+                                                    
+                                                    <dt class="ExpandedContentKey slds-item_label slds-text-color_weak slds-truncate" title="Product Catalog">Product Catalog </dt>
+                                                    <dd class="ExpandedContentValue slds-item_detail slds-truncate normalSpace">{!item.productCatalog  == '' ? 'None' : item.productCatalog}</dd>
+                                                    
+                                                    <div class="slds-col slds-size_2-of-12 slds-p-top_large slds-p-bottom_x-large" style="margin-left: -1rem;">                                                   
+                                                        <aura:if isTrue="{!item.displayResetTrial}">
+                                                            <div>
+                                                                <lightning:button class="newSearchBtnWidth" variant="neutral" label="Reset Trial" value="{!item}"  onclick="{!c.resetTrialClick}" disabled="{!v.accountMaskingList.AccountResetTrial == undefined ? not(v.accountMaskingList.ProductResetTrial) : not(v.accountMaskingList.AccountResetTrial)}"/>
+                                                            </div>
+                                                        </aura:if>
+                                                    </div>
+                                                </dl>
+                                            </div>
+                                        </td>
+                                    </div>
+                                </aura:if>
+                            </aura:iteration>
+                    
+                </tbody>
+               
+            </table>
+            <aura:set attribute="else">
+                <aura:if isTrue="{!v.isSpinner}">
+                    <lightning:spinner alternativeText="Loading" size="small"  class="spinnerCSS"/>
+                    <aura:set attribute="else">
+                        <c:EmptyState>
+                            <aura:set attribute="message">
+                                <span class="uppercase">No Entitlement</span>
+                                <div class="slds-text-align_center slds-text-body_regular slds-p-top_medium">
+                                    <div>You could <a onclick="{! c.addNewEntitlement }">Add New Entitlements</a> to the account.</div>
+                                </div>
+                            </aura:set>
+                        </c:EmptyState>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>
+<!--tsm 3544-->
+        <div class="{! join(' ',
+                    'slds-text-align_center slds-p-vertical_large',
+                    if(lessthanorequal(div(v.searchedcount.length,v.perPage), 1), 'slds-hide'),
+                    if(empty(v.paginatedData), 'slds-hide')
+                    )}" style="position: absolute;width:100%; padding-top: 3rem;">
+            <c:Pagination totalPages="{! div(v.searchedcount.length,v.perPage) }" activePage="{!v.pageNumber}" />
+        </div>
+        <!--tsm3544-->
+    </div>
+    
+    <aura:if isTrue="{!v.showUpdateStatus}">
+        <c:EntitlementUpdateStatus isOpen="{!v.showUpdateStatus}" selEntitlement="{!v.selEntitlement}" accountId="{!v.accountId}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}"/>
+    </aura:if>
+
+    <aura:if isTrue="{!v.showResetTrial}">
+        <c:EntitlementResetTrial isOpen="{!v.showResetTrial}" selectedEntitlement="{!v.selectedEntitlement}" nucleusId="{!v.nucleusId}" accountId="{!v.accountId}"  caseId="{!v.caseId}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.inGameEntitlement}">
+        <aura:if isTrue="{!v.from =='Account'}" >
+            <c:GrantEntitlementModal isOpen="{!v.inGameEntitlement}" title="Grant New Entitlement" nucleusId="{!v.nucleusId}" 
+                                     selectedProduct="{#v.selectedProduct}" products="{!v.allProducts}"  email="{!v.email}" from="{!v.from}" variant = "new" 
+                                     caseId="{!v.caseId}" accountId="{!v.accountId}"
+                                     />
+            
+            <aura:set attribute="else">
+                <c:GrantEntitlementModal isOpen="{!v.inGameEntitlement}" title="Grant In-Game Entitlement" nucleusId="{!v.nucleusId}" 
+                                         selectedProduct="{#v.selectedProduct}" products="{!v.allProducts}"  email="{!v.email}" from="{!v.from}"
+                                         caseId="{!v.caseId}"
+                                         />
+            </aura:set>
+        </aura:if>        
+    </aura:if>
+    
+    <!-- Transfer Entitlements -->
+    <aura:if isTrue="{!v.isTransfer}"> 
+        <c:ParentModal isModalOpen="{!v.isTransfer}" outerClass="backdropClass">            
+            <aura:set attribute="content">
+                <c:TransferEntitlements PCSelected="{!!v.isDisabled}" nucleusId="{!v.nucleusId}" 
+                                        accountSummary="{!v.accountSummary}" isSuccessDisable="{!v.isSuccessDisable}"
+                                        canDelete="{!v.canDelete}" targetUserId="{!v.targetUserId}"
+                                        deleteAccount="{!v.deleteAccount}"/>
+            </aura:set>
+            <aura:set attribute="title">Transfer Entitlements</aura:set>
+            <aura:set attribute="clickClose" value="false"/>
+            <aura:set attribute="escapeClose" value="false"/>
+            <aura:set attribute="success" value="{!!v.isDisabled?'Transfer':''}"/>
+            <aura:set attribute="cancel" value="Cancel"/>
+            <aura:set attribute="onSuccess" value="{!c.transferEntitlement}"/>
+            <aura:set attribute="onCancel" value="{!c.closeTransfer}"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+        </c:ParentModal>
+    </aura:if>
+</aura:component>

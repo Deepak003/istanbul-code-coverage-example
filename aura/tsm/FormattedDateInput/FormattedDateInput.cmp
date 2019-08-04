@@ -1,0 +1,13 @@
+<aura:component >
+	<aura:attribute name="date" type="String" access="public"/>
+    <aura:attribute name="format" type="String" access="public" default="only-date"/>
+    
+    <aura:attribute name="formatted" type="String" default="private" />
+    
+    <aura:handler name="change" value="{!v.date}" action="{!c.doInit}" />  
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/>
+    
+    <div class="{! v.formatted ? 'formatted-date-input' : ''}" title="{!v.formatted}">
+        {! v.body }
+    </div>    
+</aura:component>

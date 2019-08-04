@@ -1,0 +1,8 @@
+/* Table row */
+.THIS .table-row {
+   height: 50px;
+}
+
+.THIS th lightning-primitive-header-actions {
+    display: none;
+}

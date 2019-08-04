@@ -1,0 +1,145 @@
+.THIS {
+      text-align:center;
+}
+
+
+.THIS input::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              appearance: none;
+              background: blue;
+              cursor: pointer;
+              pointer-events: all;
+              position: relative;
+              z-index: 1;
+              outline: 0;
+}
+.THIS .high input::-webkit-slider-thumb {
+              background: red;
+}
+.THIS .low input::-moz-range-thumb {
+              background: blue;
+              cursor: pointer;
+              pointer-events: all;
+              position: relative;
+              z-index: 10;
+              -moz-appearance: none;
+}
+
+.THIS input::-moz-range-track {
+              position: relative;
+              z-index: -1;
+              border: 0;
+}
+.THIS input:last-of-type::-moz-range-track {
+              -moz-appearance: none;
+              background: none transparent;
+              border: 0;
+
+}
+.THIS input[type=range]::-moz-focus-outer {
+              border: 0;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .THIS input[type='range'] {
+      width: 1000px;
+    }
+    
+    .THIS input[type='range']::-webkit-slider-runnable-track {
+      -webkit-appearance: none;
+    }
+    .THIS .normal ::-webkit-slider-thumb {
+        box-shadow: -1000px 0 0 1000px yellow;
+    }
+    .THIS .low ::-webkit-slider-thumb {
+        box-shadow: -1000px 0 0 1000px green;
+    }
+    .THIS .high ::-webkit-slider-thumb {
+        box-shadow: -1000px 0 0 1000px red;
+    }
+
+}
+/** FF*/
+.THIS input[type="range"]::-moz-range-progress {
+  background-color: #43e5f7; 
+}
+.THIS input[type="range"]::-moz-range-track {  
+  background-color: #9a905d;
+}
+/* IE*/
+.THIS input[type="range"]::-ms-fill-lower {
+  background-color: #43e5f7; 
+}
+.THIS input[type="range"]::-ms-fill-upper {  
+  background-color: #9a905d;
+}
+.THIS .slds-slider__value {
+    display: none;
+}
+.THIS .slider {
+    margin: 40px auto 0 auto;
+    max-width: 84%;
+    left: 8%;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    bottom: 12px;  
+}
+
+.THIS .noUi-connect {
+  background: #0070D2;
+}
+
+.THIS .noUi-target,
+
+.THIS .noUi-handle {
+	box-shadow: none !important;    
+}
+
+.THIS .noUi-target {
+    background: #FFFFFF;
+    border: 1px solid rgb(216, 221, 230);
+    border-radius: 1.25rem;
+    border: none;
+}
+.THIS .noUi-handle-upper{display:none;}
+.THIS .noUi-handle-lower{display:none;}
+
+.THIS .c-1-color { background: green; }
+.THIS .c-2-color { background: #ff0; z-index: 100}
+.THIS .c-3-color { background: red; }
+
+.THIS .noUi-connects {
+    border-radius: 10px;
+}
+
+.THIS .noUi-horizontal {
+    height: 15px;
+    margin-top: 17px;
+}
+
+.THIS .noUi-handle {
+    border: none;
+    background: blue;
+}
+
+.THIS .disable-element {
+    pointer-events: none;
+}
+.THIS .noUi-tooltip {
+    display: block; 
+    position: absolute;
+    max-width: 200px;
+    padding: 0.85rem 0.5rem;
+    color: #fff;
+    text-align: center;
+    background-color: #000;
+    border-radius: 0.25rem;
+}
+
+.THIS .noUi-horizontal .noUi-handle {
+    width: 34px;
+    height: 21px;
+    left: -17px;
+    top: -4px;
+}

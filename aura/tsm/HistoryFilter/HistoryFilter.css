@@ -1,0 +1,35 @@
+.THIS .tab-heading {
+    font-size: 1.125rem;
+}
+.THIS .transaction-scroll {
+	max-height: 226px;
+	overflow: auto;
+}
+.THIS lightning-datetimepicker legend {
+    color: #706e6b;
+    font-size: 12px;
+    font-weight: normal;
+}
+.THIS .edit-label{
+    color: #706e6b;
+}
+.THIS .time-selection label{
+    color: #706e6b;
+}
+.THIS .cart-background {
+    background-color: #fafaf9;
+}
+.THIS .remove-label label{
+    display: none
+}
+.THIS lightning-datepicker .slds-form-element__label{
+    display:none !important;
+}
+.THIS lightning-timepicker .slds-form-element__label{
+    display:none !important;
+}
+.THIS .custom-height{
+    height:50vh;
+    overflow-y: auto;
+    padding-right: 1.5rem;
+}

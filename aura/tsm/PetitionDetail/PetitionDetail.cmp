@@ -1,0 +1,150 @@
+<aura:component extends="c:ThorBase" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" access="global" controller="AccountSearchAuraCtl">
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <aura:attribute name="petitionActions" type="Object" />
+    <aura:attribute name="caseNote" type="Object" />
+    <aura:attribute name="simpleCase" type="Object" />
+    <aura:attribute name="workId" type="String" />
+    <aura:attribute name="targetAccountId" type="String" />
+	<aura:attribute name="targetAccountSFId" type="String" />
+    <aura:attribute name="targetAccountEmail" type="String" />    
+    <aura:attribute name="tabsId" type="String" default="caseDetail"/>
+    <aura:attribute name="isLocked" type="Boolean" default="False" />
+    <aura:attribute name="userId" type="String" default="" />
+    <aura:attribute name="record" type="Object"/>
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="contentActPermsHide" type="Boolean" default="false" />
+    <aura:attribute name="contentActPermsShow" type="Boolean" default="false" />
+    <aura:attribute name="allPermsList" type="List"/>
+    <aura:attribute name="isOwner" type="Boolean" default="False"/>
+    <aura:attribute name="searchCaseFlg" type="Boolean" default="False"/>
+    <aura:attribute name="caseStatus" type="String"/>
+    <aura:attribute name="isWorkOn" type="Boolean" default="False"/>
+    <aura:attribute name = "productList" type="Object[]"/>
+    <aura:attribute name = "franchiseList" type="Object[]"/>
+    <aura:attribute name="readModeCase" type="Boolean" default="False"/>
+    <aura:attribute name="archiveCaseDetailFlg" type="Boolean" default="False"/>
+    <aura:attribute name="petitionArchivedFlag" type="Boolean" default="False"/>
+    <force:recordData aura:id="record" 
+                      layoutType="FULL"
+                      mode="VIEW"
+                      recordId="{!v.recordId}"
+                      targetFields="{!v.simpleRecord}"
+                      targetError="{!v.recordError}"
+                      
+     /> 
+	<aura:method name="accountSearch" action="{!c.viewPetitionDetails}" description="Sample method with parameters">
+     <aura:attribute name="id" type="String"/>
+    <aura:attribute name="objCase" type="Case"/>
+   	<aura:attribute name="domEl" type="Object"/>
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="agentWorkId" type="String"/>
+    </aura:method>																												
+    <!--<aura:handler event="c:PetitionDetailEvent" action="{!c.viewPetitionDetails}" />-->
+    <!--aura:handler event="c:PetitionDetailEvent" action="{!c.getPetitionDetails}" /-->    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <!-- Register Event -->
+    <aura:handler name="petitionTotalClick" event="c:PetitionAccountCaseHistoryEvt" 
+                  action="{!c.petitionPlayerToAccount}" />
+    <aura:handler name="change" value="{!v.simpleRecord.OwnerId}" action="{!c.setOwner}" />
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <aura:if isTrue="{!v.isWorkOn}">
+        <div class="slds-align_absolute-center alert-container">
+            <aura:if isTrue="{!and(v.isOwner == false, v.caseStatus == 'Active')}" >
+            <div class="slds-notify slds-notify_toast slds-theme_warning" role="alert">
+                <span class="slds-assistive-text">warning</span>
+                <span class="slds-icon_container slds-icon-utility-warning slds-m-right_small slds-no-flex slds-align-top" title="Description of icon when needed">
+                    <lightning:icon class="slds-icon slds-icon_small" size="small" iconName="utility:warning" alternativeText="Warning!" variant="warning"/>
+                </span>
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small ">This case is currently being actioned by another advisor.</h2>
+                </div>
+            </div>
+                </aura:if>
+        </div>
+    </aura:if>
+    
+    
+    <div class="slds-p-top_large slds-p-left_xx-large slds-p-bottom_large">
+        <aura:if isTrue="{!v.simpleCase}">
+            <aura:if isTrue="{!v.searchCaseFlg == false}">
+            <span onclick="{!c.clickBack}">
+                <lightning:icon iconName="utility:chevronleft" title="" class="back-icon" />
+            </span>
+            </aura:if>
+            <div class="slds-p-left_x-large slds-p-right_x-large">
+                <aura:if isTrue="{!v.searchCaseFlg == false}"><span>Queue</span></aura:if>
+                <p class="slds-p-top_medium slds-p-bottom_medium">
+                    <aura:if isTrue="{!or(v.archiveCaseDetailFlg, v.petitionArchivedFlag)}">
+                    	<lightning:icon iconName="utility:lock" 
+                                    size="small"
+                                    class="archive-icon slds-p-horizontal_small"
+                                    variant="bare"                                            
+                                    alternativeText="lock" />
+                    </aura:if>
+                    <span class="slds-text-heading_medium">
+                       {!v.simpleCase.CaseNumber} - {!v.simpleCase.Subject}
+                    </span>
+                </p>
+                
+            </div> 
+        </aura:if>  
+        
+        
+		<!--<div class ="{!and(v.isOwner == false,v.caseStatus == 'Active') ? 'lockscreen':''}">-->																					
+        <lightning:layout multipleRows="true" class="petition-detail-container">
+            <lightning:layoutItem flexibility="auto" size="12">
+                <lightning:layout verticalAlign="space">
+                    <lightning:layoutItem flexibility="auto" size="9" >
+                        <lightning:tabset  onselect="{!c.tabSelected}" aura:id="petitionDetailTabs" selectedTabId="{!v.tabsId}" class="slds-p-left_x-large">                            
+                            <lightning:tab label="Case Detail" id="caseDetail">
+								<!--<div class ="{!and(v.isOwner == false,v.caseStatus == 'Active') ? 'lockscreen':''}">-->																					
+                                <aura:if isTrue="{!v.recordId}">
+                                    <c:CaseDetail isWorkOnCase="{!v.isWorkOn}" simpleCase="{!v.simpleRecord}" aura:id="caseDetailTab" productList="{!v.productList}" franchiseList= "{!v.franchiseList}"/>
+                                    <aura:set attribute="else">
+                                        <c:CaseDetail isWorkOnCase="{!v.isWorkOn}" simpleCase="{!v.simpleCase}" aura:id="caseDetailTab" productList="{!v.productList}" franchiseList= "{!v.franchiseList}"/>    
+                                    </aura:set>
+                                </aura:if>
+                             <!--</div>-->                               
+                            </lightning:tab>
+                            <lightning:tab label="Account Detail" id="playerAccount" title="Player Account">
+								<!-- <div class ="{!and(v.isOwner == false,v.caseStatus == 'Active') ? 'lockscreen':''}">-->																					
+                               <c:AccountDetail aura:id="accountDetailTab" simpleCase="{!v.simpleCase}" targetAccountSFId ="{!v.targetAccountSFId}" targetAccountID="{!v.targetAccountId}" targetAccountEmail="{!v.targetAccountEmail}" productList = "{!v.productList}" franchiseList = "{!v.franchiseList}"/>  
+                               <!--</div>--> 
+							</lightning:tab>
+                            <lightning:tab label="Case History" id="accountCaseHistory">
+								<div class ="{!and(v.isOwner == false,v.caseStatus == 'Active') ? 'lockscreen':''}">																					 
+                                 <c:CaseHistory aura:id="caseHistoryCmp" accountIdNucleus="{!v.simpleCase.Account ? v.simpleCase.Account.Nucleus_ID__c : v.simpleCase.Petition_Details__r.Target_Account__r.Nucleus_ID__c}" accountIdSF="{!v.simpleCase.Petition_Details__r ? v.simpleCase.Petition_Details__r.Target_Account__c : v.simpleCase.Account.Id}"/>
+                                </div>
+							</lightning:tab>
+                        </lightning:tabset>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem flexibility="auto" size="3">
+                        <div class="slds-m-top_x-large">
+                            <c:CaseStatus caseStatus="{!v.simpleCase.Status}" simpleCase="{!v.simpleCase}" caseNotes="{!v.caseNote}" aura:id="caseStatusCmp"/>
+                            <div class ="{!and(v.isOwner == false,v.caseStatus == 'Active') ? 'lockscreen':''}" aura:id ="caseAction" id = 'caseAction' onkeyPress="alert(Test);">
+                            
+                                <aura:if isTrue="{!v.recordId}">
+                                    <c:CaseActionComponent aura:id="pdCaseAction" allPermsList="{!v.allPermsList}" tabViewFlag="PetitionDetail" 
+                                                           petitionActions="{!v.petitionActions}" simpleCase="{!v.simpleRecord}" availableStatusId="{!v.availableStatusId}"
+                                                           contentActPermsHide="{!v.contentActPermsHide}" contentActPermsShow="{!v.contentActPermsShow}"
+                                                           workId ="{!v.workId}" targetAccount="{!v.simpleCase.Petition_Details__r.Target_Account__r}" />
+                                    <aura:set attribute="else">
+                                        <c:CaseActionComponent aura:id="pdCaseAction" allPermsList="{!v.allPermsList}" tabViewFlag="PetitionDetail"  isWorkOnCaseCmp="{!v.isWorkOn}"
+                                                               petitionActions="{!v.petitionActions}" simpleCase="{!v.simpleCase}" availableStatusId="{!v.availableStatusId}"
+                                                               contentActPermsHide="{!v.contentActPermsHide}" contentActPermsShow="{!v.contentActPermsShow}"
+                                                               workId ="{!v.workId}" targetAccount="{!v.simpleCase.Petition_Details__r.Target_Account__r}" />    
+                                    </aura:set>
+                                </aura:if>
+                                
+                            </div>
+                        </div>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </lightning:layoutItem>
+        </lightning:layout> 
+        <lightning:spinner class="slds-hide" aura:id="petitionDetailSpinner" variant="brand" size="large"/>
+    </div>
+    <!--</div>-->
+</aura:component>

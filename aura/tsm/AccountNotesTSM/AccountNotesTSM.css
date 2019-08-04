@@ -1,0 +1,109 @@
+.THIS .target-account-notes {
+    border: 1px solid;
+    border-color: #e3e5ed;
+    position: relative;
+    max-height: 27rem;
+    border-width: 0 1px 1px;
+}
+.THIS > div {
+    border-bottom: 1px solid #e3e5ed;
+}
+.THIS .target-account-notes::-webkit-scrollbar-track {    
+    background-color: #ffffff;
+}
+.THIS .target-account-notes::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #ffffff;
+}
+
+.THIS .target-account-notes::-webkit-scrollbar-thumb
+{
+    border-radius: 6px;
+    background-color: #e0dfdf;
+}
+.THIS .account-note-options {
+    position: absolute;
+    top: 1.5rem;
+    left: 14rem;
+}
+.THIS .slds-media svg {
+    fill: #ccc;
+    width: 1rem;
+    height: 1rem;
+}
+.THIS .slds-avatar {
+    cursor: pointer;
+}
+.THIS .slds-avatar.ACCTSTICKYNOTE svg {
+    fill: rgb(0, 109, 204);
+}
+.THIS .slds-avatar.sticky svg {
+    fill: rgb(0, 109, 204);
+}
+.THIS .add-account-note svg {
+    fill: rgb(0, 109, 204);
+    width: 1.1rem;
+}
+.THIS .add-notes {
+    background-color: #F4F6F9;
+    border: 1px solid;
+    border-color: #e3e5ed;
+    border-width: 0 1px;
+}
+.THIS .add-notes input {
+    display: inline-block;
+}
+.THIS .add-notes .slds-icon {
+    fill: #ccc;
+    width: 1rem;
+    height: 1rem;
+}
+.THIS .advisor-name {
+    color: #30496F;
+    font-weight: 600;
+}
+.THIS .created-label {
+    color: #C7C6C5;
+}
+.THIS .advisor-label {
+    color: #C7C6C5;
+}
+.THIS .case-label {
+    color: #C7C6C5;
+}
+.THIS .attachment-label {
+    color: #C7C6C5;
+}
+.THIS .slds-spinner_container {
+    z-index: 0;
+}
+.THIS .font-weight-bold {
+    font-weight : 700 !important;
+}
+.THIS .no-notes {    
+    text-align: center;
+}
+
+.THIS .no-notes > div:first-child {
+    font-weight	: bold;
+    font-size: medium;
+}
+
+.THIS .relativeDateTime {
+    text-transform: uppercase;
+}
+
+.THIS .note-saved {
+    margin-right : t(spacingMedium);
+}
+
+.THIS .note-text {
+    word-break: break-word;
+}
+.THIS .isDisabled{
+    color: currentColor;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+}

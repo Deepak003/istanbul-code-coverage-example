@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="RoleQueueAppEvt">
+    <aura:attribute name="roleQueue" type="String"/>
+    <aura:attribute name="roleQueueObj" type="Object"/>
+</aura:event>

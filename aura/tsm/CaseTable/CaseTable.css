@@ -1,0 +1,51 @@
+.THIS.main,
+.THIS .main {
+    min-height: 200px;
+    background: white;
+}
+
+.THIS .child {
+    min-height: 200px;
+}
+
+.THIS .current-case .status,
+.THIS .current-case .subject {
+    font-weight: bold;
+}
+
+.THIS .table-1 {
+    /*width: calc(100% - 17px);*/
+    padding-right: 17px;
+    table-layout: fixed;
+    background-color: #FAFAF9;
+}
+
+.THIS .table-2 {
+    table-layout: fixed;
+}
+
+.THIS .pointer {
+    cursor: pointer;
+}
+
+
+.THIS .tsm-table-heading {
+    text-transform: uppercase;
+}
+
+.THIS .tsm-table-heading_label {
+    line-height: 32px; 
+    vertical-align: middle;
+    font-size: 12px;
+    color: #514f4d;
+}
+
+.THIS .table-1 th {
+    font-weight: normal;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.THIS .cInfiniteScrolling.infinite-container {
+    overflow-y: scroll;
+}

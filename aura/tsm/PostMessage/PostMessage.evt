@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Event template">
+    <aura:attribute name="selectedCaseIndex" type="String"/>
+    <aura:attribute name="URL" type="string" default=""/>
+    <aura:attribute name="ID" type="string" default=""/>
+</aura:event>

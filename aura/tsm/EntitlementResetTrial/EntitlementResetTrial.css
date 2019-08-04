@@ -1,0 +1,14 @@
+.THIS {
+}
+.THIS .slds-text-heading_medium { 
+   font-weight: normal;
+}
+.THIS .backdropClass {
+    width: 100% !important
+}
+.THIS .slds-modal__content.slds-p-around_large.slds-is-relative {
+    height: 30%;
+}
+.THIS .modal-small .slds-modal__container {
+    width: 55%;
+}

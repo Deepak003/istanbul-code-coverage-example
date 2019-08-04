@@ -1,0 +1,10 @@
+<aura:component >
+	<aura:attribute name="type" type="String" access="public"/>
+    <aura:attribute name="class" type="String" access="public"/>
+    <aura:attribute name="iconString" type="String" access="private"/>
+    
+	<aura:handler name="change" value="{! v.type }" action="{!c.doInit}"/>
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+    
+    <img src="{!v.iconString}" class="{!v.class}"/>
+</aura:component>

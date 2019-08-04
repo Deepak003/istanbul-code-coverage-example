@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Petition Commit Application event">
+	<aura:attribute name="pk" type="List"/>
+    <aura:attribute name="getNextPetition" type="boolean"/>
+</aura:event>

@@ -1,0 +1,11 @@
+.THIS .message-content{
+    overflow: auto;
+    height: 56vh;
+}
+.THIS .article-link{
+    color:#006dcc;
+}
+.THIS .article-link:hover{
+    cursor:pointer;
+    text-decoration: underline;
+}

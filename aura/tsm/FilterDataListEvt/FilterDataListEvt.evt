@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Filter Data List Object Data">    
+    <aura:attribute name="listData" type="List" />
+    <aura:attribute name="listDataType" type="String" />
+</aura:event>

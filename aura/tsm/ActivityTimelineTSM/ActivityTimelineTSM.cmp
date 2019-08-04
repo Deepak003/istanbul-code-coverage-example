@@ -1,0 +1,97 @@
+<aura:component controller="CaseActivitiesAuraCtl">
+    <!-- attributes -->
+    <aura:attribute name="today9AM" type="Object"/>
+    <aura:attribute name="activity" type="Object"/>
+    <aura:attribute name="iconList" type="Object" default="{'transfered': 'forward', 'resolved': 'check', 'appended': 'note', 'escalated': 'forward', 'created': 'recent'}"/>
+    <aura:attribute name="caseId" type="String" default="5006C000001BIsvQAG"/>     
+    <aura:attribute name="viewAllFlag" type="Boolean" default="false" />
+    <aura:attribute name="viewCollapse" type="Boolean" default="false" />
+    <aura:attribute name="caseUpdatesList" type="List" default="[]" />
+    <!-- handlers-->
+    <aura:registerevent name="viewAllEvent" type="c:ViewAccountEvent"/>
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/> 
+    <!-- Methods -->
+    <!--<aura:method name="getCaseNotes" 
+                 action="{!c.getCaseNotes}" 
+                 access="PUBLIC"
+                 description="call the getCaseNotes method" /> -->
+    <div class="slds-is-relative">
+        <ul class="slds-timeline" aura:id="activityTimeline">
+            <aura:iteration items="{!v.caseUpdatesList}" var="activity" indexVar="idx">
+                <li aura:id="activityItem">
+                    <div class="slds-timeline__item_expandable slds-timeline__item_task">
+                        <span class="slds-assistive-text">task</span>
+                        <div class="slds-media">
+                            <div class="slds-media__figure">                            
+                                    <lightning:icon class="slds-icon slds-icon_small"  iconName="standard:note" size="small" />
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                                    <div class="slds-text-heading_small slds_truncate">
+                                        <strong>
+                                            <aura:if isTrue="{!activity.type =='EMAIL'}">
+                                               	Emailed the player 
+                                            </aura:if>
+                                            <aura:if isTrue="{!activity.type =='NOTE'}">
+                                               	Note added 
+                                            </aura:if>
+                                            <aura:if isTrue="{!activity.type =='ATTACHMENT'}">
+                                               	Attachment added 
+                                            </aura:if>
+                                            <aura:if isTrue="{!activity.type =='CHAT'}">
+                                               	Chatted with player 
+                                            </aura:if>
+                                            <aura:if isTrue="{!activity.type =='CASE_CREATE'}">
+                                               	Case created 
+                                            </aura:if>
+                                            <aura:if isTrue="{!activity.type =='CASE_RESUME'}">
+                                               	Case resumed
+                                            </aura:if>
+                                        </strong>
+                                    </div>
+                                    <div class="slds-timeline__actions slds-timeline__actions_inline">
+                                        <lightning:relativeDateTime value="{!activity.date}"/>
+                                    </div>
+                                </div>
+                                <aura:if isTrue="{!(activity.type =='ATTACHMENT')}">
+                                    <p class="slds-m-horizontal_xx-small">
+                                        A new attachment added by player.
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!(activity.type =='CASE_RESUME')}">
+                                    <p class="slds-m-horizontal_xx-small">
+                                        Case has been resumed.
+                                    </p>
+                                </aura:if>
+                               	<aura:if isTrue="{!not(empty(activity.notes))}">
+                                    <p class="slds-m-horizontal_xx-small">
+                                        <span>Case Note: </span>
+                                        <aura:iteration items="{!activity.notes}" var="row" indexVar="idx">
+                                            <div title="{! row.date }">-{! row.label }</div>
+            							</aura:iteration>
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!activity.title !='Player'}">   
+                                    <p class="slds-m-horizontal_xx-small">
+                                        <span>Advisor: </span><ui:outputText value="{!activity.title}" class="advisorName"></ui:outputText>
+                                    </p>
+                                </aura:if>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </aura:iteration>  
+        </ul>
+        <aura:if isTrue="{!v.viewAllFlag}">
+            <div>
+                <a class="viewAll" href="#" onclick="{!c.openCaseTab}" >View All</a>
+            </div>
+        </aura:if>
+        <!--<aura:if isTrue="{!v.viewCollapse}">
+            <div>
+                <a class="viewAll" onclick="{!c.collapseClick}">Collapse</a>
+            </div>
+        </aura:if>-->
+        <lightning:spinner class="slds-is-absolute slds-hide" aura:id="actspinner" variant="brand" size="small"/>
+    </div>
+</aura:component>

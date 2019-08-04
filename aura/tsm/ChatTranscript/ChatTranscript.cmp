@@ -1,0 +1,45 @@
+<aura:component extends="c:TranscriptSubTab" controller="CaseSummaryAuraController">
+    <!--Declare Attributes-->
+    <aura:attribute name="transcripts" type="List" access="private"/>
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <!--Declare Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!-- Component Body-->
+    <div class="c-container slds-box">
+        <lightning:layout multipleRows="true">
+            <aura:if isTrue="{! v.isLoading }">
+                <lightning:spinner variant="brand" size="small" />
+                <aura:set attribute="else">
+                    <aura:if isTrue="{! empty(v.transcripts) }">
+                        <c:EmptyState>
+                            <aura:set attribute="message">
+                                <b>No result found</b>
+                            </aura:set>
+                        </c:EmptyState>                
+                        <aura:set attribute="else">                            
+                            <aura:iteration items="{!v.transcripts}" var="row">
+                                <lightning:layoutItem padding="around-small" size="12">
+                                    <div class="slds-p-bottom_small section-title">
+                                        <aura:if isTrue="{! row.advisorName }">
+                                            {! row.advisorName }
+                                        </aura:if>
+                                        <aura:if isTrue="{! row.jobroleName }">
+                                            ({! row.jobroleName })
+                                        </aura:if>                        
+                                    </div>
+                                    <div class="slds-border_top slds-border_right slds-border_bottom slds-border_left slds-p-around_medium">
+                                        <lightning:formattedRichText value="{! row.body }" />
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:iteration>                            
+                        </aura:set>
+                    </aura:if>
+                </aura:set>
+            </aura:if>
+        </lightning:layout>
+    </div>
+</aura:component>

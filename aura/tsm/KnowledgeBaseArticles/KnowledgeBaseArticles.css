@@ -1,0 +1,39 @@
+.THIS .search-knowledge label{
+    display:none;
+}
+.THIS .filter-header{
+  font-size: 18px;
+  font-weight: bold;
+  color: #2b2826;
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS h2 span{
+    font-weight:bold;
+    font-size: 0.75rem;
+}
+.THIS p{
+    font-size: 0.625rem;
+}
+.THIS .body-text-small{
+    font-size: 0.625rem;
+}
+.THIS .card-details:hover{
+    border-color: #1589ee;
+    cursor:pointer;
+}
+.THIS .scope-internal{
+    color : white;
+    background-color : #4bca81;
+}
+.THIS .scope-external{
+    color : white;
+    background-color : #0070d2;
+}
+.THIS .text-center{
+    text-align: center;
+}
+.THIS .button-right button{
+    float:right;
+}

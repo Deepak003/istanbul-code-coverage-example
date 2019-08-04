@@ -1,0 +1,35 @@
+.THIS .notification-body{
+    font-size: 10px;
+}
+.THIS .notification-color{
+    color: #706e6b;
+}
+.THIS .adding-absolute{
+    position: absolute;
+}
+.THIS .container-height{
+    min-height: 94%;
+    max-height: 94%;
+    min-width: 68vh;
+    max-width: 68vh;
+}
+.THIS .openKnowledgeBaseArticle{
+    cursor : pointer;
+}
+.THIS .message-content{
+    overflow: auto;
+    height: 56vh;
+}
+.THIS .notification-active {
+    background-color: rgba(21, 137, 238, 0.1);
+    border-left: 3px solid #0070d2;
+}
+.THIS .card-details{
+    cursor: pointer;
+}
+.THIS .article-hover:hover{
+    background-color: rgba(21, 137, 238, 0.1);
+}
+.THIS .notification-unread{
+    font-weight: bold;
+}

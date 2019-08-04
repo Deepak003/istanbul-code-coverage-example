@@ -1,0 +1,17 @@
+.THIS.emailContainer {
+
+}
+
+.THIS.emailContainer .emailHeader{
+	display: flex;
+}
+
+.THIS.emailContainer .emailBody .slds-rich-text-editor__textarea *
+{
+    unicode-bidi: plaintext; 
+}
+
+.THIS.emailContainer .messageHeading{
+	color: t(colorTextInputFocusInverse);
+    display: inline-block;
+}

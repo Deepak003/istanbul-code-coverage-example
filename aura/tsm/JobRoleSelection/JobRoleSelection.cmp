@@ -1,0 +1,79 @@
+<aura:component controller="AuraSelectRole" extends="c:TSMJobRoleMain" implements="flexipage:availableForAllPageTypes,force:appHostable,force:hasRecordId" access="global">
+    <aura:attribute name="isOpen" type="Boolean" access="private" default="false" /> 
+    <aura:attribute name="isSuccessDisable" type="Boolean" access="private" default="true" />
+    <aura:attribute name="noRoleDefined" type="String" />    
+    <aura:attribute name="selectRoleBtn" type="String" default="Select Role"/>
+    <aura:attribute name="selectedRoleId" type="String"/>
+    <aura:attribute name="selectedRoleName" type="String"/>
+    <aura:attribute name="isTSM" type="Boolean" default="true" /> 
+    <aura:attribute name="isJobRoleChange" type="Boolean" default="false" />  
+	
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler event="c:JobRoleSelectionCheck" value="{!this }" action="{!c.showPopUpModal}"/>
+    <aura:handler event="c:JobRoleModalCloseEvent" action="{!c.closeModals}"/>
+    <lightning:workspaceAPI aura:id="workspace"/>
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="{!v.isOpen}" outerClass="jobRoleModal" clickClose="false" escapeClose="false">
+            <aura:set attribute="class" value="slds-modal_x-small" />
+            <aura:set attribute="content">
+                <div class=" slds-p-around_medium" id="modal-content-id-1">
+                    <span>{!v.noRoleDefined}</span>
+                    <ul role="listbox" class="slds-listbox slds-listbox_vertical">
+                        <aura:iteration items="{!v.roleOptions}" var="role" indexVar="index">
+                            <aura:if isTrue="{!role.value != null}"> 
+                                <li role="presentation" class="slds-listbox__item">
+                                    <div role="option" aura_id="{!'JobRole'+v.selectedRole}" data-index="{!index}" onclick="{!c.selectRole}"
+                                         selected="{!v.selectedRole == role.value ? 'true' : 'false'}"
+                                         class="slds-listbox__option slds-listbox__option_plain slds-media slds-media_small">
+                                        <span class="slds-media__figure">
+                                            <lightning:icon size="x-small" iconName="utility:check" 
+                                                            class="{!v.selectedRole == role.value ? 'slds-show' : 'slds-hide'}" />
+                                        </span>
+                                        <span class="slds-media__body">
+                                            {!role.label}	
+                                        </span>
+                                    </div>
+                                </li>
+                            </aura:if>
+                        </aura:iteration>
+                    </ul>                 
+                    <lightning:spinner class="slds-hide slds-is-absolute" 
+                                       aura:id="spinnerQueueJR" variant="brand" size="small"/>
+                </div>
+            </aura:set>
+            <aura:set attribute="closeIcon">                
+            </aura:set>
+            <aura:set attribute="title">
+                Welcome! Start by Choosing Job Role
+            </aura:set>
+            <aura:set attribute="onSuccess" value="{!c.handleActionClick}"/>
+            <aura:set attribute="success" value="{!v.selectRoleBtn}"/>
+            <aura:set attribute="cancel" value=" "/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+        </c:ParentModal>
+    </aura:if>    
+    <aura:if isTrue="{!v.isJobRoleChange}">
+        <div class="change-job-role">
+            <c:ParentModal isModalOpen="{!v.isJobRoleChange}">
+                <aura:set attribute="class" value=" " />
+                <aura:set attribute="outerClass" value="modal-container" />
+                <aura:set attribute="title" value="Change Job Role" />
+                <aura:set attribute="content">
+                    <lightning:layout class="slds-m-top_x-small slds-m-bottom_large">
+                        <div> 
+                            After you change job role, all open tabs will be closed. <br/>
+                            Are you sure you want to change job role?
+                        </div>
+                    </lightning:layout>
+                </aura:set>
+                <aura:set attribute="showSpinner" value="{!v.isLoading}"/>
+                <aura:set attribute="isDirectionalFooter" value="false"/>
+                <aura:set attribute="success" value="Yes"/>
+                <aura:set attribute="cancel" value="Cancel"/>
+                <aura:set attribute="onSuccess" value="{!c.closeAllTabs}"/>
+                <aura:set attribute="onCancel" value="{!c.closeChangeJobRole}"/>
+            </c:ParentModal>
+        </div>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,14 @@
+.THIS {
+}
+
+.THIS.empty-list,
+.THIS .empty-list {
+    font-size: 20px;
+    text-align: center;
+}
+
+.THIS.empty-list img,
+.THIS .empty-list img {
+    width : 50%;
+    margin-bottom: t(spacingMedium);
+}

@@ -1,0 +1,237 @@
+<aura:component controller="KnowledgeBaseAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">
+    <!-- List of variables used in KB Articles -->
+    <aura:attribute name="articleList" type="List" default="[]"/>
+    <aura:attribute name="articleCount" type="String" default=""/>
+    <aura:attribute name="showArticleSharing" type="Boolean" default="false" /> 
+    <aura:attribute name="selectedArticle" type="Object" default="{}"/>
+    <aura:attribute name="localStorage" type="Object" default="{}"/>
+    <aura:attribute name="searchString" type="String" default=""/>
+    <aura:attribute name="articleJSONResponse" type="Map" />
+    <aura:attribute name="isDataNull" type="Boolean" default="false" />
+    <aura:attribute name="isDataLoad" type="Boolean" default="false" />
+    <aura:attribute name="currentParam" type="Map" default="{}"/>
+    
+    <!-- TSM-2413 Adding text for label -->
+    <aura:attribute name="filterText" type="String" default="Filters (1)"/>
+    
+    <!-- List of variables used in KB -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:registerEvent name="articleSelectEvent" type="c:KnowledgeComponentEvent" />
+    
+    <!--Attributes for sort by list-->
+    <aura:attribute name="sortByList" type="List" default="[
+                                                           {'label': 'Most Relevant', 'value': 'mostRelavent'},
+                                                           {'label': 'Last Updated', 'value': 'lastUpdated'},
+                                                           {'label': 'Most helpful', 'value': 'mostHelpful'}
+                                                           ]"/>
+    
+    <!--Attributes for Checkbox-->
+    <aura:attribute name="CheckBoxOptions" type="List" default="[
+                                                                {'label': 'Include Notification', 'value': 'notification'},
+                                                                {'label': 'Include Archived', 'value': 'archived'}
+                                                                ]"/>
+    
+    <!--Attributes for content type list -->
+    <aura:attribute name="contentTypeList" type="List" />
+    
+    <!--Attributes for date last updated by list-->
+    <aura:attribute name="dateLastUpdatedList" type="List" default="[{'label': 'All Time', 'value': 'all'},
+                                                                    {'label': 'Within last 30 days', 'value': '30DAY'},
+                                                                    {'label': 'Within last 180 days', 'value': '180DAY'},
+                                                                    {'label': 'Within last year', 'value': '365DAY'}
+                                                                    ]"/>
+    
+    <!--Attributes for internal/external list-->
+    <aura:attribute name="internalOrExternalList" type="List" default="[{'label': 'All Content', 'value': 'all'},
+                                                                       {'label': 'Internal Content', 'value': 'internal'},
+                                                                       {'label': 'External Content', 'value': 'external'}
+                                                                       ]"/>
+    
+    
+    <aura:attribute name="languageList" type="List" default="[{'label': 'English-US', 'value': 'en_US'}]"/>
+    
+    <aura:attribute name="CheckBoxValue" type="List" default="notification"/>
+    <aura:handler name="change" value="{!v.articleJSONResponse}" action="{!c.articleBuilder}" />
+    
+    <!--Attributes for Lookup-->
+    <aura:attribute name="case" type="Object" />
+    <aura:attribute name="allProducts" type="Object"/>
+    <aura:attribute name="platformData" type="Object"/>
+    <aura:attribute name="platformDisable" type="Boolean" default="true"/>
+    <aura:attribute name="categoryData" type="Object"/>
+    <aura:attribute name="categoryDisable" type="Boolean" default="true"/>
+    <aura:attribute name="issueData" type="Object"/>
+    <aura:attribute name="issueDisable" type="Boolean" default="true"/>
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleBubbling}"/>
+    
+    <!-- List of variables used for search -->
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="keyPressTimer" type="Integer" default="0" />
+    
+    <!-- Article parent pannel -->
+    <div aura:id="artilces-pannel">
+        <!-- Search header -->
+        <div class="slds-grid slds-m-bottom--large">
+            <div onkeyup ="" class="slds-size_8-of-12 search-knowledge slds-p-right--small">
+                <lightning:input
+                                 class="search-knowledge"
+                                 aura:id="knowledge-search"
+                                 type="search"
+                                 value="{!v.searchString}"
+                                 onchange ="{! c.searchKnowledgeArtciles }"
+                                 placeholder="Search Knowledge Base"/>
+            </div>      
+            
+            <div class="slds-size_4-of-12 button-right">
+                <lightning:button label="{! v.filterText }" title="Filters" onclick="{! c.openFilter }"/>  
+            </div>
+        </div>
+        
+        <!-- Article content body -->
+        <aura:if isTrue="{!v.isDataLoad == true}"> 
+            <div aura:id="article-count-pannel" class="slds-hide slds-grid slds-m-bottom--large">
+                <div class="slds-size_1-of-2 slds-p-top_x-small edit-field-label">
+                    {!v.articleCount}
+                </div>            
+                <div class="slds-size_1-of-2">
+                    <lightning:combobox class="search-knowledge" name="sortBy" value="mostRelavent" placeholder=""
+                                        options="{!v.sortByList}" onchange="{!c.changeSortByValue}"/>  
+                </div>
+            </div> 
+            <!-- Cards loop -->
+            <aura:iteration items="{!v.articleList}" var="item" indexVar="idx">
+                <div data-value="{!idx}" class="slds-m-bottom--x-small" onclick="{!c.selectArticleCard}">
+                    <lightning:card aura:id="foundArticles" class="card-details" title="{!item.fields.title}">
+                        <aura:set attribute="actions">
+                            <aura:if isTrue="{!item.fields.scope == 'external'}">
+                                <div style="z-index:1;">
+                                    <lightning:buttonIcon iconName="utility:share" alternativeText="Share " size="small" value="{!item}" onclick="{!c.sendToPlayerAction}" class="shareBtn" />
+                                </div>
+                            </aura:if>
+                        </aura:set>
+                        <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                            <div class="slds-p-horizontal_small slds-m-top--small edit-field-label body-text-small">Last updated <lightning:formattedDateTime value="{!item.fields.last_modified_at}"/></div>
+                        </aura:if>
+                        <p class="slds-p-horizontal_small slds-m-top--small">
+                            {!item.fields.summary}
+                        </p>
+                        <div class="slds-grid slds-m-top--small">
+                            <div class="slds-size_2-of-3 slds-m-left--small">
+                                <lightning:badge class="{! join(' ',
+                                                        if(item.fields.scope == 'external', 'scope-external'),
+                                                        if(item.fields.scope == 'internal', 'scope-internal')                          
+                                                        )}" label="{!item.fields.scope}"/>
+                            </div>
+                            <aura:if isTrue="{!item.fields.total_votes != undefined}"> 
+                                <div class="edit-field-label text-center slds-float_right body-text-small slds-size_1-of-3">
+                                    {!item.fields.helpful_votes} found helpful
+                                </div>
+                            </aura:if>
+                        </div>
+                    </lightning:card>
+                </div>
+            </aura:iteration>
+        </aura:if>
+        
+        <!-- Handler for zero result -->
+        <aura:if isTrue="{!v.isDataNull == true}"> 
+            <c:EmptyState message="No relevant articles found"></c:EmptyState>          
+        </aura:if>
+        
+    </div>
+    
+    <!-- Filter parent pannel -->
+    <div aura:id="filter-pannel" class="slds-is-relative slds-hide slds-m-bottom--large">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        <div class="">  
+            <!-- Filter header -->
+            <div class="slds-grid slds-m-top_small">
+                <div class="slds-size_3-of-4 slds-m-right--medium filter-header">Apply Filters</div>
+                <div class="slds-size_1-of-4"><a onclick="{!c.clearAllFilter}">Clear All</a></div>
+            </div>  
+            <!-- Filter body -->
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                    <aura:if isTrue="{!v.allProducts != null}">  
+                        <c:LookupTSM selectedName="{!v.case.product}" placeholder="Select a Product" fieldName="Product" lookupData="{!v.allProducts}"/>
+                    </aura:if>    
+                </div>
+            </div>   
+            
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                    <aura:if isTrue="{!v.platformDisable == false}"> 
+                        <c:LookupTSM selectedName="{!v.case.platform}" placeholder="All Platforms" fieldName="Platform" lookupData="{!v.platformData}" disableFlag="{!v.platformDisable}"/>
+                    </aura:if> 
+                </div>
+            </div>
+            
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                    <aura:if isTrue="{!v.categoryDisable == false}">  
+                        <c:LookupTSM selectedName="{!v.case.category}" placeholder="All Categories"  selectedURL="" fieldName="Category" lookupData="{!v.categoryData}" disableFlag="{!v.categoryDisable}"/>
+                    </aura:if> 
+                </div>
+            </div>
+            
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                    <aura:if isTrue="{!v.issueDisable == false}">  
+                        <c:LookupTSM selectedName="{!v.case.subCategory}" placeholder="All Issues"  selectedURL="" fieldName="Issue" lookupData="{!v.issueData}" disableFlag="{!v.issueDisable}"/>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+        
+        <div class="slds-m-top_small">
+            <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                <lightning:combobox aura:id="content-type-combo" label="Content Type" name="selectContentType" value="all" placeholder=""
+                                    options="{!v.contentTypeList}" /> 
+            </div>
+        </div>
+        
+        <div class="slds-m-top_small">
+            <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                <lightning:combobox aura:id="last-updated-combo" label="Date Last Updated" name="lastUpdatedDate" value="all" placeholder=""
+                                    options="{!v.dateLastUpdatedList}"/> 
+            </div>
+        </div>
+        
+        <div class="slds-m-top_small">
+            <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                <lightning:combobox aura:id="scope-selector" label="Internal or External Content" name="selectIntenalOrExternalContent" value="all" placeholder=""
+                                    options="{!v.internalOrExternalList}" /> 
+            </div>
+        </div>
+        
+        <div class="slds-m-top_small">
+            <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                <lightning:combobox aura:id="locale-selector" label="Language" name="selectlanguage" value="en_US" placeholder=""
+                                    options="{!v.languageList}" /> 
+            </div>
+        </div>
+        
+        <div class="slds-m-top_small">
+            <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                <lightning:checkboxGroup aura:id="action-checkbox" name="Checkbox Group"
+                                         options="{! v.CheckBoxOptions }"
+                                         value="{! v.CheckBoxValue }"/>     
+            </div>
+        </div>
+        
+        <!-- Filter footer -->
+        <div class="slds-grid slds-m-top_small">
+            <div class="slds-size_3-of-5"></div>
+            <div class="slds-m-right--medium">
+                <lightning:button label="Cancel" title="Cancel" onclick="{! c.cancelFilter }"/>
+            </div>
+            <div class="">
+                <lightning:button label="Save" variant="brand" title="Save" onclick="{! c.saveFilter }" />
+            </div>
+        </div> 
+    </div>   
+    <!-- Article sharing click -->
+    <aura:if isTrue="{!v.showArticleSharing}">
+        <c:ArticleSharing isOpen="{!v.showArticleSharing}" selectedArticle="{!v.selectedArticle}" localStorage="{!v.localStorage}"/>/>
+    </aura:if>
+</aura:component>

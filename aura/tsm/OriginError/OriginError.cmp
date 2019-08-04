@@ -1,0 +1,41 @@
+<aura:component implements="lightning:isUrlAddressable" access="global" controller="AccountBasicInfoAuraController">
+    <aura:attribute name="originId" type="String" access="private" />
+    <aura:attribute name="logs" type="List" access="private" />
+    <aura:attribute name="trackingId" type="String" access="private" />
+    <aura:attribute name="selectedLogValue" type="String" access="private" />    
+    <aura:attribute name="logDetails" type="String" access="private" />
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private" />
+    <aura:attribute name="isLoadingContent" type="Boolean" default="true" access="private" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.originId}" action="{!c.fetchLogs}" />
+    <aura:handler name="change" value="{!v.selectedLogValue}" action="{!c.fetchLogContent}" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <div class="slds-is-relative">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner aura:id="spinner" variant="brand" size="small" />
+            <aura:set attribute="else">
+                <aura:if isTrue="{! empty(v.logs) }">
+                    <c:EmptyState message="No result found"></c:EmptyState>
+                    <aura:set attribute="else">                        
+                        <lightning:layout multipleRows="true">
+                            <lightning:layoutItem size="3" class="slds-p-horizontal_medium">
+                                <lightning:combobox name="progress" label="Choose Error Report" value="{!v.selectedLogValue}" options="{! v.logs }" />
+                            </lightning:layoutItem>                            
+                            <lightning:layoutItem size="12" class="slds-p-horizontal_medium slds-p-top_medium slds-is-relative">
+                                <aura:if isTrue="{!v.isLoadingContent}">
+                                    <lightning:spinner aura:id="spinner" variant="brand" size="small" />
+                                    <aura:set attribute="else">
+                                        <lightning:formattedText value="{!v.logDetails}" />
+                                    </aura:set>
+                                </aura:if>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>
+    </div>
+</aura:component>

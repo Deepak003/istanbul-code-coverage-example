@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Event template" >
+    <aura:attribute name="openAccountNotesTab" type="boolean"/>
+    <aura:attribute name="openSessionInfoTab" type="boolean"/>
+</aura:event>

@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Row click Application Event" >
+    <aura:attribute name="pk" type="String"/>
+	<aura:attribute name="agentWorkId" type="String"/>
+</aura:event>

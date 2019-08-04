@@ -1,0 +1,118 @@
+<aura:component >
+	<!-- Attribute -->
+    <aura:attribute name="idNumber" type="Integer" />    
+    <aura:attribute name="headerContent" type="String"/>
+    <aura:attribute name="bodyContent" type="String"/>    
+    <aura:attribute name="caseType" type="String"/>
+    <aura:attribute name="chatTransArr" type="List"/>
+    <aura:attribute name="chatTranscript" type="Boolean" default="false"/>
+    
+    <div aura:id="caseEvents" class="slds-section-case-event caseEvents" aria-controls="{!v.idNumber}" aria-expanded="false" >        
+        <div class="slds-is-relative slds-has-flexi-truncate slds-grid slds-gutters">
+            <div class="expcollp-header" onclick="{!c.expandClick}" >
+                <div class="slds-media slds-media_center">
+                    <div class="slds-media__figure slds-align-top">
+                        <div class="thor-email-icon"><lightning:icon iconName="utility:email" class="slds-icon_container slds-icon-utility-announcement" title=""/></div>
+                    </div>
+                    <div class="slds-media__body"> 
+                        <div class="slds-grid">
+                        	<div class="slds-col expand-header">
+                            	<ui:outputRichText class="petition-actions-header" value="{!v.bodyContent.type}"/>
+                            </div>
+                            <div class="slds-col slds-text-align_right thor-line-height">
+                                {!v.bodyContent.createdDate}
+                            </div>
+                        </div>                                                
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div aria-hidden="true" class="slds-timeline__item_expandable slds-timeline__item_task slds-p-left_small slds-grid slds-gutters slds-truncate slds-section-case-event__content" id="{!v.idNumber}">
+                <div class="slds-p-around_small slds-m-horizontal_medium slds-media slds-media_center expand-content">
+                    <div class="slds-media__figure slds-align-top">
+                        <div class="slds-border_left"></div>
+                    </div>
+                    <div class="slds-media__body">
+                        <!-- Expanded data STARTS here -->
+                        <div class="slds-m-bottom_small">
+                            <div class="edit-field-label slds-text-body_small">
+                                Case Action                            
+                            </div>
+                            <div class="thor-expand-item">{!v.bodyContent.action}</div>
+                        </div>
+                        <aura:if isTrue="{!v.bodyContent.contentAction}">
+                            <div class="slds-m-bottom_small">
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-size_1-of-2">
+                                        <div class="edit-field-label slds-text-body_small">
+                                            Content Action(s)                           
+                                        </div>
+                                        <div class="thor-expand-item">{!v.bodyContent.contentAction}</div>
+                                    </div>
+                                    <div class="slds-size_1-of-2">
+                                        <div class="edit-field-label slds-text-body_small">
+                                            Content Action Comment                           
+                                        </div>
+                                        <div class="thor-expand-item">{!v.bodyContent.contentActionComment}</div>
+                                    </div>
+                                </div>                            
+                            </div>
+                        </aura:if>
+                        <aura:if isTrue="{!v.bodyContent.accActionVal}">
+                        <div class="slds-m-bottom_small slds-border_bottom slds-p-bottom_small field-label-data slds-border-bottom_small">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-size_1-of-2">
+                                    <div class="edit-field-label slds-text-body_small">
+                                        Account Action(s)
+                                    </div>
+                                    <div class="thor-expand-item">
+                                        <aura:unescapedHtml value="{!v.bodyContent.accActionVal}" />
+                                    </div>
+                                </div>
+                                <aura:if isTrue="{!v.bodyContent.accNote}">
+                                    <div class="slds-size_1-of-2">
+                                        <div class="edit-field-label slds-text-body_small">
+                                            Account Action Comment
+                                        </div>
+                                        <div class="thor-expand-item">{!v.bodyContent.accNote}</div>                                    
+                                    </div>
+                                </aura:if>
+                            </div>                            
+                        </div>   
+                        </aura:if>
+                        <div class="slds-m-bottom_small field-label-data">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-size_1-of-2">
+                                    <div class="edit-field-label slds-text-body_small">
+                                        Channel
+                                    </div>
+                                    <div class="thor-expand-item">{!v.bodyContent.channel}</div>                                    
+                                </div>
+                                <aura:if isTrue="{!v.bodyContent.advisor}">
+                                    <div class="slds-size_1-of-2">
+                                        <div class="edit-field-label slds-text-body_small">
+                                            Advisor
+                                        </div>
+                                        <div class="thor-expand-item">{!v.bodyContent.advisor}</div>
+                                    </div>
+                                </aura:if>
+                            </div>                            
+                        </div>
+                        <div class="slds-m-bottom_small field-label-data thor-pointer">                            
+                            <div onclick="{!c.popUpShow}" class="{!v.bodyContent.msgTextVal ? 'slds-text-link':''}" data-model="{!v.bodyContent.msgTextVal}">{!v.bodyContent.msgText}</div>
+                        </div>
+                        <div class="slds-m-bottom_small field-label-data">
+                            <aura:if isTrue="{!v.bodyContent.caseNote}">
+                                <div class="edit-field-label slds-text-body_small">
+                                    Case Notes
+                                </div>
+                                <div class="thor-expand-item">{!v.bodyContent.caseNote}</div>  
+                            </aura:if>
+                        </div>
+                        <!-- END -->
+                    </div>
+                </div>
+            </div>        
+    </div>
+    <c:PopupModule aura:id="popUpCmp"/>
+</aura:component>

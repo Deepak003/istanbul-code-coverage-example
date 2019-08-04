@@ -1,0 +1,20 @@
+<aura:component implements="lightning:recordHomeTemplate" description="Layout to hold the chat body standard component">
+    <aura:attribute name="ChatDetails" type="Aura.Component[]" />
+    <aura:attribute name="ChatWrapper" type="Aura.Component[]" />
+    <ltng:require styles="{! $Resource.TSMArabic }" />
+    <ltng:require scripts="{! $Resource.Util }" />
+    <aura:handler event="aura:doneRendering" action="{!c.doneRendering}"/>
+    <div>
+        <lightning:layout  horizontalAlign="spread" class="petition-detail-container">
+            <lightning:layoutItem size="3" class="c-layoutBackground chat-case-details-base">
+                <div class="slds-p-around_large tsm-scrollable" aura:id="parentDiv">
+                {!v.ChatDetails}   
+                </div>    
+            </lightning:layoutItem>
+            <lightning:layoutItem  size="9" flexibility="grow" class="chat-wrapper-view-base">
+                {!v.ChatWrapper}
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+</aura:component>

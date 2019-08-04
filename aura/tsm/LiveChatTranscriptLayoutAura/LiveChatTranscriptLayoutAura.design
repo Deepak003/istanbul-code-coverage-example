@@ -1,0 +1,8 @@
+<design:component label="TSM Live chat transcript layout">
+    <flexipage:template>
+        <flexipage:region name="ChatDetails" defaultWidth="SMALL"/>
+            <flexipage:region name="ChatWrapper" defaultWidth="MEDIUM" >
+              <flexipage:formfactor type="MEDIUM" width="SMALL" />
+            </flexipage:region>
+       </flexipage:template>
+</design:component>

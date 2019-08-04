@@ -1,0 +1,120 @@
+.THIS {
+    background: token(homepageComponentBackgroundColor);
+    height: token(homepageComponentHeight);
+    overflow-y: auto;
+}
+.THIS .limitVert{
+   /*width: 384px;
+  height: 424px;
+   padding: 3px 3px 4px;
+   */
+    overflow: auto;
+}
+.THIS .controlTower{
+    width:123px;
+}
+.THIS.serviceStatus{
+    font-size: 13px;
+}
+.THIS .customNotification{
+    background-color: transparent;
+}
+.THIS .customNotification lightning-primitive-icon svg{
+    background: rgb(255,154,60);
+    border-radius: 5px;
+    height: token(homepageComponentIconHeight);
+    width: token(homepageComponentIconWidth);
+}
+.THIS .refreshIcon .slds-icon-text-default{ 
+    height: 12px;
+    width: 12px;
+    fill: rgb(127,127,127);
+    align:right;
+}
+.THIS .successIconXbox .slds-icon-text-default{
+    height: 22px;
+    width: 16px;
+    fill: rgb(75, 202, 129);
+}
+.THIS .infoAltXbox .slds-icon-text-default{
+    height: 22px;
+    width: 16px;
+    fill: rgb(245, 166, 35);
+}
+.THIS .successIcon .slds-icon-text-default{
+    height: 36px;
+    width: 16px;
+    fill: rgb(75, 202, 129);
+}
+.THIS .infoAlt .slds-icon-text-default{
+    height: 38px;
+    width: 14px;
+    fill: rgb(245, 166, 35);
+}
+.THIS .successUpIcon .slds-icon-text-default{
+    height: 48px;
+    width: 16px;
+    fill: rgb(75, 202, 129);
+}
+.THIS .infoAltDown .slds-icon-text-default{
+    height: 48px;
+    width: 12px;
+    fill: rgb(245, 166, 35);
+}
+
+.THIS .successIconTop .slds-icon-text-default{
+    height: 50px;
+    width: 15px;
+    fill: rgb(75, 202, 129);
+}
+.THIS .infoAltTop .slds-icon-text-default{
+    height: 50px;
+    width: 15px;
+    fill: rgb(245, 166, 35);
+}
+
+.THIS .updatedTime{ 
+    font-size:10pt;
+    align:right;
+    /*margin:auto*/
+}
+.THIS.c-container{
+   border: 1px solid;
+   border-color: #e3e5ed;
+   /*padding: 3px 3px 4px;*/
+}
+.THIS.upper-container{
+    margin:7px;
+} 
+.THIS .currentStatus{
+    /*color: grey;
+    font-size:9pt;*/
+    /*margin:5px;*/
+    color: t(colorGray9);
+}
+.THIS .upStatus{
+    color: #4bca81;
+}
+.THIS .downStatus{
+    color: #f5a623;
+}
+.THIS .remove-heading label{
+    display: none !important;
+}
+
+.THIS .titleBox{
+    position: relative;
+}
+
+.THIS .titleText{
+    font-size:16px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 155px;
+    margin: 0 0 0 10px;
+}
+
+.THIS .slds-accordion__list-item {
+    border: 0;
+}

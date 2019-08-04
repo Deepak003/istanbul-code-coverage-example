@@ -1,0 +1,75 @@
+<aura:component extensible="true">    
+    <aura:attribute name="outerClass" type="String" access="public" description="custom class for outter container" />
+    <aura:attribute name="class" type="String" access="public" default="modal-large" description="Size of modal. supported values: modal-large, modal-small, slds-modal_large, slds-modal_medium" />
+    
+    <aura:attribute name="isModalOpen" type="Boolean" access="public" default="true" description="Modal open/close variable" />
+    
+    <aura:attribute name="clickClose" type="Boolean" access="public" default="true" description="Modal close on click outside" />
+    <aura:attribute name="escapeClose" type="Boolean" access="public" default="true" description="Modal close by pressing esc key" />
+    
+    
+    <!-- Header Attributes -->
+    <aura:attribute name="title" type="Aura.Component[]" access="public" default="My Modal" description="Title of Modal" />
+    <aura:attribute name="closeIcon" type="Aura.Component[]" access="public" description="lightning:buttonIcon to change default close icon">
+        <lightning:buttonIcon iconName="utility:close"
+                              onclick="{! v.onClose }"
+                              alternativeText="close"
+                              variant="bare-inverse"
+                              class="slds-modal__close"
+                              size="large" />
+    </aura:attribute>
+    <aura:attribute name="header" type="Aura.Component[]" access="public" description="Header Markup to change default header">
+        <header class="slds-modal__header" aura:id="dialog-part">
+            {! v.closeIcon }
+            <h2 class="slds-text-heading_medium slds-hyphenate">
+                {!v.title}
+            </h2>
+        </header>
+    </aura:attribute>    
+    
+    <!-- Content Attributes -->
+    <aura:attribute name="content" type="Aura.Component[]" required="true" description="Modal Body" />
+    <aura:attribute name="showSpinner" type="Boolean" default="false" description="Spinner show/hide" />
+    <aura:attribute name="spinnerSize" type="String" default="small" description="Spinner size" />
+    
+    <!-- Footer Attributes -->
+    <aura:attribute name="footer" type="Aura.Component[]" access="public" description="Footer Markup to change default footer">
+        <footer class="{! join(' ','slds-modal__footer',if(v.isDirectionalFooter, 'slds-modal__footer_directional'))}" aura:id="dialog-part">
+            {!v.cancelBtn}
+            {!v.successBtn}                         
+        </footer>
+    </aura:attribute>
+    <aura:attribute name="isDirectionalFooter" type="boolean" access="public" default="false" description="Footer Buttons alignment" />
+    <aura:attribute name="isSuccessDisable" type="Boolean" access="public" default="false" description="Success Button Disable/Enable" />    
+    <aura:attribute name="isCancelDisable" type="Boolean" access="public" default="false" description="Cancel Button Disable/Enable" />    
+    
+    <aura:attribute name="success" type="String" access="public" default="Success" description="Success Button Text" />    
+    <aura:attribute name="cancel" type="String" access="public" default="Cancel" description="Cancel Button Text" />
+    <aura:attribute name="cancelBtn" type="Aura.Component[]" access="public" description="Cancel Button Markup">
+        <button class="{! join(' ', 'slds-button slds-button_neutral', if(or(not(v.cancel.length),equals(v.success,'null')), 'slds-hide') )}" disabled="{! or(v.showSpinner, v.isCancelDisable) }" onclick="{! v.onCancel }">{!v.cancel}</button>
+    </aura:attribute>
+    <aura:attribute name="successBtn" type="Aura.Component[]" access="public" description="Success Button Markup">
+        <button class="{! join(' ', 'slds-button slds-button_brand', if(or(not(v.success.length),equals(v.success,'null')), 'slds-hide') )}" disabled="{! or(v.showSpinner, v.isSuccessDisable) }" onclick="{! v.onSuccess }">{!v.success}</button>
+    </aura:attribute>	    
+    
+    <!-- Actions -->    
+    <aura:attribute name="onClose" type="Aura.Action" access="public" default="{!c.handleClose}" description="Trigger function on click of close icon" />
+    <aura:attribute name="onCancel" type="Aura.Action" access="public" default="{!c.handleClose}" description="Trigger function on click of cancel button" />
+    <aura:attribute name="onSuccess" type="Aura.Action" access="public" default="{!c.handleClose}" description="Trigger function on click of success button" />
+    
+    <aura:if isTrue="{!v.isModalOpen}">
+        <div class="{! join(' ', 'slds-is-relative', v.outerClass)}">
+            <section role="dialog" class="{! join(' ', 'slds-modal slds-fade-in-open', v.class)}">
+                <div class="slds-modal__container" aura:id="dialog">
+                    {! v.header }
+                    <div class="slds-modal__content slds-p-around_large slds-is-relative" aura:id="dialog-part">                    
+                        <lightning:spinner variant="brand" size="{!v.spinnerSize}" class="{! v.showSpinner ? 'slds-show' : 'slds-hide' }"/>
+                        {!v.content}
+                    </div>                
+                    {!v.footer}         
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open backdropClass" aura:id="backdrop"></div>
+        </div>
+    </aura:if>
+</aura:component>

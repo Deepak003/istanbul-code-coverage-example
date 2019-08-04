@@ -1,0 +1,42 @@
+.THIS.slds-modal__header {
+    border-bottom-width: 1px;
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+.THIS .slds-grid .violationCheck {
+    position: relative;
+}
+.THIS INPUT.violationchk {
+    position: absolute;
+    top: 42%;
+    left: -25px;
+}
+.THIS .target-chat-log {
+	text-align: right;
+}
+.THIS .violation-message {
+    background-color: #ED5555;
+    color: #ffffff;
+}
+.THIS .petitioner-msg {
+    border: 1px solid #dddbda;
+    background-color: #fafaf9;
+    font-size: 12px;
+    color: #54698d;
+    border-radius: 3px;
+}
+.THIS .target-msg {
+    background-color: #0070D2;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 3px;
+}
+.THIS .violation-selected {
+    background-color: #ED5555;
+    color: #ffffff;
+}
+.THIS div fieldset {
+    left: 33%;
+    width: 65%;
+    word-break: break-all;
+}

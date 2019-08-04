@@ -1,0 +1,156 @@
+<aura:component access="global" controller="CaseDetailAuraCtl">   
+    <aura:attribute name="cols" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid columns."/> 
+    
+    <aura:attribute name="rows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid row data."/>
+    
+    <aura:attribute name="filteredRows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The filtered grid row data." />
+    
+    <aura:attribute name="selectedRow"
+                    type="Object"
+                    access="GLOBAL" />
+	<aura:attribute name="firstSelect"
+                    type="Integer"
+                    default="-1" />
+    <aura:attribute name="secondSelect"
+                    type="Integer"
+                    default="-1" />
+    <aura:attribute name="cmpName"
+                    type="String"
+                    access="GLOBAL" />    
+    <aura:attribute name="filterFlag"
+                    type="Boolean"/>  
+    <aura:attribute name="massCasePerms"
+                    type="Boolean" default="false"/> 
+    <aura:attribute name="highlightRow"
+                    type="Boolean" default="false"/>
+    <aura:attribute name="massCasePermsClass"
+                    type="String" default=""/>  
+    <lightning:workspaceAPI aura:id="workspace"/>
+
+    
+    <aura:registerEvent name="rowclick"  
+                        type="c:DataGridRowClick"/>
+    
+    <aura:registerEvent name="rowdblclick"  
+                        type="c:DataGridRowDblClick"/>
+    
+    <aura:registerEvent name="rowclickApp"  
+                        type="c:DataGridRowClickApp"/>
+	<aura:registerEvent name="massActionTrigger"  
+                        type="c:CaseMassActionTrigger"/>
+    <aura:registerEvent name="filterDataListEvt"  
+                        type="c:FilterDataListEvt"/>
+    <aura:handler event="c:GetNextRowClickApp" action="{!c.getNextRowClickEvent}" />
+    <aura:handler event="c:FilterQueueEvt" action="{!c.getFilterSelectEvt}" />
+    <aura:attribute name="checkedItems" type="String[]" default="[]"/>
+    <aura:method name="setSelection" 
+                 action="{!c.setSelection}" 
+                 access="PUBLIC"
+                 description="Set selected row, by ID">
+        
+        <aura:attribute name="Id" 
+                        type="String" 
+                        default="" />
+    </aura:method>
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{!v.rows}" action="{!c.init }" />    
+    
+	<aura:handler event="c:CaseMassActionTrigger" action="{!c.massActionHandler}" />
+
+    <table id="{!v.cmpName}" class="data-table slds-table_cell-buffer slds-table slds-table_striped slds-max-medium-table_stacked">
+        <thead class="data-table-head">
+            <tr class="slds-text-heading--label">
+                <!-- header check box start -->
+                <aura:if isTrue="{!and(v.cmpName == 'queuedList', v.massCasePerms)}">
+                    <th class="{!'slds-text-align--right'+v.massCasePermsClass}">
+                       <div class="slds-form-element">
+                          <div class="slds-form-element__control">
+                             <label class="slds-checkbox">
+                                <!--header checkbox for select all-->
+                                <ui:inputCheckbox aura:id="headerBox" value="" change="{!c.selectedAllPetitions}"/>
+                                <span class="slds-checkbox--faux"></span>
+                                <span class="slds-form-element__label text"></span>
+                             </label>
+                          </div>
+                       </div>
+                    </th>
+                </aura:if>  
+				<!-- header check box end -->
+                <aura:iteration items="{!v.cols}" var="col" indexVar="idx">
+                    <th scope="col" class="{!col.class +v.massCasePermsClass}">
+                        <span class="slds-truncate">{!col.label}</span>
+                        <aura:if isTrue="{!col.class == 'slds-is-sortable '}">
+                            <div onclick="{!c.sortDesc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small arrowdown">
+                                <lightning:icon iconName="utility:arrowdown" alternativeText="Sort by"/>
+                            </div>
+                            <div onclick="{!c.sortAsc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small slds-hide arrowup">
+                                <lightning:icon iconName="utility:arrowup" alternativeText="Sort by"/>
+                            </div>
+                        </aura:if>    
+                    </th>  
+                </aura:iteration>
+            </tr>
+        </thead>
+        <tbody class="data-table-body" aura:id="">
+            <aura:iteration items="{!v.filteredRows}" var="row" indexVar="idx">
+                <tr aura:id="datarow"  class="{!and(v.highlightRow , idx == 0) ? 'slds-hint-parent slds-is-selected' : 'slds-hint-parent'}" data-row="{!idx}" data-pk="{!row.pk}">
+                     <!-- body check box start -->
+                     <aura:if isTrue="{!and(v.cmpName == 'queuedList', v.massCasePerms)}">
+                        <td scope="row" class="{!'slds-text-align--right'+v.massCasePermsClass}">
+                          <div class="slds-form-element">
+                            <div class="slds-form-element__control" data-pk="{!row.pk}">
+                                <label class="slds-checkbox">
+                                   <ui:inputCheckbox name="{!row.pk}" aura:id="petitionPack" value="" change="{!c.singlePetitionSelected}"/>
+                                    <span class="slds-checkbox--faux" data-row="{!idx}" id="{!row.pk}" onmousedown="{!c.onmouseclick}"></span>
+                           			<span class="slds-form-element__label text"></span>
+                                </label>
+                             </div>
+                          </div>
+                       </td>
+                		</aura:if>  
+                    <!-- body check box end -->
+                    <aura:iteration items="{!row.data}" var="colData">
+                        <td class="{!colData.value ? 'slds-truncate '+colData.class + colData.type +v.massCasePermsClass : 'no-data'}"  
+                            data-label="{!colData.label}" data-row="{!idx}" data-pk="{!row.pk}" 
+                            onclick="{!c.onRowClick}" ondblclick="{!c.onRowDblClick}">												  
+                            <span class="slds-truncate">
+                                <aura:if isTrue="{!colData.type == 'phone'}">
+                                    <lightning:formattedPhone value="{!colData.value}" />
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{!colData.type == 'email'}">
+                                            <lightning:formattedEmail value="{!colData.value}" />
+                                            <aura:set attribute="else">
+                                                    <aura:if isTrue="{!colData.type == 'datetimefull'}">
+														{!colData.value}
+                                                        <!--<ui:outputDateTime value="{!colData.value}" format="MM/d/Y hh:mma z"/>-->
+                                                        <aura:set attribute="else">
+                                                            <aura:if isTrue="{!colData.type == 'title'}">
+                                                                <span title="{!colData.value}">{!colData.value}</span>
+                                                                <aura:set attribute="else">
+                                                            		{!colData.value}
+                                                                </aura:set>
+                                                    		</aura:if>  
+                                                        </aura:set>
+                                                    </aura:if>                                                                                              
+                                            </aura:set>
+                                        </aura:if>
+                                    </aura:set>
+                                </aura:if>
+                            </span>
+                        </td>
+                    </aura:iteration>
+                </tr>
+            </aura:iteration>
+        </tbody>
+    </table>
+</aura:component>

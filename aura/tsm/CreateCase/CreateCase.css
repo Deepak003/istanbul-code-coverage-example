@@ -1,0 +1,34 @@
+.THIS {
+	background: #f4f6f9; 
+	border-radius: 0;	
+}
+
+.THIS .separator {
+	margin: 0 -1.5rem; 
+	border-top: 1px solid #cacaca;
+}
+
+.THIS footer {
+    border-top : none;
+}
+
+.THIS footer button {
+    width: 100%;
+}
+
+.THIS .create-case-icon-container {
+    background-color: transparent;
+}
+
+.THIS .create-case-icon-container svg {
+    fill: #16325C;
+    width: 40px;
+}
+
+.THIS .width-100-percentage {
+    width: 100%
+}
+
+.THIS .field-label {
+    color: #706e6b;
+}

@@ -1,0 +1,58 @@
+<aura:component extends="c:TranscriptSubTab" controller="CaseSummaryAuraController">
+    <!--Declare Attributes-->
+    <aura:attribute name="transcripts" type="List" access="private"/>
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="private" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <!--Declare Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!-- Component Body-->    
+    <lightning:layout class="slds-p-vertical_xx-small x-large" verticalAlign="stretch" multipleRows="true">
+        <aura:if isTrue="{! v.isLoading }">
+            <lightning:spinner variant="brand" size="small" />
+            <aura:set attribute="else">
+                <aura:if isTrue="{! empty(v.transcripts) }">
+                    <c:EmptyState>
+                        <aura:set attribute="message">
+                            <b>No result found</b>
+                        </aura:set>
+                    </c:EmptyState>                
+                    <aura:set attribute="else">                        
+                        <aura:iteration var="row" items="{!v.transcripts}" >                            
+                            <lightning:layoutItem flexibility="auto" padding="around-small" class="custom-box" size="12">
+                                <p class="section-title">                        
+                                    <aura:if isTrue="{! row.advisorName }">
+                                        {! row.advisorName }
+                                    </aura:if>
+                                    <aura:if isTrue="{! row.advisorJobRole }">
+                                        ({! row.advisorJobRole })
+                                    </aura:if>
+                                </p>
+
+                                <div class="slds-p-top_x-small section-subtitle">Call Details</div>
+                                
+                                <aura:iteration items="{! row.phoneDetails }" var="pd">
+                                    <aura:if isTrue="{!pd.value}">
+                                        <div class="slds-grid slds-p-top_xxx-small">
+                                            <aura:if isTrue="{!pd.key=='CallId'}">
+                                                <audio class="slds-m-top_xx-small" controls="controls" src='{! $Label.c.EA_CALL_URL + pd.value }' preload="auto"></audio>
+                                                <aura:set attribute="else">
+                                                    <div class="slds-size_1-of-12 bold">{!pd.key}: </div>
+                                                    <div class="slds-size_3-of-4">
+                                                        {!pd.value}                                          
+                                                    </div>                                           
+                                                </aura:set>                            
+                                            </aura:if>
+                                        </div>
+                                    </aura:if>
+                                </aura:iteration>
+                            </lightning:layoutItem>
+                        </aura:iteration>                        
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>        
+    </lightning:layout>    
+</aura:component>

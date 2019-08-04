@@ -1,0 +1,12 @@
+.THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+
+.THIS .slds-button_icon-bare{
+    display: none;
+}
+.THIS .slds-table .slds-row-number:after {
+    content: counter(none) !important ;
+    display: none !important ;
+}

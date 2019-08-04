@@ -1,0 +1,51 @@
+<aura:component >
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <!-- attributes -->
+    <aura:attribute name="secondaryTypeVar" type="String"/>
+    <aura:attribute name="secondaryIdVar" type="String"/>
+    <aura:attribute name="indexToDelete" type="Integer"/>
+    <aura:attribute name="indexNo" type="Integer"/>
+    <aura:attribute name="objSecondaryIdList" type="List"/>
+    <aura:attribute name="showDeleteButton" type="Boolean" default="false" />
+    <aura:attribute name="secondaryIdListInner" type="List" default="[]" />
+    <aura:attribute name="SecondaryId" type="String[]"/>
+    <aura:attribute name="objGDPRRequestSecondaryId" type="GDPRRequestSecondaryId__c" default="{sobjectType : 'GDPRRequestSecondaryId__c'}" />
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_2-of-6">
+            <div class="slds-form-element">
+                <div class="slds-form-element__control">
+                    <div class="">
+                        <lightning:select label="Secondary ID(Optional)" name="secId" aura:id="sec" value="{!v.secondaryTypeVar}">
+                            <aura:iteration items="{!v.SecondaryId}" var="val">
+                                <option value="{!val}" text="{!val}" />  
+                            </aura:iteration>
+                        </lightning:select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-col slds-size_3-of-6">
+            <div class="slds-form-element">
+                <div class="slds-form-element__control" style="margin-top:4px;">
+                    <span>
+                        <lightning:input onchange="{!c.validate}" type="text" aura:id="secId" value="{! v.secondaryIdVar}" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        <aura:if isTrue="{!v.showDeleteButton}">
+            <div class="slds-col slds-size_1-of-6">
+                <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                        <button onclick="{!c.deleteSecondId}" class="slds-align_absolute-center" title="Delete Id" style="margin-top:28px; margin-left:-20px;">
+                            <lightning:icon iconName="utility:close"
+                                            alternativeText="Delete Id"
+                                            size="xx-small"
+                                            />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+    </div>
+</aura:component>

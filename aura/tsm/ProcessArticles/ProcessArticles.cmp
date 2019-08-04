@@ -1,0 +1,81 @@
+<aura:component  implements="force:appHostable,lightning:actionOverride,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:lightningQuickAction" access="global" controller="KnowledgeBaseAuraCtl">
+    
+    <!--Declare Attributes-->
+    <aura:attribute name="articaleUpdatedList" type="List" default="[]"/>
+    <aura:attribute name="articaleCreatedList" type="List" default="[]"/>
+    <aura:attribute name="articleList" type="List" default="[]"/>
+    <aura:attribute name="timeCount" type="Integer" default="0"/>
+    <aura:attribute name="isDataUpdated" type="Boolean" default="false" />    
+    <aura:attribute name="isDataAdded" type="Boolean" default="false" />
+    
+    <!--Declare Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    
+    <!--Component Start-->
+    <div class="c-container slds-box processArticles">
+        <lightning:layout class="slds-grid marginTop" >
+            <div class='icon-container titleBox'>
+                <lightning:icon iconName="standard:knowledge" class="processCSS" title="Process"/>
+                <span class="slds-p-left_x-small slds-text-title_bold">Process</span>
+            </div>
+            <div class="slds-col_bump-left colorCss" >
+                <lightning:buttonIcon iconName="utility:refresh" size="medium"  variant="bare" onclick="{! c.onRefresh }" alternativeText="refersh" />
+                <span class="slds-p-left_x-small"> {!v.timeCount} Minutes ago </span>
+            </div>
+        </lightning:layout>
+        <aura:if isTrue="{!v.isDataUpdated == true}"> 
+            <span class="slds-align_absolute-left colorCss slds-text-body_regular" >Recent Updates</span>
+            <lightning:layout class="slds-gutters_xx-small" multipleRows="true">
+                <aura:iteration items="{!v.articaleUpdatedList}" var="item" indexVar="idx" end="4">
+                    <lightning:layoutItem class="slds-col slds-p-vertical_xx-small" size="6">
+                        <div data-value="{!idx}" class="slds-m-top_xx-small" onclick="{!c.selectRecentUpdated}">
+                            <lightning:card aura:id="foundArticles" class="card-details">
+                                <h2 data-value="{!idx}" title="{!item.fields.title}" class="slds-text-heading_small slds-p-left--small slds-text-title_bold slds-truncate">{!item.fields.title}</h2>
+                                <aura:if isTrue="{!item.fields.last_modified_at != undefined}">
+                                    <div data-value="{!idx}" class="slds-p-horizontal_small slds-m-top--xxx-small dateField">Last updated <lightning:relativeDateTime value="{!item.fields.last_modified_at}"/></div>
+                                </aura:if>
+                                <div class="slds-grid slds-m-top--small">
+                                    <div class="slds-size_2-of-3 slds-m-left--small">
+                                        <lightning:badge class="scope-process" label="Process"/>
+                                    </div>
+                                </div>
+                            </lightning:card>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>
+        </aura:if>
+        <p><a class="slds-align_absolute-center slds-p-bottom--medium slds-p-top--small" onclick="{!c.openKnowledgeBaseArticles}">Go To Knowledge Base</a></p>
+        <aura:if isTrue="{!v.isDataAdded == true}"> 
+            <span class="slds-align_absolute-left colorCss slds-text-body_regular" >Recently Added</span>
+            <lightning:layout horizontalAlign="space" verticalAlign="center" multipleRows="true">
+                <aura:iteration items="{!v.articaleCreatedList}" var="item" indexVar="idx" end="3">
+                    <lightning:layoutItem class="" size="12">
+                        <div data-value="{!idx}" class="slds-m-top_x-small" onclick="{!c.selectRecentAdded}">
+                            <lightning:card aura:id="foundArticles" class="card-details2">
+                                <h2 data-value="{!idx}" title="{!item.fields.title}" class="slds-text-heading_small slds-p-left--small slds-text-title_bold slds-truncate">{!item.fields.title}</h2>
+                                <aura:if isTrue="{!item.fields.first_created_at != undefined}">
+                                    <div data-value="{!idx}" class="slds-p-horizontal_small slds-m-top--xxx-small dateField">Added <lightning:relativeDateTime value="{!item.fields.first_created_at}"/></div>
+                                </aura:if>
+                                <p data-value="{!idx}" title="{!item.fields.summary}" class="slds-p-horizontal_small slds-m-top--small slds-truncate textField">
+                                            {!item.fields.summary}
+                                        </p>
+                                <div class="slds-grid slds-m-top--small">
+                                    <div class="slds-size_2-of-3 slds-m-left--small">
+                                        <lightning:badge class="scope-process" label="Process"/>
+                                    </div>
+                                    <aura:if isTrue="{!item.fields.total_votes != undefined}"> 
+                                        <div class="edit-field-label text-center slds-float_right body-text-small slds-size_1-of-3">
+                                            {!item.fields.helpful_votes} found helpful
+                                        </div>
+                                    </aura:if>
+                                </div>
+                            </lightning:card>
+                        </div>
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>
+        </aura:if>
+    </div>
+    <!--Component End-->
+</aura:component>

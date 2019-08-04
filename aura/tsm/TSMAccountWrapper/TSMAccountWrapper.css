@@ -1,0 +1,37 @@
+.THIS .text-style-bold {
+    font-weight: 700;
+}
+
+.THIS.job-role .slds-backdrop {
+    top: 0%;
+    height: 100%;
+}
+
+.THIS.job-role .slds-modal {
+    top: 0%;
+    height: 100%;
+    left:0%;
+}
+
+.THIS.job-role .slds-modal__container {
+    left: 0%;
+}
+
+.THIS .account-wrapper-scroll{
+    min-height: 72vh;
+    max-height: 72vh;
+    overflow-x: hidden;
+}
+.THIS .knowledge-wrapper-scroll{
+    min-height: calc(100vh - 170px);
+    max-height: calc(100vh - 170px);
+    overflow-x: hidden;
+}
+.THIS .product-image {
+    width: 84px; 
+    height: 120px; 
+    float: left;
+}
+.THIS .product-image img {
+    border-radius: 5px;
+}

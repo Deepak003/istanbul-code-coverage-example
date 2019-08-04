@@ -1,0 +1,132 @@
+.THIS .slds-form-element__label{
+    display: none;
+}
+.THIS .slds-grid.slds-wrap{
+    margin-bottom: 10px;
+    margin-left: 30px;
+}
+
+.THIS .setsWeight{
+    left: 42px;
+}
+.THIS .numberOfDaysWeight{
+	margin-left: 53px;
+        width: 58px;
+}
+.THIS .paymentFailuresWeight{
+	margin-left: 53px;
+}
+
+.THIS .grantsWeight{
+	margin-left: 53px;
+}
+.THIS .clubDeletionWeight{
+	margin-left: 53px;
+}
+.THIS .MultipleCriteriaWeight{
+	margin-left: 53px;
+}
+.THIS .multiplePersonaWeight{
+	margin-left: 53px;
+}
+
+.THIS .slds-select_container {
+    bottom: 5px;
+}
+.THIS.master-rules {
+    margin-top: 10px;
+}
+
+.THIS.master-rules select{
+    width: 58px;
+}
+
+.THIS .complete-set-weight {
+	    margin-left: 47px;;
+}
+
+.THIS .coolDownWeight {
+	   margin-left: 47px;
+}
+
+.THIS .fraud-flag-weight {
+	    margin-left: 47px;
+}
+
+.THIS .customerValueWeight {
+    margin-left: 47px;
+}
+
+.THIS .allFifaScoredWeight{
+    margin-left: 53px;
+}
+
+.THIS .activeFifaBanWeight{
+    margin-left: 53px;
+}
+
+.THIS .winLossRationWeight{
+    margin-left: 53px;
+}
+
+.THIS .pastFraudCountWeight{
+    margin-left: 53px;
+}
+
+.THIS .FraudFlagWeight{
+    margin-left: 53px;
+}
+
+.THIS .VOGPhishingWeight{
+    margin-left: 53px;
+}
+
+.THIS .AllContactBehaviourWeight{
+    margin-left: 53px;
+}
+
+.THIS .changeInLocation{
+    margin-left: 53px;
+}
+
+.THIS .birthdayRule{
+    margin-left: 53px;
+}
+
+.THIS .zeroAccoutValue{
+    margin-left: 53px;
+}
+
+.THIS .noSessionData{
+    margin-left: 53px;
+}
+
+.THIS .gibberishEmail{
+    margin-left: 53px;
+}
+
+.THIS .gibberishName{
+    margin-left: 53px;
+}
+
+.THIS .AllAccountProperties{
+    margin-left: 53px;
+}
+
+.THIS .accountCreatedHoursWeight{
+    margin-left: 53px;
+}
+
+.THIS .SelfServiceDaysWeight{
+    margin-left: 53px;
+}
+
+.THIS .numberOfDaysWeight{
+    margin-left: 53px;
+}
+.THIS .slds-accordion__list-item{
+    border: none;
+}
+.THIS .rule-item {
+    display: flex;
+}

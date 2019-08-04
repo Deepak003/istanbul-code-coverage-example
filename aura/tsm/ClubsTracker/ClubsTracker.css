@@ -1,0 +1,121 @@
+.THIS th lightning-primitive-header-actions {
+    display: none;
+}
+
+.THIS .club-table .slds-scrollable_x { 
+    overflow: visible;
+} 
+.THIS .club-table .slds-scrollable_y { 
+    overflow: visible; 
+}
+
+.THIS .history-table .active,
+.THIS .club-table .active {
+    color: #4bca81;
+    text-transform: capitalize;
+}
+
+.THIS .history-table .inactive {
+    color: red;
+    text-transform: capitalize;
+}
+
+.THIS .club-table .deleted {
+    text-transform: capitalize;
+}
+
+/* ============= Modal CSS ==================== */
+
+.THIS .modal-large,
+.THIS .modal-small {
+	width: 50%;
+    margin: 0 auto;
+}
+
+.THIS .modal-small + .slds-backdrop_open,
+.THIS .modal-large + .slds-backdrop_open {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.THIS .modal-small .slds-modal__content {
+    height: calc(320px - 117px);
+}
+
+.THIS .modal-large .slds-modal__content {
+    height : calc(440px - 117px);
+}
+
+.THIS .modal-large .slds-modal__container {
+    width: 80%;
+}
+
+.THIS .modal-small .slds-modal__container {
+    width: 50%;
+}
+
+
+/* ================================ Table headings ================================ */
+
+.THIS .tsm-table-heading { 
+    background-color: #FAFAF9;
+}
+
+.THIS .tsm-table-heading_label {
+    line-height: 32px;
+    vertical-align: middle;
+    font-size: 12px;
+    color: #514f4d;
+}
+
+/* Table row */
+.THIS .tsm-table-row {
+   height: 50px;
+}
+
+.THIS .tsm-table-row.pointer {
+    cursor: pointer;
+}
+
+.THIS .tsm-table-row_success {
+	background-color: #D8D8D8;
+}
+
+.THIS .tsm-table-row_suspcious-failed {
+	background-color: #FFF8E1;
+}
+
+.THIS .tsm-table-row_suspcious-success {
+	background-color: #D4162D;
+}
+
+/* =================================== Table column ==================================== */
+
+.THIS .tsm-table-col {
+    display: flex;
+}
+
+.THIS .tsm-table-col_text-primary-item {
+    font-size: 12px;
+    color: #2B2826;
+}
+
+.THIS .tsm-table-col_text-sub-item {
+    font-size: 10px;
+    color: #706E6B;
+}
+
+.THIS .tsm-table-expand-heading_label {
+    font-size: 12px;
+    color: #706E6B;
+}
+
+/* ============================= margin =============================== */
+
+.THIS .first-col span {
+    padding-left: 20px;
+}
+
+.THIS .vertical-center {    
+    margin: auto 0;
+}

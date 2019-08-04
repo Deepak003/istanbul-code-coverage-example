@@ -1,0 +1,83 @@
+<aura:component controller="SubscriptionsAuraCtl">
+    <aura:attribute name="isOpen" type="boolean" default="true" access="public" />
+    <aura:attribute name="subscription" type="Map" access="public" />
+    <aura:attribute name="data" type="Map" access="public" />
+    <aura:attribute name="nucleusId" type="String" access="public" />
+    <aura:attribute name="caseId" type="String" access="public" />
+    <aura:attribute name="subscriptionType" type="String" />
+	<aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="false" />
+    <aura:attribute name="defaultSelected" type="String" access="private" default="1" />    
+    <aura:attribute name="options" type="List" default="[]" access="private" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <c:ParentModal isModalOpen="{!v.isOpen}" title="Refund">
+        <aura:set attribute="class" value=" " />
+        <aura:set attribute="success" value="Refund"/>
+        <aura:set attribute="onSuccess" value="{!c.submit}"/>
+        <aura:set attribute="showSpinner" value="{!v.isLoading}"/>
+        <aura:set attribute="content">
+            <div style="min-height: 300px;">
+                <table class="slds-table line-items-table">              
+                    <tbody>                
+                        <aura:iteration items="{!v.data.lineItems}" var="item">
+                            <tr class="slds-hint-parent">                    
+                                <td data-label="PURCHASED ITEMS">
+                                    <div class="slds-truncate slds-text-title_bold slds-p-vertical_xx-small" title="{!item.productName || v.data.productName}">
+                                        <div>{!item.productName || v.data.productName}</div>
+                                        <aura:if isTrue="{!item.shippingStatus}">
+                                            <div>({!item.shippingStatus})</div>
+                                        </aura:if>
+                                    </div>
+                                    <aura:iteration items="{!item.associations}" var="association">
+                                        <div class="slds-text-body_small slds-p-vertical_xx-small">{!association.productName}</div>
+                                    </aura:iteration>
+                                </td>
+                                <td data-label="QUANTITY">
+                                    <div class="{! join(' ', 'slds-truncate', if(not(empty(item.associations.length)), 'col-position')) }" title="{!item.quantity}">
+                                        {!item.quantity}
+                                    </div>
+                                </td>
+                                <td data-label="PRICE">
+                                    <div class="{! join(' ', 'slds-truncate', if(not(empty(item.associations.length)), 'col-position')) }" title="{!item.unitPrice}">{!v.data.currencySymbol}{!item.unitPrice}</div>
+                                </td>                 
+                            </tr> 
+                        </aura:iteration>
+                    </tbody>
+                </table>
+                <div class="slds-grid slds-grid_align-end tax-row">
+                    <div class="slds-size_1-of-2 slds-p-bottom_small">
+                        <lightning:combobox label="Status" variant="label-hidden" value="{!v.defaultSelected}" options="{! v.options }" />
+                    </div>
+                </div>            
+                <aura:if isTrue="{! v.data.subtotal }">
+                    <div class="slds-grid slds-grid_align-end tax-row">
+                        <div class="slds-size_1-of-2 border">
+                            <span>Sub Total ({!v.data.currencyName})</span>
+                            <span class="slds-float_right slds-p-right_large">{!v.data.currencySymbol}{!v.data.subtotal}</span>
+                        </div>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{! v.data.tax }">
+                    <div class="slds-grid slds-grid_align-end tax-row">
+                        <div class="slds-size_1-of-2 border">
+                            <span>Tax ({!v.data.currencyName})</span>
+                            <aura:if isTrue="{!v.data.tax}">
+                                <span class="slds-float_right slds-p-right_large">{!v.data.currencySymbol}{!v.data.tax}</span>
+                            </aura:if>
+                        </div>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{! v.data.total }">
+                    <div class="slds-grid slds-grid_align-end tax-row">
+                        <div class="slds-size_1-of-2 border">
+                            <span>Total ({!v.data.currencyName})</span>
+                            <span class="slds-float_right slds-p-right_large">{!v.data.currencySymbol}{!v.data.total}</span>
+                        </div>
+                    </div>
+                </aura:if>
+            </div>
+        </aura:set>
+    </c:ParentModal>
+</aura:component>

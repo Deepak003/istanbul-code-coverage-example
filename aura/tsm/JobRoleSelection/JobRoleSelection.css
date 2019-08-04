@@ -1,0 +1,9 @@
+.THIS.jobRoleModal .slds-backdrop {
+    width:100%;
+}
+.THIS .slds-media .slds-media__figure {
+	width: 1rem;
+}
+.THIS .slds-media .slds-media__figure svg{
+	fill: rgb(61, 66, 247);
+}

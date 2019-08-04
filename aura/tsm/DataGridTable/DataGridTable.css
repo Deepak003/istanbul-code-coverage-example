@@ -1,0 +1,153 @@
+@media (max-width: 767px) {
+ .THIS .hiddenColumn {
+    display: none !important;
+ }
+}
+.THIS.slds-cell-fixed {
+    background-color: #fff;
+}
+
+.THIS.slds-table th {
+    padding-top: .25em;
+    padding-bottom: .25em;
+    background-color: #fff;    
+    padding-bottom: 1em;
+}
+
+.THIS.slds-table tbody tr > * {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    border: none;
+}
+
+.THIS.slds-table tbody tr > * > span {
+    padding: 1.5px 0px;
+}
+
+.THIS.slds-table thead tr > * > span {
+    padding: 1.5px 0px;
+}
+.THIS.slds-table .slds-checkbox {
+    
+}
+.THIS[is="lightning-primitive-cell-checkbox"] {
+    position: absolute;
+    width: 100%;
+    z-index: 9;
+    background-color: transparent !important;
+    height: 1%;
+}
+.THIS.slds-table .slds-is-selected td {
+    background-color: #1589ee !important;
+    color: #fff;
+}
+.THIS.slds-table.slds-table_striped tbody tr:nth-of-type(even) > td {
+    background-color: #f4f6f9;
+}
+
+.THIS.slds-table .slds-icon {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+.THIS .title {
+    max-width:20rem;
+}
+.THIS.slds-table .slds-is-sortable .arrowdown > lightning-icon,
+.THIS.slds-table .slds-is-sortable .arrowup  > lightning-icon {
+    visibility: hidden;
+}
+.THIS.slds-table .slds-is-sortable:hover .arrowdown > lightning-icon,
+.THIS.slds-table .slds-is-sortable:hover .arrowup > lightning-icon {
+    visibility: visible;
+}
+.THIS .no-data {
+    height: 2.5rem;
+    background-color: #fff!important;
+    line-height: 0.7rem;
+    padding: 5px;
+    margin: 3px;
+}
+.THIS .no-data > span {
+    display: inline-block;
+    background-color: #ccc;
+    height: .27rem;
+    width: 80%;
+    /*min-width: 9rem;*/
+}
+.THIS.thor-data-body {
+    max-height: calc(100vh - 38vh);
+}
+/*.THIS#queuedList .data-table, .THIS#completedList .data-table {
+    display: block;
+}
+.THIS#queuedList .data-table-head, .THIS#completedList .data-table-head {
+    display: block;
+}
+.THIS#queuedList .data-table-head > tr, .THIS#completedList .data-table-head > tr {
+    border-bottom: 1px solid rgb(221, 219, 218);
+}
+.THIS#queuedList .data-table-head > tr > th, .THIS#completedList .data-table-head > tr > th {    
+    width: 11.5rem;
+    display: inline-block;    
+}
+.THIS#queuedList .data-table-head > tr > th.mass-case:nth-child(1) {
+    width: 1.5rem;
+    padding: .15rem .5rem .66rem;
+}
+.THIS#queuedList .data-table-head > tr > th.mass-case:nth-child(2) {
+    width: 14.5rem;
+}
+.THIS#queuedList .data-table-head > tr > th:nth-child(1) {
+	width: 14.5rem;
+}
+.THIS#completedList .data-table-head > tr > th:nth-child(1) {
+	width: 14.5rem;
+}
+.THIS#queuedList .data-table-head > tr > th.mass-case:nth-child(5) {
+    width: 13.5rem;
+}
+.THIS#queuedList .data-table-body, .THIS#completedList .data-table-body {
+    display: block;
+    max-height: calc(100vh - 38vh);
+    overflow-y:scroll;
+}
+.THIS#queuedList .data-table-body > tr > td, .THIS#completedList .data-table-body > tr > td {
+    width: 11.5rem;
+    display: inline-block;     
+    margin:0 0 .11rem 0;
+    line-height: 1.1rem;
+}
+.THIS#queuedList .data-table-body > tr > td:nth-child(1) {
+	width: 14.5rem;
+}
+.THIS#completedList .data-table-body > tr > td:nth-child(1) {
+	width: 14.5rem;
+}
+.THIS#queuedList .data-table-body > tr > td.mass-case:nth-child(1) {
+    width: 1.5rem;
+    padding: .79rem .5rem .66rem;
+}
+.THIS#queuedList .data-table-body > tr > td.mass-case:nth-child(2) {
+    width: 14.5rem;
+}
+.THIS#queuedList .data-table-body > tr > td.mass-case:nth-child(5) {
+    width: 13.5rem;
+}*/
+.THIS > tbody::-webkit-scrollbar-track {    
+	background-color: #ffffff;
+}
+.THIS > tbody::-webkit-scrollbar
+{
+	width: 12px;
+    background-color: #ffffff;
+}
+
+.THIS > tbody::-webkit-scrollbar-thumb
+{
+	border-radius: 6px;
+    background-color: #e0dfdf;
+}
+.THIS #checkbox-select{
+	background-color: #1589ee!important;
+}

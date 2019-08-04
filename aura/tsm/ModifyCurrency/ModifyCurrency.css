@@ -1,0 +1,14 @@
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+.THIS .modalBody{
+    height:60%;
+    overflow:auto;
+}
+.THIS .detailedTable{
+    width:60%;
+    margin-left:40%;
+}
+.THIS .Content{
+    height:32px;
+}

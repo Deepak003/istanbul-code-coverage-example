@@ -1,0 +1,52 @@
+<aura:component controller="DataMaskConfigAuraCtl" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="caseObj" type="Object" />
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="nucleusId" type="Id"/>  
+    <aura:attribute name="isAccountObject" type="boolean"/>
+    <aura:attribute name="selectedTab" type="String" default="one"/>
+    <aura:handler event="c:ViewAccountNotesEvent" action="{!c.handleOpenAccountNotesTab}"/>
+    <aura:attribute name="hideAccountData" type="Object" default="false"/>
+    <aura:attribute name="accountData" type="Map" access="private"/>
+    <aura:attribute name="email" type="String" access="public" description="Player Email ID" />
+	<aura:attribute name="accountSummary" type="Object"/>
+    
+<!--tsm 2940-->
+<aura:attribute name="grantAttribute" type="Boolean" />
+
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingData" type="Map" />
+    <aura:attribute name="isAccountMakingLoaded" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.hideAccountData}" action="{!c.doInit}" />
+   	
+    <!-- Adding selected tab for account tab TSM-3378 -->
+    <aura:attribute name="billingOptionId" type="Map"/>
+
+    <!-- TSM-3386 Email case link case-->
+    <aura:attribute name="isCaseLinkedDisable" type="Boolean" default="false"/>
+    
+    <!-- Adding condition to get the account making configuration -->
+    <aura:if isTrue="{!v.isAccountMakingLoaded}">
+        <lightning:tabset variant="scoped" selectedTabId="{!v.selectedTab}">
+            <lightning:tab label="Basic Info" id="one">
+                <c:AccountBasicInfo accountMaskingList = "{!v.accountMaskingData.AccountBasicInfo}" caseId="{! v.caseId}" caseObj="{!v.caseObj}" accountId="{! v.accountId}" isAccountObject="{! v.isAccountObject}" accountDetailsModel="{!v.accountData}" nucleusId="{!v.nucleusId}" />
+            </lightning:tab>
+            <lightning:tab label="Sessions" id="two">
+                <c:AccountChangeHistory grantAttribute="{!v.grantAttribute}" nucleusId="{!v.nucleusId}"  isOverview="false" accountData="{!v.accountData}" />
+            </lightning:tab>
+            <lightning:tab label="Account Notes" id="three">
+                <c:AccountNotesTSM accountMaskingList = "{!v.accountMaskingData.AccountNotes}" accountId="{!v.nucleusId}" />
+            </lightning:tab>
+            <lightning:tab label="Billing" id="five">
+                <c:Billing selectedPaymentOption="{!v.billingOptionId}" accountMaskingList = "{!v.accountMaskingData.Billing}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" accountId="{!v.accountId}" accountData="{!v.accountData}" />
+            </lightning:tab>
+            <lightning:tab label="Subscriptions" id="six">
+                <c:Subscription accountMaskingList = "{!v.accountMaskingData.Subscription}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+            </lightning:tab> 
+            <lightning:tab label="Entitlements" id="seven">     
+                <c:EntitlementsTab accountMaskingList = "{!v.accountMaskingData.Entitlements}" accountSummary="{!v.accountSummary}" from="Account" nucleusId="{!v.nucleusId}" accountId="{!v.accountId}" caseId="{!v.caseId}" email="{!v.email}" />
+            </lightning:tab>       
+        </lightning:tabset>
+    </aura:if>
+</aura:component>

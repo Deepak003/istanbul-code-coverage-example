@@ -1,0 +1,194 @@
+<aura:component implements="force:appHostable,force:hasRecordId" access="global" controller="CaseDetailAuraCtl">
+    <!-- Aura handler -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- Register a event Component -->
+    <!-- aura:registerEvent name="rowclick" type="c:DataGridRowClick"/ -->
+    <aura:handler event="c:RowClickAppEvent" action="{!c.rowClickPetitionEvent}" />
+    
+    <aura:handler event="c:GetNextRowClickApp" action="{!c.getNextRowClickEvent}" />
+    <aura:registerEvent name="petitionCommitEventApp" type="c:PetitionCommitApp"/>  
+    <aura:handler event="c:TabViewClickAppEvt" action="{!c.tabViewClickEventHandler}"/>
+    <!-- Method -->
+    <aura:method name="petitionLoadMethod" 
+                 action="{!c.petitionLoadMethod}" 
+                 access="PUBLIC"
+                 description="call the get petitionLoadMethod method" />    
+    <!-- attributes -->
+    <aura:attribute name="workId" type="String"/>
+    <aura:attribute name="contentActPermsHide" type="Boolean" default="false" />
+    <aura:attribute name="contentActPermsShow" type="Boolean" default="false" />
+    <aura:attribute name="previewData" type="List"/>
+    <aura:attribute name="recordId" type="String" default=""/>    
+    <aura:attribute name="subject" type="String" default="Battlefield Offensive Image"/>
+    <aura:attribute name="products" type="List" default="[]"/>
+    <aura:attribute name="objCase" type="Case"/>
+    <aura:attribute name="simpleCase" type="Case"/>
+    <aura:attribute name="productOptions" type="List" default="[]"/>
+    <aura:attribute name="categoryOptions" type="List" default="[]"/>
+    <aura:attribute name="platformOptions" type="List" default="[]"/>
+    <aura:attribute name="subCategoryOptions" type="List" default="[]"/>
+    <aura:attribute name="petitionActions" type="List" default="[]" />
+    <aura:attribute name="petitionCommitFlg" type="Boolean" default="false" />
+    <aura:attribute name="reportHasImage" type="Boolean" default="false" />
+    <aura:attribute name="petitionMsg" type="Boolean" default="false" />
+    <aura:attribute name="ackMsg" type="Boolean" default="false" />
+    <aura:attribute name="userType" type="String" default="T1" />
+    <aura:attribute name="strContentVO" type="Object" />
+    <aura:attribute name="tabViewFlag" type="String" default="Queued" />
+    <aura:attribute name="allPermsList" type="List"/>
+    <!-- Register Events  -->
+    <aura:registerEvent name="petitionDetailClick" type="c:PetitionDetailEvent"/>
+    <aura:registerEvent name ="petitionDetailCompEvent" type="c:PetitionDetailStatusEvent"/>
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    
+    <!--STARTS>
+    <force:recordData aura:id="caseRecordLoader"
+                      recordId="{!v.recordId}"                      
+                      targetRecord="{!v.objCase}"                        
+                      targetFields="{!v.simpleCase}"
+                      mode="EDIT"
+                      fields="Id,Case_Number__c,Subject,ProductLR__c,ProductLR__r.Name,PlatformLR__c,PlatformLR__r.Name,Case_Category__c,Case_Category__r.Name,Case_Sub_Category__c,Case_Sub_Category__r.Name,Petition_Details__r.Name,Petition_Details__r.View_Url__c,Petition_Details__r.Content_Type__c,Petition_Details__r.Action_Url__c"
+                      recordUpdated="{!c.handleRecordUpdated}"
+                      / -->
+    <!-- END -->    
+    
+    <div class="preview-container slds-is-relative" id="preview-container" onwheel="{!c.petitionScroll}">
+        <aura:if isTrue="{!v.petitionMsg}">
+            <!-- Begins the Preview header -->
+            <div class="slds-text-align_left slds-p-left_large slds-p-right_large petition-preview-header" aura:id="petition-preview-header">
+                <h1 class="slds-page-header__title slds-m-right_small slds-truncate slds-align-left" title="Petition Preview">
+                     Petition Preview
+                </h1>
+                <div class="slds-text-align_right">
+					<lightning:button variant="neutral"
+                                      label="View Case Details" title="View Case Details"
+                                      onclick="{!c.handlePetitionDetailClick }" />
+                </div>
+            </div>
+            <!-- Ends the Preview header -->
+            <!-- Preview detail Container Starts -->
+            <div class="slds-m-bottom_large preview-details slds-p-left_large slds-p-right_large">
+                <div class="report-content-container">
+                    <div class="slds-p-bottom_x-small slds-text-align_left">
+                        <span class="preview-label" title="Reported Content">
+                            Reported Content
+                        </span>
+                    </div>
+                    <div class="report-content" data-model="{!v.simpleCase.Petition_Details__r.View_Url__c}">
+                        <c:UserGeneratedContent aura:id="userGeneratedContentCmp" simpleCase="{!v.simpleCase}"/>                        
+                    </div>                
+                </div>
+                <aura:if isTrue="{!v.tabViewFlag == 'Queued'}">
+                    <div class="report-subject slds-p-top_medium">
+                        <div class="slds-text-align_left">
+                            <label class="slds-form-element__label"><span class="preview-label">Subject</span>
+                                <h3 class="slds-truncate "><ui:outputText aura:id="caseSubject" title="{!v.simpleCase.Subject}" value="{!v.simpleCase.Subject}" /></h3>
+                            </label>
+                        </div>                
+                    </div>
+                    <div class="report-caseID slds-p-top_medium">
+                        <div class="slds-text-align_left">
+                            <label class="slds-form-element__label"><span class="preview-label">Case Number</span>
+                                <h3><ui:outputText aura:id="caseId" value="{!v.simpleCase.CaseNumber}"/></h3>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="report-product slds-p-top_small">
+                        <div class="slds-p-bottom_medium slds-text-align_left">
+                            <span>
+                                <lightning:combobox aura:id="selectProduct" name="product" label="Product"
+                                          class="data-field-label"
+                                          placeholder="Select a product"
+                                          value="{!v.simpleCase.ProductLR__c}"
+                                          onchange="{!c.handleProductSelected}"
+                                          options="{!v.productOptions}"/>
+                            </span>
+                        </div>                
+                    </div>
+                    <!--aura:if isTrue="{!v.userType == 'T2'}">
+                        <div class="report-platform">
+                            <div class="slds-p-bottom_medium slds-text-align_left">
+                                <lightning:combobox aura:id="selectPlatform" name="platform" label="Platform"
+                                          class="data-field-label"
+                                          placeholder="Select a platform"
+                                          value="{!v.simpleCase.PlatformLR__c}"                                  
+                                          options="{!v.platformOptions}"/> 
+                            </div>
+                        </div>
+                    </aura:if-->
+                    <div class="report-categ">
+                        <div class="slds-p-bottom_medium slds-text-align_left">
+                            <lightning:combobox aura:id="selectcategory" name="category" label="Category"
+                                      class="data-field-label"
+                                      placeholder="Select a category"
+                                      value="{!v.simpleCase.Case_Category__c}"
+                                      options="{!v.categoryOptions}"/> 
+                        </div>
+                    </div>
+                    <!-- Removed as per Kyle comment on THOR-79 div class="report-subcateg">
+                        <div class="slds-p-bottom_medium slds-text-align_left">
+                            <lightning:combobox aura:id="selectSubcategory" name="subcategory" label="Subcategory"
+                                      placeholder="Select a subcategory"
+                                      value=""
+                                      onchange="{!c.handleProductSelected}"
+                                      options="{!v.subCategoryOptions}"/>                    
+                        </div>
+                    </div-->  
+                    <!-- THOR 1398 start-->
+                    <div class="report-categ">
+                        <div class="slds-p-bottom_medium slds-text-align_left">
+                            <label class="slds-form-element__label"><span class="preview-label">Location </span>
+                                <h3><ui:outputText value="{!v.simpleCase.Petition_Details__r.Location__c}"/></h3>
+                            </label>
+                        </div>
+                    </div>
+                    <!-- THOR 1398 end-->
+                    <div class="report-major-strike">
+                        <div class="slds-p-bottom_medium slds-text-align_left">
+                            <label class="slds-form-element__label">Player's Major Strikes
+                                <h3><ui:outputText value="{!v.simpleCase.Petition_Details__r.Target_Account__r.MajorStrikes__c}"/></h3>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="report-minor-strike">
+                        <div class="slds-p-bottom_medium slds-text-align_left">
+                            <label class="slds-form-element__label">Player's Minor Strikes
+                                <h3><ui:outputText value="{!v.simpleCase.Petition_Details__r.Target_Account__r.MinorStrikes__c}"/></h3>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="player-details slds-p-bottom_medium">
+                        <lightning:button variant="neutral" 
+                                          label="View Player Details" title="View Player Details" 
+                                          onclick="{!c.handlePlayerDetailClick }" />
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.tabViewFlag == 'Completed'}">
+                    <div class="report-case-status slds-p-top_medium slds-p-bottom_small">
+                        <div class="slds-text-align_left">
+                            <label class="slds-form-element__label"><span class="preview-label">Case Status</span>
+                                <h3 class="slds-truncate "><span class="{!v.simpleCase.Status+'-indicator  slds-m-right_x-small'}"></span><ui:outputText aura:id="caseStatus" title="{!v.simpleCase.Status}" value="{!v.simpleCase.Status}" /></h3>
+                            </label>
+                        </div>                
+                    </div>
+                </aura:if>
+            </div>
+            <!-- Preview detail Container Ends -->
+            <c:CaseActionPreview tabViewFlag="{!v.tabViewFlag}" recordId="{!v.recordId}" simpleCase="{!v.simpleCase}" 
+                                   workId ="{!v.workId}" petitionActionsPrev="{!v.petitionActions}" 
+                                   contentActPermsHide="{!v.contentActPermsHide}" contentActPermsShow="{!v.contentActPermsShow}"
+                                   aura:Id="caseactioncomponent"/>
+            
+            <aura:set attribute="else">
+                <div class="slds-text-align_center preview-petition">
+                    <p class="slds-p-bottom_large"><h3 class="slds-text-heading_medium">Take Off with THOR ToS Petition System</h3></p>
+                    <img src="{!$Resource.defaultPreviewThor}" alt="Preview Image" />
+                    <p class="slds-p-top_medium slds-p-bottom_medium petition-preview-summary">To get started, click on any line item to preview the Petition summary or double click on any row to drill down to the Petiton details.</p>
+                </div>
+            </aura:set>
+        </aura:if>
+        <div class="slds-text-align_center">
+            <lightning:spinner class="slds-hide" aura:id="petitionSpinner" variant="brand" size="large"/>
+        </div>
+    </div>
+</aura:component>

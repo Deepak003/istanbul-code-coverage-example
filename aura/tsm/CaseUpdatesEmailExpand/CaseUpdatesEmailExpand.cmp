@@ -1,0 +1,16 @@
+<aura:component >
+    <aura:attribute name="email" type="String"/>
+    <aura:if isTrue="{! v.email }">
+        <div class="case-updates-email-expand-container">
+            <div class="case-email-title part-1">Subject</div>
+            <div>{! v.email.subject }</div>
+            
+            <div class="case-email-title part-2">Description</div>
+            <div><lightning:formattedRichText value="{! v.email.body }"></lightning:formattedRichText></div>
+            
+            <c:CaseUpdatesAttachmentExpand attachments='{!v.email.attachments}' />
+            <c:CaseUpdatesNotesExpand notes='{!v.email.notes}' actions='{!v.email.actions}' />  
+        </div>
+    </aura:if>
+    
+</aura:component>

@@ -1,0 +1,66 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <!-- Data sent to the lookup -->
+    <aura:attribute name="lookupData" type="Object"/>
+    <aura:attribute name="fieldName" type="String"/>
+    <aura:attribute name="placeholder" type="String"/>
+    <aura:attribute name="selectedName" type="String"/>
+    <aura:attribute name="selectedURL" type="Object"/>
+    <aura:attribute name="disableFlag" type="Boolean" default="false"/>
+    <aura:attribute name="inititalFocusStyle" type="Boolean" default="false"/>
+    <!--start: TSM-3233-->
+    <aura:attribute name="required" type="Boolean" default="false"/>
+    <aura:attribute name="messageWhenValueMissing" type="String" default=""/>
+    <aura:attribute name="class" type="String" default=""/>
+    <!--end: TSM-3233-->
+    
+    <!-- Lookup Attributes -->
+    <aura:attribute name="focusIndex" type="integer" default="0"/>    
+    <aura:attribute name="keyPressTimer" type="Integer" default="0" />
+    <aura:attribute name="changeLoad" type="boolean" default="false"/>
+    <aura:attribute name="searchData" type="Object"/>
+    <aura:attribute name="tempSearchString" type="Object"/>
+    
+    <aura:registerEvent name="lookupActionEvent" type="c:LookupComponentEvent" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!--start: TSM-3233-->
+    <aura:handler name="lookupActionEvent" type="c:LookupComponentEvent" action="{!c.onLookupActionEvent}" />
+    <!--end: TSM-3233-->
+    
+    <div class="slds-form-element">
+        <div class="slds-form-element__control">
+            <div class="slds-combobox_container">
+                <div aura:id="lookup-div" class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-expanded="false" aria-haspopup="listbox" role="combobox" onkeydown="{! c.lookupSearchKeyUp }">
+                    <div id="{!v.fieldName}" class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"  role="none">
+                        <lightning:input
+                                         aura:id="lookup-input"
+                                         type="search"
+                                         label="{!v.fieldName}"
+                                         value="{!v.selectedName}"            
+                                         onfocus="{! c.resetFocus }"
+                                         onchange="{! c.searchProduct }" 
+                                         onblur="{! c.closeFocus }" 
+                                         disabled="{! v.disableFlag }"
+                                         placeholder="{! v.placeholder }"
+                                         required="{! v.required }"
+                                         messageWhenValueMissing="{! v.messageWhenValueMissing }"
+                                         class="{!v.class}"
+                                         />
+                    </div>
+                    <div id="listbox-id-3" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox" onclick="{! c.selectOption}">
+                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                            <aura:if isTrue="{!v.changeLoad == true}">   
+                                <aura:iteration items="{!v.searchData}" var="item" indexVar="idx">
+                                    <li role="presentation" class="disable-highlight slds-listbox__item"> 
+                                        <div id ="{!or(item.Id, item.Value)}" data-value="{!item.Value}"  aura:id="lookup-id" class="{! join(' ',                                                                                                                                    'slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta',
+                                                                                                                                     if(idx == 0, 'custom-focus'))}" role="option" tabindex="0">{!item.Name}</div>
+                                    </li> 
+                                </aura:iteration>  
+                            </aura:if>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

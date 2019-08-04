@@ -1,0 +1,90 @@
+<aura:component controller="EntitlementAuraController">
+    <aura:attribute name="isOpen" type="Boolean" access="public" />
+    <aura:attribute name="selectedProduct" type="Map" access="public" />
+    <aura:attribute name="products" type="List" access="public" />
+    <aura:attribute name="nucleusId" type="Id" access="public" /> 
+    <aura:attribute name="variant" type="String" access="public" default="default" />
+    <aura:attribute name="title" type="String" access="public" default="Grant New Entitlement" />   
+    <aura:attribute name="email" type="String" access="public" description="Player Email ID" />
+    
+    <aura:attribute name="caseId" type="Id" access="public" />
+    <aura:attribute name="accountId" type="Id" access="public" />
+    <aura:attribute name="lookupProducts" type="List" access="private" />
+    <aura:attribute name="categoryCodes" type="List" access="private" default="[]" />
+    
+    <aura:attribute name="categories" type="List" access="private" default="[]" />    
+    <aura:attribute name="codes" type="List" access="private" default="[]" />
+    
+    <aura:attribute name="selectedCategory" type="Map" access="private" />
+    <aura:attribute name="selectedCategoryName" type="String" access="private" default="" />    
+    <aura:attribute name="selectedCode" type="Map" access="private" />
+    <aura:attribute name="selectedCodeName" type="String" access="private" default="" />
+    <aura:attribute name="selectedProductName" type="String" access="private" default="" />
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="true" />
+    
+    <!--form entitlments-->
+    <aura:attribute name="from" type="String"/>
+
+    <!--<ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{! c.doInit }"/>-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.categoryCodes}" action="{!c.setCategories}" />
+    <aura:handler name="change" value="{!v.selectedCategory}" action="{!c.setCodes}" />
+    
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleLookupChange}"/>
+    
+    <c:ParentModal>
+        <!-- Modal Attributes  -->
+        <aura:set attribute="outerClass" value="my-modal"/>
+        <aura:set attribute="class" value="modal-small"/>
+        <aura:set attribute="isModalOpen" value="{!v.isOpen}"/>
+        <aura:set attribute="clickClose" value="false"/>
+        
+        <!-- Modal Header Attributes -->
+        <aura:set attribute="title">{!v.title}</aura:set>
+        
+        <!-- Modal Content Attributes -->
+        <aura:set attribute="showSpinner" value="{!v.isLoading}"/>
+        <aura:set attribute="content">
+            <lightning:layout multipleRows="true">   
+                <aura:if isTrue="{!v.variant=='discounts-promos'}">
+                    <lightning:layoutItem size="12" class="slds-p-bottom_small">
+                        <c:LookupTSM selectedName="{!v.selectedProductName}" fieldName="Select a Product" lookupData="{!v.lookupProducts}"/>
+                    </lightning:layoutItem>
+                </aura:if>
+                <aura:if isTrue="{!v.variant=='new'}">
+                   <aura:if isTrue="{!v.from =='Account'}" >
+                        <lightning:layoutItem size="12" class="slds-p-bottom_small">
+                             <aura:if isTrue="{!v.lookupProducts != null}"> 
+                                <c:LookupTSM selectedName='' fieldName="Select a Product" lookupData="{!v.lookupProducts}"/>
+                            </aura:if>
+                        </lightning:layoutItem>
+                        
+                        <aura:set attribute="else">
+                            <lightning:layoutItem size="12" class="slds-text-title">
+                                Selected Product
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="12" class="slds-text-title_caps slds-text-body_regular slds-p-top_x-small slds-p-bottom_small">
+                                <b>{!v.selectedProductName}</b>
+                            </lightning:layoutItem>
+                        </aura:set>
+                    </aura:if>
+                </aura:if>
+                <lightning:layoutItem size="12" class="slds-p-bottom_small">
+                    <c:LookupTSM selectedName="{!v.selectedCategoryName}" fieldName="Categories" placeholder="Select a Code Category" lookupData="{!v.categories}" disableFlag="{! if(v.variant=='discounts-promos', empty(v.selectedProduct), false) }" />
+                </lightning:layoutItem>
+                <lightning:layoutItem size="12" class="slds-p-bottom_medium">
+                    <c:LookupTSM selectedName="{!v.selectedCodeName}" fieldName="Codes" placeholder="Choose a Code to Grant" lookupData="{!v.codes}" disableFlag="{! empty(v.selectedCategory) }"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </aura:set>
+        <!-- Modal Footer Attributes -->
+        <!--<aura:set attribute="footer"><div></div></aura:set>-->
+        <!--<aura:set attribute="isDirectionalFooter" value="true"/>-->
+        <!--<aura:set attribute="onClose" value="{!c.closeModal}"/>-->
+        <!--<aura:set attribute="onCancel" value="{!c.closeModal}"/>-->
+        <aura:set attribute="onSuccess" value="{!c.onGrantClick}" />
+        <aura:set attribute="success" value="Grant" />
+        <aura:set attribute="cancel" value="Cancel" />
+        <aura:set attribute="isSuccessDisable" value="{! if(v.variant=='discounts-promos', or(empty(v.selectedCode),empty(v.selectedProduct)), empty(v.selectedCode)) }" />
+    </c:ParentModal>
+</aura:component>

@@ -1,0 +1,34 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+	<div class="slds-grid">
+        <div class="slds-col slds-p-around_small">
+            <div class="slds-media">                    
+                <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small">
+                    <lightning:icon iconName="utility:connected_apps" size="small" />
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-p-left_small label" id="thor-tos"> 
+                    	<lightning:button variant="neutral"
+                                      class="thor-tos"
+                                      label="THOR" title="Thor"
+                                      onclick="{!c.thorBtnClick }" />
+                    </div>                                            
+                </div>
+            </div>
+        </div>
+        <div class="slds-col slds-p-around_small">
+            <div class="slds-media">                    
+                <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small">
+                    <lightning:icon iconName="utility:connected_apps" size="small" />
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-p-left_small label">
+                    	<lightning:button variant="neutral"
+                                      label="TSM" title="TSM"
+                                      onclick="{!c.tsmBtnClick }" />
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+	<c:JobRoleModal/>
+</aura:component>

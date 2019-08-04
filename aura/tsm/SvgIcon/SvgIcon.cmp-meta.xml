@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AuraDefinitionBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>43.0</apiVersion>
+    <description>Helper Lightning Component to render the Lightning Design System.
+
+Ref: https://archive-2_1_4.lightningdesignsystem.com/resources/lightning-svg-icon-component-helper</description>
+</AuraDefinitionBundle>

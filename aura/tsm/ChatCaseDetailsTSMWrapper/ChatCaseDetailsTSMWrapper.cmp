@@ -1,0 +1,11 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" access="global" controller="CaseInfoAuraController">
+<aura:attribute name="currentCase" type="Case"/>
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+<lightning:layout multipleRows="true" class="petition-detail-container">
+  <lightning:layoutItem flexibility="auto" size="12">
+        <aura:if isTrue="{!v.currentCase.Id !=undefined}">  
+        <c:CaseDetailsTSM caseId="{! v.currentCase.Id}"/>
+       </aura:if>
+   </lightning:layoutItem>
+</lightning:layout>
+</aura:component>

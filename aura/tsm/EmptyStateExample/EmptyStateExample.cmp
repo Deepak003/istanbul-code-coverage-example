@@ -1,0 +1,21 @@
+<aura:component>
+    
+    
+    <!-- -->
+
+    
+    <!-- Type-1 -->
+    <div>
+        <c:EmptyState>
+            <aura:set attribute="message">
+                <b>HTML markup here!!</b>
+            </aura:set>
+        </c:EmptyState>        
+    </div>
+    
+    <!-- Type-2 -->
+    <div>
+        <c:EmptyState message="String Message here!!"></c:EmptyState>
+    </div>
+    
+</aura:component>

@@ -1,0 +1,7 @@
+<aura:event type="COMPONENT" description="Petition Detail Component Event">
+    <aura:attribute name="id" type="String"/>
+    <aura:attribute name="objCase" type="Case"/>
+   	<aura:attribute name="domEl" type="Object"/>
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="agentWorkId" type="String"/>
+</aura:event>

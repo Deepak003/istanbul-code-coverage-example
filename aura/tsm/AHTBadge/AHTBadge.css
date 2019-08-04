@@ -1,0 +1,52 @@
+.THIS {
+	width: auto;
+    display: inline-block;    
+    margin-top: 1.5rem;
+}
+.THIS .ahtIcon {
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 3px 3px 4px;
+}
+.THIS .ahtIcon .slds-icon-text-default {
+    height: 20px;
+    width: 20px;
+    fill: rgb(76, 122, 191);
+}
+.THIS .slds-media__body .label {
+    color: #B0BACA;
+}
+.THIS .slds-media__body .slds-spinner_container {
+    top: 10px;
+    height: 10px;
+}
+.THIS .slds-media__body .slds-spinner {
+    width: 1rem;
+}
+.THIS .aht-spinner {
+    z-index: 9;
+}
+.THIS .available-indicator {
+    background-color: #5DC93C;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .offline-indicator {
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(176, 173, 171);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .common-indicator {
+    background-color: rgb(255, 183, 93);
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}

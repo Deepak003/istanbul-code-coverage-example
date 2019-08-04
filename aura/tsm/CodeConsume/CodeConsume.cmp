@@ -1,0 +1,41 @@
+<aura:component controller="CodeSetAuraCtl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="consumeCodes" 
+                    type="boolean" 
+                    description="Used to manipulate Modal Box"/>
+
+    <aura:attribute name="nucleusId" type="String" default="" description="Stores Nucleus ID"/>
+    <aura:attribute name="selectedProduct" type="String" access="public" description="Selected Product's Name"/>
+    <aura:attribute name="isViewCode" type="Boolean" default="true" description="Identifier for Codes"/>
+    <aura:attribute name="formattedProdName" type="String" default="" description="Stores formatted name of Product"/>
+    <aura:attribute name="caseId" type="String"/>
+	<aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="code" type="String" default="" description="searched code string"/>
+    <aura:attribute name="codeSearchData" type="Object"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" >
+                <header class="slds-modal__header" style="border-bottom: 2px solid #f0f2f7;">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeConsumeCodes}"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight: normal">Consume Code</h2>
+                </header>
+                
+                <!-- Formatted Table -->
+                <div class="modalBody slds-modal__content slds-p-top_small slds-p-right_x-large slds-p-left_x-large setting-height">
+                    
+					<div class="slds-p-top_medium slds-p-bottom_x-large">The code “{!v.code}” will be added to the current account. Are you sure you want to perform this action? </div>
+                    
+                </div>
+                <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                    <lightning:button aura:id="closeButton" label="Cancel" onclick="{!c.closeConsumeCodes}" />
+                    <lightning:button aura:id="consumeButton" variant="brand" label="Confirm" onclick="{!c.confirmConsume}" />
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

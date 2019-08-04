@@ -1,0 +1,15 @@
+<aura:component controller="AccountBillingAuraCtl">
+    <aura:attribute name="nucleusId" type="String" access="public" />
+    <aura:attribute name="isLoading" type="Boolean" access="public" />
+    <aura:attribute name="paymentId" type="String" access="public" />
+    <aura:attribute name="source" type="String" access="public" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <span onclick="{!c.openDifferentAccountTab}">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner variant="brand" size="medium"/>
+        </aura:if>
+        {!v.body}
+    </span>
+</aura:component>

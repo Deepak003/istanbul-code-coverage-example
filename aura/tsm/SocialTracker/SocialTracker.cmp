@@ -1,0 +1,33 @@
+<aura:component controller="ProductAuraController">
+    <aura:attribute name="selectedProduct" type="Map" access="public" />
+    <aura:attribute name="nucleusId" type="String" access="public" />
+    
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="true" />
+    <aura:attribute name="data" type="Map" access="private" />
+    <aura:attribute name="columns" type="List" access="private"/>
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{! c.doInit }"/>
+    
+    <lightning:layoutItem size="4" class="vertical-center slds-p-bottom_medium">
+        <div class="slds-page-header__title">Social Tracker</div>
+    </lightning:layoutItem>
+    
+    <div class="slds-is-relative">        
+        <aura:if isTrue="{! v.isLoading }">
+            <lightning:spinner variant="brand" size="small" />
+            <aura:set attribute="else">                
+                <aura:if isTrue="{! empty(v.data) }">
+                    <c:EmptyState message="No result found"></c:EmptyState>
+                    <aura:set attribute="else">
+                        <lightning:datatable
+                                             keyField="id"
+                                             data="{! v.data }"
+                                             columns="{! v.columns }"
+                                             hideCheckboxColumn="true"
+                                             resizeColumnDisabled="true"/>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>
+    </div>
+</aura:component>

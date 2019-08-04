@@ -1,0 +1,240 @@
+<aura:component controller="AccountBillingAuraCtl">    
+    <!-- attributes -->
+    <aura:attribute name="invoiceId" type="String" default=""/>
+    <aura:attribute name="transactionLogList" type="List" default="[]"/>   
+    <aura:attribute name="openTransactionLogs" type="Boolean" default="false" />
+    <aura:attribute name="emptyState" type="Boolean" default="false" />
+    <!-- Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />        
+    <aura:attribute name="isLoading" type="Boolean" access="public" default="false" /> 
+        
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container" >
+            <header class="slds-modal__header" style="border-bottom: 1px solid rgb(217, 219, 221)">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                    <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeTransactionLog}"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Transaction Log</h1>
+            </header>                
+            <div class="modalBody slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large slds-is-relative">
+                <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>               
+                 <aura:if isTrue="{!v.emptyState}">
+                    <c:EmptyState message="Log Data Not Available"></c:EmptyState>
+                </aura:if>                
+                <aura:iteration items="{!v.transactionLogList}" var="transLog" indexVar="idx">
+                    <lightning:layout multipleRows="true">
+                        <lightning:layoutItem class="slds-m-top_xx-small slds-p-left_large">
+                            <div class="header-column header">
+                                <p>{!transLog.invoiceEventDate}</p>                       
+                            </div>
+                        </lightning:layoutItem>  
+                        <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">
+                            <div class="header-column">
+                                <p class="header headerfontSize" title="EventType">Event Type</p>
+                                <p class="slds-text-body_regular headerCaps lowerCase ">{!transLog.invoiceEventType}</p>
+                            </div>
+                        </lightning:layoutItem>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.status != null}">  
+                            <lightning:layoutItem  size="12" class="slds-m-top_x-small slds-p-left_large" >
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="Event Status">Event Status</p>
+                                    <p class="slds-text-body_regular  headerCaps lowerCase">{!transLog.invoiceEventPropertySetList.status}</p>
+                                </div>
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.cartId != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large slds-item_detail slds-truncate normalSpace">
+                                
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="CartId">Cart ID</p>
+                                    <p class="slds-text-body_regular  headerCaps lowerCase">{!transLog.invoiceEventPropertySetList.cartId}</p>
+                                </div>                            
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.reason != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">
+                                
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="Reason">Reason</p>
+                                    <p class="slds-text-body_regular  headerCaps lowerCase">{!transLog.invoiceEventPropertySetList.reason}</p>
+                                </div>
+                                
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.orderStatus != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                           
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="OrderStatus">Order Status</p>
+                                    <p class="slds-text-body_regular  headerCaps lowerCase">{!transLog.invoiceEventPropertySetList.orderStatus}</p>
+                                </div>                           
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.purchaseTime != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                            
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="PurchaseTime">Purchase Time</p>                                    
+                                    <p class="slds-text-body_regular  headerCaps">{!transLog.invoiceEventPropertySetList.purchaseTime}</p>
+                                </div>
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.notificationType != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                            
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="NotificationType">Notification Type</p>
+                                    <p class="slds-text-body_regular  headerCaps capitalize">{!transLog.invoiceEventPropertySetList.notificationType}</p>
+                                </div>
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.refundInvoiceId != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                                
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="RefundInvoiceId">Refund Invoice ID</p>
+                                    <p class="slds-text-body_regular  headerCaps lowerCase">{!transLog.invoiceEventPropertySetList.refundInvoiceId}</p>
+                                </div>
+                                
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!transLog.invoiceEventPropertySetList.refundAmount != null}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">
+                                
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="RefundAmount">Refund Amount</p>
+                                    <p class="slds-text-body_regular  headerCaps lowerCase">{!transLog.invoiceEventPropertySetList.refundAmount}</p>
+                                </div>
+                                
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!not(empty(transLog.invoiceEventPropertySetList.shippedItems))}">                           
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                               
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="shippedItems">Shipped Items</p>
+                                </div>                                
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Product Name</p>                                      
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Quantity</p>                                      
+                                </div>
+                            </lightning:layoutItem>                           
+                            <aura:iteration items="{!transLog.invoiceEventPropertySetList.shippedItems}" var="shippedItems" indexVar="idx1">
+                                <lightning:layoutItem size="6" class="slds-p-left_large">
+                                    <div class="header-column">                                        
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!shippedItems.name}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="6"  class="slds-p-left_large">
+                                    <div class="header-column">                                            
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!shippedItems.quantity}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:iteration>                            
+                        </aura:if>
+                        <aura:if isTrue="{!not(empty(transLog.invoiceEventPropertySetList.refundItems))}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                               
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="refundItems">Refund Items</p>
+                                </div>                                
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Product Name</p>                                      
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Quantity</p>                                      
+                                </div>
+                            </lightning:layoutItem>                           
+                            <aura:iteration items="{!transLog.invoiceEventPropertySetList.refundItems}" var="refundItems" indexVar="idx1">
+                                <lightning:layoutItem size="6" class="slds-p-left_large">
+                                    <div class="header-column">                                        
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!refundItems.name}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="6"  class="slds-p-left_large">
+                                    <div class="header-column">                                            
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!refundItems.quantity}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:iteration>
+                        </aura:if>
+                        <aura:if isTrue="{!not(empty(transLog.invoiceEventPropertySetList.cancelledItems))}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                               
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="cancelledItems">Cancelled Items</p>
+                                </div>                                
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Product Name</p>                                      
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Quantity</p>                                      
+                                </div>
+                            </lightning:layoutItem>                           
+                            <aura:iteration items="{!transLog.invoiceEventPropertySetList.cancelledItems}" var="cancelledItems" indexVar="idx1">
+                                <lightning:layoutItem size="6" class="slds-p-left_large">
+                                    <div class="header-column">                                        
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!cancelledItems.name}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="6"  class="slds-p-left_large">
+                                    <div class="header-column">                                            
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!cancelledItems.quantity}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:iteration>
+                        </aura:if>
+                        <aura:if isTrue="{!not(empty(transLog.invoiceEventPropertySetList.returnedItems))}">
+                            <lightning:layoutItem size="12" class="slds-m-top_x-small slds-p-left_large">                               
+                                <div class="header-column">
+                                    <p class="header headerfontSize" title="returnedItems">Returned Items</p>
+                                </div>                                
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Product Name</p>                                      
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6" class="slds-m-top_x-small slds-p-left_large">
+                                <div class="header-column">
+                                    <p class="header headerfontSize leftPadding" title="ProductName">Quantity</p>                                      
+                                </div>
+                            </lightning:layoutItem>                           
+                            <aura:iteration items="{!transLog.invoiceEventPropertySetList.returnedItems}" var="returnedItems" indexVar="idx1">
+                                <lightning:layoutItem size="6" class="slds-p-left_large">
+                                    <div class="header-column">                                        
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!returnedItems.name}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="6"  class="slds-p-left_large">
+                                    <div class="header-column">                                            
+                                        <p class="slds-text-body_regular  headerCaps lowerCase leftPadding">{!returnedItems.quantity}</p>
+                                    </div>
+                                </lightning:layoutItem>
+                            </aura:iteration>
+                        </aura:if>
+                        <lightning:layoutItem  size="12" class="slds-m-top_x-small slds-p-left_large" >
+                            <div class="header-column">         
+                                <aura:if isTrue="{!(v.transactionLogList.length-idx != 1)}">
+                                    <div class="slds-border_bottom slds-m-bottom_x-small"></div>
+                                </aura:if>    
+                            </div>
+                        </lightning:layoutItem>
+                    </lightning:layout>                    
+                </aura:iteration>
+            </div>
+            <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                <lightning:button aura:id="closeButton" label="Close" onclick="{!c.closeTransactionLog}"/>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>    
+</aura:component>

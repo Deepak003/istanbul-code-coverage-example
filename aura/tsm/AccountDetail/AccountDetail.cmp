@@ -1,0 +1,288 @@
+<aura:component 
+    implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" controller="AccountSearchAuraCtl">
+    <aura:attribute name="targetAccountDetails" type="Object" /> <!-- This is used to display Target Account details that we fetch from backend controller -->
+    <aura:attribute name="playerPersonas" type="Object[]" /> <!-- This is used to display all Player Personas that we fetch from backend controller -->
+    <!--This will become dyanamic once we have case details tab, The NucleusID actually flows from case details tab to Account details tab -->
+    <aura:attribute name="targetAccountID"  type="string"/> <!-- 2254621283 TargetAccountID is the nucleusID --> 
+    <aura:attribute name="targetAccountSFId"  type="string"/>
+    <aura:attribute name="targetAccountEmail"  type="string"/> 
+	<aura:attribute name = "editPersonaFlag"  type="boolean" default="false"/>
+	<aura:attribute name="targetSynergyID" type="string" />
+    <aura:attribute name="sanctionEndDate" type="string" default=""/>
+    <aura:attribute name="personaData" type="List" default="[]" />
+    <aura:attribute name="simpleCase" type="Object" />    
+    <aura:attribute name="playerAccData" type="Object"/>
+	<aura:attribute name = "oldPlayerAccDataPersona" type="String"/>
+    <aura:attribute name = "PersonaId" type="String"/>
+	<aura:attribute name = "productList" type="Object[]"/>
+    <aura:attribute name = "franchiseList" type="Object[]"/>													 
+    <aura:attribute name="gamerDataFlag" type="Boolean" default="false"/>
+    <aura:attribute name="accountStatusDetails" type="List" 
+                    default="[{'type': 'Account &bull; Nuclues', 'status': 'Active', 'reason': ''},
+                             {'type': 'Franchise &bull; Battlefield', 'status': 'Active', 'reason': ''},
+    						 {'type': 'Product &bull; Battlefield Companion', 'status': 'Active', 'reason': ''},
+                             {'type': 'Account &bull; Nuclues', 'status': 'Active', 'reason': ''},
+                             {'type': 'Social &bull; Sims 4 Chat', 'status': 'Active', 'reason': ''},
+                             {'type': 'Social &bull; Anthem Chat', 'status': 'Active', 'reason': ''},
+                             {'type': 'Account &bull; Nuclues', 'status': 'Suspended', 'reason': 'Misconduct'}]" />
+    <aura:attribute name="sanctionStatus" type="List" default="[{'label': 'New', 'value': 'new'},
+                             {'label': 'Sanction1', 'value': 'Sanction1'},
+    						 {'label': 'Sanction2', 'value': 'Sanction2'}]"/>
+    
+    <aura:method name="getAccountDetails" 
+                 action="{!c.getAccountDetails}" 
+                 access="PUBLIC"
+                 description="call the get acc Note method" />
+
+    <aura:method name="getSanctionDate" 
+                 action="{!c.getSanctionDate}" 
+                 access="PUBLIC"
+                 description="call get sanction date method" />
+    
+    <!-- Register Events -->
+	<aura:registerEvent name="petitionTotalClick" type="c:PetitionAccountCaseHistoryEvt"/>
+    <!-- handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.init}" />   
+   <!--
+    <aura:handler event="aura:waiting" action="{!c.waiting}"/> 
+    <aura:handler event="aura:doneWaiting" action="{!c.doneWaiting}"/>
+    -->
+    <aura:attribute name="showSpinner" type="boolean" default="false"/>
+
+	<lightning:layout multipleRows="true">
+        <lightning:layoutItem flexibility="auto" size="12">
+            <aura:if isTrue="{!v.targetAccountSFId}">
+            <lightning:layout class="slds-gutters">
+                <lightning:layoutItem flexibility="auto" size="3" class="detail-container">
+                    <div class="slds-p-top_large">
+                        <div>    
+                            <h1 class="slds-page-header__title slds-truncate slds-align-left">
+                                Target Player Details
+                            </h1>
+                             <div class="slds-text-align_center">
+                                    <aura:if isTrue="{!v.showSpinner}">
+                                        <div aura:id="spinnerId" class="slds-spinner_container">
+                                           <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                                             <span class="slds-assistive-text">Loading</span>
+                                             <div class="slds-spinner__dot-a"></div>
+                                             <div class="slds-spinner__dot-b"></div>
+                                           </div>
+                                        </div>
+                                     </aura:if>
+                                <!--
+                                    <span id="Accspinner" style="display:none">
+                                         <ui:spinner />  
+                                        <lightning:spinner  aura:id="accountDetailSpinnerID" variant="brand" size="small"/>
+                                    </span>
+                                 <lightning:spinner class="slds-hide" aura:id="accountDetailSpinnerID" variant="brand" size="small"/> -->
+                            </div>
+                        </div>
+						<div class="slds-m-top_medium">
+                            
+                        </div>
+                        <aura:if isTrue="{!v.editPersonaFlag == false}">
+                            <lightning:button label="Edit Nucleus Persona" onclick="{! c.editNucleusPersona }"/>
+                        </aura:if> 
+                        <div class="slds-m-top_medium">
+                            <div class="case-id-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    {!v.gamerDataFlag ? 'Gamer Id' : 'Nucleus Persona'} 
+                                </div>
+								<aura:if isTrue="{!not(v.editPersonaFlag)}">
+                                    <div class="player-detail-value slds-m-bottom_xx-small">
+                                        {!v.gamerDataFlag ? v.playerAccData.id: v.playerAccData.persona} &nbsp;
+                                    </div>
+                                </aura:if>
+                                <aura:if isTrue="{!and(not(v.gamerDataFlag),v.editPersonaFlag)}">
+                                    <div class="player-detail-value slds-m-bottom_xx-small" style="margin-top:-15px;">
+                                        <lightning:input type="text" name="input1" label="" value="{!v.playerAccData.persona}"/>&nbsp;
+                                    </div>
+                                </aura:if>
+                            </div>
+                            <div class="content-type-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    {!v.gamerDataFlag ? 'Gamer Id Type' : 'Nucleus Persona ID'}
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                    {!v.gamerDataFlag ? v.playerAccData.idType : v.playerAccData.personaId} &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-m-top_medium">
+                            <div class="case-id-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    Customer Language
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                    {!v.playerAccData.language} &nbsp;
+                                </div>
+                            </div>
+                            <div class="content-type-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    Customer Age
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                    {!v.playerAccData.dob ? v.playerAccData.dob : v.playerAccData.customerAge} &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                        <aura:if isTrue="{!v.gamerDataFlag}">
+                            <div class="slds-m-top_medium">
+                                <div class="case-id-container">
+                                    <div class="slds-text-body_small slds-m-bottom_x-small">
+                                        First Name
+                                    </div>
+                                    <div class="player-detail-value slds-m-bottom_xx-small">
+                                        {!v.playerAccData.firstName} &nbsp;
+                                    </div>
+                                </div>
+                                <div class="content-type-container">
+                                    <div class="slds-text-body_small slds-m-bottom_x-small">
+                                        Last Name
+                                    </div>
+                                    <div class="player-detail-value slds-m-bottom_xx-small">
+                                        {!v.playerAccData.lastName} &nbsp; 
+                                    </div>
+                                </div>                               
+                            </div>
+                            <div class="slds-m-top_medium">
+                                <div class="case-id-container">
+                                    <div class="slds-text-body_small slds-m-bottom_x-small">
+                                        Device Name
+                                    </div>
+                                    <div class="player-detail-value slds-m-bottom_xx-small">
+                                        {!v.playerAccData.devices[0].deviceName} &nbsp;
+                                    </div>
+                                </div>
+                                <div class="content-type-container">
+                                    <div class="slds-text-body_small slds-m-bottom_x-small">
+                                        Device Id
+                                    </div>
+                                    <div title="{!v.playerAccData.devices[0].deviceId}" class="player-detail-value slds-m-bottom_xx-small slds-truncate">
+                                        {!v.playerAccData.devices[0].deviceId} &nbsp; 
+                                    </div>
+                                </div>                               
+                            </div>
+                        </aura:if>
+                        <aura:if isTrue="{!v.gamerDataFlag == false}">
+                        <div class="slds-m-top_medium">
+                            <div class="case-id-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    Nucleus Account ID
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                     {!v.playerAccData.customerId} &nbsp;
+                                </div>
+                            </div>
+                            <div class="content-type-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                     Account Age
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                      {!v.playerAccData.dateCreated} &nbsp;
+                                </div>
+                            </div>                            
+                        </div>
+                        </aura:if> 
+                        <div class="slds-m-top_medium">
+                            <div class="case-id-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    {!v.gamerDataFlag ? 'Gamer Status' : 'Nucleus Account Status'} &nbsp;
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                    <aura:if isTrue="{!v.playerAccData.status}">
+                                        <span class="{!v.playerAccData.status == 'ACTIVE' ? 'slds-m-right_x-small active-indicator': 
+                                                     v.playerAccData.status == 'Active' ? 'slds-m-right_x-small active-indicator':
+                                                     v.playerAccData.status == 'BANNED' ? 'slds-m-right_x-small banned-indicator': 
+                                                     v.playerAccData.status == 'DISABLED' ? 'slds-m-right_x-small disabled-indicator':
+                                                     v.playerAccData.status == 'DEACTIVATED' ? 'slds-m-right_x-small deactivate-indicator':
+                                                     'slds-m-right_x-small suspended-indicator'}">
+                                        </span>
+                                    </aura:if>
+                                    {!v.playerAccData.status} &nbsp;
+                                </div>                                
+                            </div>
+                            <aura:if isTrue="{!v.gamerDataFlag == false}">
+                            <div class="content-type-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                      Security State
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                     <span class="{!v.playerAccData.securityState == undefined ? 'slds-m-right_x-small':
+                                                   v.playerAccData.securityState == 'GREEN' ? 'slds-m-right_x-small active-indicator': 
+                                                   v.playerAccData.securityState == 'YELLOW' ? 'slds-m-right_x-small warned-indicator': 
+                                                                                        'slds-m-right_x-small suspended-indicator'}" >
+                                    </span>                                                   
+                                     {!v.playerAccData.securityState} &nbsp;
+                                </div>
+                            </div>
+                           </aura:if> 
+                        </div>
+                        <div class="slds-m-top_medium">
+                            <div class="case-id-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    Sanction End Date
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                    {!v.sanctionEndDate} &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-m-top_medium">
+                            <div class="case-id-container">
+                                <div class="slds-text-body_small slds-m-bottom_x-small">
+                                    Email ID
+                                </div>
+                                <div class="player-detail-value slds-m-bottom_xx-small">
+                                    {!v.playerAccData.email} &nbsp;
+                                </div>
+                            </div>
+                        </div>
+						<aura:if isTrue="{!v.editPersonaFlag}">
+                            <lightning:button variant="brand" label="Save" onclick="{!c.savePersona}" />
+                        	<lightning:button label="Cancel" onclick="{!c.doCancel}"/>
+                        </aura:if>
+                        <div class="slds-m-top_medium">
+                            
+                        </div>
+                    </div>
+                    </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto" size="9">
+					<div aura:id="accountStatussad">								
+                    <c:AccountStatus targetAccountID="{!v.targetAccountID}" recordId="{!v.targetAccountSFId}" aura:id="accStatusCmp" productsToDisplay = "{!v.productList}" franchiseForProducts = "{!v.franchiseList}"/>
+                </div>
+				</lightning:layoutItem>
+            </lightning:layout>
+            <lightning:layout>
+                <lightning:layoutItem flexibility="auto" size="12">
+                    <div class="slds-p-horizontal_small">
+                    	<c:AccountNotes aura:id="accountNotes" caseObj="{!v.simpleCase}"  caseId = "{!v.simpleCase.Id}" targetGamerAccountID="{!v.targetSynergyID}" targetAccountID="{!v.playerAccData.id}" targetAccountEmail ="{!v.playerAccData.email}"/>
+                    </div>
+
+                    <div class="slds-border_top slds-m-bottom--medium"></div>
+                    <!-- Player Persona section -->
+                    <div class="slds-page-header__title slds-m-bottom--mediums">Player Personas</div>
+                    <div aura:id="personas">
+                    <c:DataGrid data="{!v.playerAccData.personas}" gridName="personaGrid" pkField="personaId" aura:id="datagrid" type="expand">
+                        <c:DataGridColumn fieldName="personaId" label="ID" class=""/>
+                        <c:DataGridColumn fieldName="displayName" label="DISPLAY NAME" class=""/>
+                        <c:DataGridColumn fieldName="namespaceName" label="NAMESPACE" class=""/>
+                        <c:DataGridColumn fieldName="status" label="STATUS" class=""/>
+                        <c:DataGridColumn fieldName="name" label="hidden" class=""/>
+                        <c:DataGridColumn fieldName="dateCreated" label="hidden" class=""/>
+                        <c:DataGridColumn fieldName="lastAuthenticated" label="hidden" class=""/>
+                    </c:DataGrid>
+                  </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+                <aura:set attribute="else">
+                	<h1 class="slds-text-heading_large slds-page-header_medium slds-text-align_center slds-p-around_large">
+                        No target account is associated with this petition case.
+                    </h1>
+                </aura:set>
+            </aura:if>
+            <!-- Target Account Blank -->
+        </lightning:layoutItem>            
+    </lightning:layout>
+   
+</aura:component>

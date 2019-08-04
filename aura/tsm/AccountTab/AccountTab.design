@@ -1,0 +1,3 @@
+<design:component>
+	<design:attribute name="accountId" label="Account Id" default="1000241978357" description="Please provide AccountId to fetch Account Notes" />
+</design:component>

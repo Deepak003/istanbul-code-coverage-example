@@ -1,0 +1,6 @@
+<aura:component extensible="true" abstract="true" controller="CaseDetailAuraCtl">
+	<aura:attribute name="petitionActions" type="List" default="[]" />
+    <aura:attribute type="string" name="selectedViolationChat"   />
+    <aura:attribute name="products" type="List" />
+	<div> {!v.body} </div>
+</aura:component>

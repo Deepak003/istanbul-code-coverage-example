@@ -1,0 +1,63 @@
+.THIS .slds-form-element__label{
+    display: none;
+}
+.THIS.layoutBottomBorder {
+        border-bottom: 1px solid;
+}
+.THIS .bottomPadding {
+    padding-bottom: 5px;
+}
+.THIS .Unauthenticated {
+    padding-left: 22px;
+}
+
+.THIS .unauthActive {
+    left: 47px;
+    width: 143%;
+}
+.THIS .authActive {
+    left: 30px;
+    width: 150%;
+}
+.THIS .maxValue {
+    width: 70px;
+    left: 5px;
+}
+
+.THIS .slds-select_container {
+    bottom: 5px;
+}
+
+ .THIS .slds-size_4-of-12 {
+ 	margin-right: -35px;
+ }
+
+.THIS .risk-type-label {
+    margin-top: -8px;
+}
+.THIS .label-check{
+    display: inline-flex;
+    width: 173px;
+}
+
+.THIS .label-values{
+    display: flex;
+    margin-top: 10px;
+}
+.THIS .routing-options{
+    width: 68%;
+}
+.THIS .routing-auth{
+    display: flex;
+    margin-left: 22px;
+}
+.THIS .routing-unauth{
+    display: flex;
+    margin-top: 10px;
+}
+.THIS .show-details{
+    display: flex;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    margin-left: 22px;
+}

@@ -1,0 +1,33 @@
+.THIS {
+}
+
+.THIS .section-2 {
+    font-size: 12px;
+    font-weight: normal;
+    color: #796E6B;
+}
+
+.THIS .status.Completed,
+.THIS .status.COMPLETED {
+    color: #70CF7F;
+}
+
+.THIS .status.Failed,
+.THIS .status.FAILED {
+    color: red;
+}
+
+.THIS .status.Refunded,
+.THIS .status.REFUNDED,
+.THIS .status.Processing,
+.THIS .status.PROCESSING {
+    color: #F5A623;
+}
+.THIS .status.Closed,
+.THIS .status.CLOSED {
+    color: #2B2826;
+}
+
+.THIS .mouseover-col .ico_container {
+    display: inline-block!important;
+}

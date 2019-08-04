@@ -1,0 +1,43 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">
+    <aura:attribute name="openGrantContent" type="boolean" default="false"/>
+    <aura:attribute name="openGrantAward" type="boolean"/>
+    <aura:attribute name="openGrantFlow" type="boolean"/>
+    <aura:attribute name="openGrantResponse" type="boolean"/>
+    <aura:attribute name="backButtonPress" type="boolean" default="false"/>
+    
+    <aura:attribute name="responseData" type="Map" /> 
+    <aura:attribute name="selectedPersona" type="Map" /> 
+    
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="selectedProduct" type="String" access="public"/>
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="configUIData" type="Object" />
+    
+    <aura:attribute name="allFilterData" type="List"/> 
+    <aura:attribute name="globalSelectionMap" type="Map"/>   
+    
+    <aura:attribute name="successData" type="List" default="[]"/>
+    <aura:attribute name="failedData" type="List" default="[]"/>
+    
+    <aura:handler name="backActionEvent" event="c:GrantComponentEvent" action="{!c.handleBackPress}"/>
+    <aura:handler name="grantResetEvent" event="c:GrantComponentEvent" action="{!c.resetValues}"/>
+    
+    <aura:attribute name="product" type="Object" />
+    
+    <!-- Generic permission variables - TSM-2910, TSM-2911, TSM-2912 -->
+    <aura:attribute name="genericConfigurationData" type="Object" default="{}"/>
+
+    <aura:if isTrue="{!v.openGrantContent == true}">
+        <c:GrantItemInformation product="{!v.product}" backButtonPress="{!v.backButtonPress}" selectedProduct="{!v.selectedProduct}" nucleusId="{!v.nucleusId}" selectedPersona="{!v.selectedPersona}" 
+                                configUIData="{!v.configUIData}" openGrantAward="{!v.openGrantAward}" openGrantContent="{!v.openGrantContent}" allFilterData="{!v.allFilterData}" globalSelectionMap="{!v.globalSelectionMap}"/>
+    </aura:if> 
+    
+    <aura:if isTrue="{!v.openGrantAward == true}">
+        <c:GrantContentAwardSection product="{!v.product}" caseId="{!v.caseId}" selectedProduct="{!v.selectedProduct}" nucleusId="{!v.nucleusId}" selectedPersona="{!v.selectedPersona}"
+                                    configUIData="{!v.configUIData}" openGrantContent="{!v.openGrantContent}" openGrantAward="{!v.openGrantAward}" responseData="{!v.responseData}" openGrantResponse="{!v.openGrantResponse}" allFilterData="{!v.allFilterData}" globalSelectionMap="{!v.globalSelectionMap}" genericConfigurationData="{!v.genericConfigurationData}"/>
+    </aura:if> 
+    
+    <aura:if isTrue="{!v.openGrantResponse == true}">
+        <c:GrantResultDialog successData="{!v.successData}" failedData="{!v.failedData}" openGrantResponse="{!v.openGrantResponse}" responseData="{!v.responseData}"/>
+    </aura:if> 
+</aura:component>

@@ -1,0 +1,538 @@
+<aura:component controller="FraudAdminToolController">
+    <aura:handler name = "init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    <aura:attribute name="activeSections" type="List" default="[]"/>
+	<aura:attribute name="Weights" type="Integer[]" default="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100"/>
+	<aura:attribute name="contractWeight" type="Integer[]" default="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99"/>
+    <aura:attribute name="negativeWeights" type="Integer[]" default="0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31,-32,-33,-34,-35,-36,-37,-38,-39,-40,-41,-42,-43,-44,-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,-57,-58,-59,-60,-61,-62,-63,-64,-65,-66,-67,-68,-69,-70,-71,-72,-73,-74,-75,-76,-77,-78,-79,-80,-81,-82,-83,-84,-85,-86,-87,-88,-89,-90,-91,-92,-93,-94,-95,-96,-97,-98,-99"/>
+	<aura:attribute name="hours" type="Integer[]" default="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24"/>
+	<aura:attribute name="days" type="Integer[]" default="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30"/>
+	<aura:attribute name="grants" type="Integer[]" default="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"/>
+	<aura:attribute name="deletions" type="Integer[]" default="1,2,3,4,5,6,7,8,9"/>
+	<aura:attribute name="sets" type="Integer[]" default="1,2,3"/>
+    <aura:attribute name="weeks" type="Integer[]" default="1,2,3,4"/>
+    <aura:attribute name="oldRiskCriteriaOBJ" type="Object"/>
+    <aura:attribute name="newRiskCriteriaOBJ" type="Object"/>
+    <aura:registerEvent name="riskCriteriaEvent" type="c:RiskCriteriaChangeEvent"/>
+    <!--aura:handler event="c:PreviousHistoryDetails" action="{!c.handlePreviousHistoryDetails}"/-->
+    
+    <lightning:accordion aura:id="accordion" allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }" activeSectionName="{! v.activeSections }">
+        <lightning:accordionSection name="Account" label="Account Properties">
+            <lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>1 Jan Birthday</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="birthdayRule" value ="{!v.newRiskCriteriaOBJ.birthdayRule.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                   <div class="rule-item">
+					<label>Account created in the last &nbsp;</label>
+					<lightning:select name="accountCreatedHours" value = "{!v.newRiskCriteriaOBJ.accountCreatedHours.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.hours}" var="hour">
+								<option text="{!hour}"></option>
+							</aura:iteration>
+					</lightning:select>&nbsp;hours
+                   </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="accountCreatedHoursWeight" value = "{!v.newRiskCriteriaOBJ.accountCreatedHours.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Zero Account Value</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="zeroAccoutValue" value = "{!v.newRiskCriteriaOBJ.zeroAccountValue.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>No Session data related to case</label>
+				</lightning:layoutItem>
+                <lightning:layoutItem>
+					<lightning:select  class="noSessionData" value = "{!v.newRiskCriteriaOBJ.noSessionData.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Gibberish Email</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="gibberishEmail" value = "{!v.newRiskCriteriaOBJ.gibberishEmail.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Gibberish Name</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="gibberishName" value = "{!v.newRiskCriteriaOBJ.gibberishName.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>All Account Properties Scored</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="AllAccountProperties" value = "{!v.newRiskCriteriaOBJ.allAccountPropertiesScored.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+        </lightning:accordionSection>
+        <lightning:accordionSection name="Location" label="Location">
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Change in location</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="changeInLocation" value = "{!v.newRiskCriteriaOBJ.changeInLocation.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+            
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem size="1">
+					<label>&nbsp;</label>
+				</lightning:layoutItem>
+                <lightning:layoutItem>
+                	<ui:inputCheckbox aura:id="checkbox" label="" value="{!v.newRiskCriteriaOBJ.unauthenticatedLocationMultiplier.customAttributeValue}" change="{!c.onChangeEvent}"/>
+                </lightning:layoutItem>    
+				<lightning:layoutItem size="6">
+					<label>&nbsp; Unauthenticated Multiplier</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  name="changeInLocation" value = "{!v.newRiskCriteriaOBJ.unauthenticatedLocationMultiplier.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+        </lightning:accordionSection>
+        <lightning:accordionSection name="Contact" label="Contact Behaviour">
+		
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                   <div class="rule-item">
+					<label>Self-Service in past &nbsp;</label>
+                     <lightning:select name="SelfServiceDays" value = "{!v.newRiskCriteriaOBJ.selfServiceRule.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.days}" var="day">
+								<option text="{!day}"></option>
+							</aura:iteration>
+					</lightning:select>
+                   &nbsp;days (per case)
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="SelfServiceDaysWeight" value = "{!v.newRiskCriteriaOBJ.selfServiceRule.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<label>Contacting&nbsp;</label>
+					<lightning:select class="contactingDays" name="contactingDays" value = "{!v.newRiskCriteriaOBJ.numberOfContacts.customAttributeValue}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.contractWeight}" var="day">
+								<option text="{!day}"></option>
+							</aura:iteration>
+					</lightning:select>
+					<label>&nbsp;times in&nbsp;</label>
+                    <lightning:select name="numberOfMinutes" value = "{!v.newRiskCriteriaOBJ.numberOfMinutes.weight}" label="" onchange="{!c.onChangeEvent}">
+                            <aura:iteration items="{!v.contractWeight}" var="Weight">
+                                    <option text="{!Weight}"></option>
+                                </aura:iteration>
+                    </lightning:select>
+                        <label>&nbsp;min</label>
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="numberOfDaysWeight" value = "{!v.newRiskCriteriaOBJ.numberOfContacts.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+                        <label>Contacting&nbsp;</label>
+                        <lightning:select name="contactingDays" value = "{!v.newRiskCriteriaOBJ.numberOfContactsDays.customAttributeValue}"  label="" onchange="{!c.onChangeEvent}">
+                            <aura:iteration items="{!v.contractWeight}" var="Weight">
+                                    <option text="{!Weight}"></option>
+                                </aura:iteration>
+                        </lightning:select>
+                        <label >&nbsp;times in&nbsp;</label>
+                        <lightning:select name="numberOfMinutes" value = "{!v.newRiskCriteriaOBJ.numberOfDays.weight}" label="" onchange="{!c.onChangeEvent}">
+                            <aura:iteration items="{!v.days}" var="Weight">
+                                    <option text="{!Weight}"></option>
+                                </aura:iteration>
+                        </lightning:select>
+                        <label >&nbsp;days</label>
+                   </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="numberOfDaysWeight" value = "{!v.newRiskCriteriaOBJ.numberOfContactsDays.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.contractWeight}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+            <!-- added for VBR-545 - Weeks Started-->
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<label>Contacting&nbsp;</label>
+					<lightning:select name="contactingDays" value = "{!v.newRiskCriteriaOBJ.numberOfContactsInWeeks.customAttributeValue}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.contractWeight}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+					<label>&nbsp;times in&nbsp;</label>
+					<lightning:select name="numberOfMinutes" value = "{!v.newRiskCriteriaOBJ.numberOfWeeks.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.weeks}" var="week">
+								<option text="{!week}"></option>
+							</aura:iteration>
+					</lightning:select>
+                        <label>&nbsp;Weeks</label>
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="numberOfDaysWeight" value = "{!v.newRiskCriteriaOBJ.numberOfContactsInWeeks.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+            <!-- added for VBR-545 END-->
+            <lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<lightning:select name="contactingDays" value = "{!v.newRiskCriteriaOBJ.tosDisputeRule.customAttributeValue}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+					<label>&nbsp;TOS Cases in&nbsp;</label>
+					<lightning:select name="numberOfMinutes" value = "{!v.newRiskCriteriaOBJ.numberOfTOSContactsDays.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+                        <label>&nbsp;days</label></div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="numberOfDaysWeight" value = "{!v.newRiskCriteriaOBJ.tosDisputeRule.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+            <!-- VBR-547 -->
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<lightning:select name="numberOfPaymentFailures" value = "{!v.newRiskCriteriaOBJ.paymentFailureRule.customAttributeValue}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+					<label>&nbsp;Payment failures (per account) in &nbsp;</label>
+				<lightning:select name="numberOfDaysFailure" value = "{!v.newRiskCriteriaOBJ.numberOfDaysFailure.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.days}" var="day">
+								<option text="{!day}"></option>
+							</aura:iteration>
+					</lightning:select>
+                        <label >&nbsp;days</label></div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="paymentFailuresWeight" value = "{!v.newRiskCriteriaOBJ.paymentFailureRule.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+            <!--VBR-547 Ends -->
+            
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Past high fraud cases (per case)</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="pastFraudCountWeight" value ="{!v.newRiskCriteriaOBJ.fraudCaseCount.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Fraud Flag selected</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="FraudFlagWeight" value ="{!v.newRiskCriteriaOBJ.customerFlag.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>VOG phishing cases (per case)</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="VOGPhishingWeight" value ="{!v.newRiskCriteriaOBJ.vogPhishing.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>All Contact Behavior Scored</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="AllContactBehaviourWeight" value ="{!v.newRiskCriteriaOBJ.allContactBehaviorScored.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+                
+        </lightning:accordionSection>
+		<lightning:accordionSection name="Fifa" label="FIFA Rules">
+            
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>W/L Record of 0:10</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="winLossRationWeight" value ="{!v.newRiskCriteriaOBJ.winLossRatio.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<lightning:select name="clubDeletionNumber" value = "{!v.newRiskCriteriaOBJ.clubDeletion.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.deletions}" var="deletion">
+								<option text="{!deletion}"></option>
+							</aura:iteration>
+					</lightning:select>
+                        <label>&nbsp;+ FUT Club Deletions</label>
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="clubDeletionWeight" value = "{!v.newRiskCriteriaOBJ.clubDeletion.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+                		<ui:inputCheckbox aura:id="checkbox" label="" value="{!v.newRiskCriteriaOBJ.winLossAndClubDeletion.customAttributeValue}" change="{!c.onChangeEvent}"/>
+                        <label>&nbsp; W/L + Club Deletions</label>
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="MultipleCriteriaWeight" value = "{!v.newRiskCriteriaOBJ.winLossAndClubDeletion.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<lightning:select name="personasNumber" value = "{!v.newRiskCriteriaOBJ.multiplePersonasCriteria.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.deletions}" var="deletion">
+								<option text="{!deletion}"></option>
+							</aura:iteration>
+					</lightning:select>
+                        <label>&nbsp;+ Personas</label>
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="multiplePersonaWeight" value = "{!v.newRiskCriteriaOBJ.multiplePersonasCriteria.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+                <lightning:layoutItem size="9">
+                    <div class="rule-item">
+					<lightning:select name="grantsNumber" value = "{!v.newRiskCriteriaOBJ.multipleGrantCriteria.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.grants}" var="grant">
+								<option text="{!grant}"></option>
+							</aura:iteration>
+					</lightning:select>
+                        <label>&nbsp;+ Grants</label>
+                    </div>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select class="grantsWeight" value = "{!v.newRiskCriteriaOBJ.multipleGrantCriteria.weight}"  label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>Active FIFA Ban</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="activeFifaBanWeight" value ="{!v.newRiskCriteriaOBJ.franchiseBanCriteria.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+			<lightning:layout multipleRows="true">
+				<lightning:layoutItem size="9">
+					<label>All FIFA Scored</label>
+				</lightning:layoutItem>
+				<lightning:layoutItem>
+					<lightning:select  class="allFifaScoredWeight" value ="{!v.newRiskCriteriaOBJ.allFIFAScored.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.Weights}" var="Weight">
+								<option text="{!Weight}"></option>
+							</aura:iteration>
+					</lightning:select>
+				</lightning:layoutItem>
+			</lightning:layout>
+			
+        </lightning:accordionSection>
+    </lightning:accordion>
+
+	<div class="master-rules">
+		<lightning:layout multipleRows="true">
+			<lightning:layoutItem size="9" >
+               <div class="rule-item"> 
+                    <lightning:select name="setsNumber" value = "{!v.newRiskCriteriaOBJ.completeSet.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+                        <aura:iteration items="{!v.sets}" var="set">
+                                <option text="{!set}"></option>
+                            </aura:iteration>
+                    </lightning:select>&nbsp;or more complete set
+               </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem>
+				<lightning:select class="complete-set-weight" name="setsWeight" value = "{!v.newRiskCriteriaOBJ.completeSet.weight}"  label="" onchange="{!c.onChangeEvent}">
+					<aura:iteration items="{!v.Weights}" var="Weight">
+							<option text="{!Weight}"></option>
+						</aura:iteration>
+				</lightning:select>
+			</lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout multipleRows="true">   
+	        <lightning:layoutItem size="9">Customer Value - Platinum</lightning:layoutItem>
+				<lightning:layoutItem>
+            		<lightning:select class="customerValueWeight" name="customerValueWeight" value = "{!v.newRiskCriteriaOBJ.customerValue.weight}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.negativeWeights}" var="Weight">
+							<option text="{!Weight}"></option>
+						</aura:iteration>
+					</lightning:select>
+			</lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout multipleRows="true">
+	        <lightning:layoutItem size="9">
+               <div class="rule-item"> 
+				Cool Down for &nbsp;
+				<lightning:select name="coolDownDays" value = "{!v.newRiskCriteriaOBJ.coolDown.customAttributeValue}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.days}" var="day">
+								<option text="{!day}"></option>
+							</aura:iteration>
+					</lightning:select>&nbsp;days
+                </div> 
+            </lightning:layoutItem> 
+			<lightning:layoutItem>
+                        <lightning:select class="coolDownWeight" name="coolDownWeight" value = "{!v.newRiskCriteriaOBJ.coolDown.weight}"  label="" onchange="{!c.onChangeEvent}">
+                            <aura:iteration items="{!v.negativeWeights}" var="Weight">
+                                    <option text="{!Weight}"></option>
+                                </aura:iteration>
+                        </lightning:select>
+                        
+	        </lightning:layoutItem>
+        </lightning:layout>
+        <lightning:layout multipleRows="true">
+	        <lightning:layoutItem size="9">
+	               Turn on the Fraud Flag after number of Fraud Cases
+            </lightning:layoutItem>   
+            <lightning:layoutItem>
+					<lightning:select class="fraud-flag-weight" name="setsWeight" value = "{!v.newRiskCriteriaOBJ.autoFraudFlag.weight}" label="" onchange="{!c.onChangeEvent}">
+	                    <aura:iteration items="{!v.Weights}" var="Weight">
+	                            <option text="{!Weight}"></option>
+	                        </aura:iteration>
+	                </lightning:select>
+	         </lightning:layoutItem>
+	     </lightning:layout>  
+	</div> 
+
+</aura:component>

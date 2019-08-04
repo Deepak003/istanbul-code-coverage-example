@@ -1,0 +1,36 @@
+.THIS {
+    min-height: 100px;
+}
+
+.THIS .update-type-icon svg {    
+    background: #08b1f5;
+    width: 24px;
+    height: 24px;
+    border-radius: 20%;
+    padding: t(spacingXxSmall);
+    fill: white;
+}
+
+.THIS .case-update-header .title {
+    font-weight : bold;
+    font-size : 13px;
+}
+
+.THIS .case-update-header .description {
+    font-size : 13px;
+    color : #706E6B;
+}
+
+.THIS .relative-time{
+    font-size : 13px;
+    color : #706E6B;
+}
+
+.THIS .title {
+    font-size: 12px;
+    color: #3e3e3c;
+}
+
+.THIS .pointer {
+    cursor : pointer;
+}

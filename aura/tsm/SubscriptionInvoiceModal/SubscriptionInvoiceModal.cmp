@@ -1,0 +1,56 @@
+<aura:component>
+    <aura:attribute name="isOpen" type="boolean" default="true" access="public" />
+    <aura:attribute name="subscription" type="Map" access="public" />
+    <aura:attribute name="nucleusId" type="String" access="public" />
+    <aura:attribute name="caseId" type="String" access="public" />
+    <aura:attribute name="subscriptionType" type="String" />
+    <aura:attribute name="accountId" type="String"/>
+    
+    <aura:attribute name="invoices" type="List" access="private" />
+    <aura:attribute name="transactionLogModal" type="Map" access="private" default="{}"/>
+    <aura:attribute name="resendInvoiceModal" type="Map" access="private" default="{}"/>
+    <aura:attribute name="refundModal" type="Map" access="private" default="{}"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:handler name="change" value="{! v.subscription }" action="{! c.doInit }"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="Map" />
+    
+    <aura:if isTrue="{!v.isOpen}"> 
+        <c:ParentModal isModalOpen="{!v.isOpen}" title="View Invoices">
+            <aura:set attribute="class" value="modal-large" />
+            <aura:set attribute="success" value="Close"/>
+            <aura:set attribute="cancel" value=""/>
+            <aura:set attribute="clickClose" value="false" />
+            <aura:set attribute="onSuccess" value="{!c.handleCloseClick}"/>
+            <aura:set attribute="content">
+                <aura:if isTrue="{! empty(v.invoices) }">
+                    <c:EmptyState message="No Invoice Details."></c:EmptyState>
+                    <aura:set attribute="else">
+                        <aura:iteration items="{!v.invoices}" var="row" indexVar="idx">
+                            <aura:if isTrue="{! idx != 0 }">
+                                <hr style="border: 1px solid #d8d8d8; background: #d8d8d8;"></hr>
+                            </aura:if>
+                            <c:SubscriptionInvoiceDetails accountMaskingList="{!v.accountMaskingList}" subscription="{!v.subscription}" data="{! row }" onClickViewLog="{! c.onClickViewLog }" onClickResend="{! c.onClickResend }" onClickRefund="{! c.handleRefund }" />
+                        </aura:iteration>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </c:ParentModal>
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.transactionLogModal.isOpen}">
+        <c:TransactionLog invoiceId="{!v.transactionLogModal.data.invoiceId}" openTransactionLogs="{!v.transactionLogModal.isOpen}"/>
+    </aura:if>
+    
+     <aura:if isTrue="{!v.resendInvoiceModal.isOpen}">
+        <c:ResendInvoice invoiceId="{!v.resendInvoiceModal.data.invoiceId}" nucleusId= "{!v.nucleusId}" openResendInvoice="{!v.resendInvoiceModal.isOpen}" />
+    </aura:if>
+    
+    <aura:if isTrue="{!v.refundModal.isOpen}">
+        <c:RefundSubscriptionModal isOpen="{!v.refundModal.isOpen}" subscriptionType="{!v.subscriptionType}" data="{! v.refundModal.invoice }" subscription="{! v.subscription }" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+    </aura:if>
+    
+</aura:component>

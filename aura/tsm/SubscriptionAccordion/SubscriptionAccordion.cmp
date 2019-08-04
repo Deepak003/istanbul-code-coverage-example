@@ -1,0 +1,355 @@
+<aura:component controller="SubscriptionsAuraCtl">
+    
+    <aura:attribute name="previousSubscriptions" type="List" />
+    <aura:attribute name="currentSubscription" type="Object" />
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="subscriptionType" type="String" />
+    <aura:attribute name="stopOrCancel" type="String" />
+    <aura:attribute name="openSection" type="Boolean" default="false"/>
+    <aura:attribute name="onClickAddSubscription" type="Aura.Action" />
+    <aura:attribute name="stopSubscriptionModal" type="Map" access="private" default="{}" description="State of Stop Subscription Modal"/>
+    <aura:attribute name="modifySubscriptionModal" type="Map" access="private" default="{}" description="State of Modify Subscription Modal"/>
+    <aura:attribute name="stopSubscriptionObj" type="Object" access="private"/>
+    <aura:attribute name="modifySubscriptionObj" type="Object" access="private"/>    
+    <aura:handler event="c:ResetSubscriptionAccordian" action="{!c.handleResetSubscriptionAccordian}"/>
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="billingAccList" type="List" default=""/>
+    <aura:attribute name="showAddSubscription" type="Boolean" default="false"/>
+    <aura:attribute name="showSubscriptionButton" type="Boolean" default="true"/>
+    <aura:attribute name="invoiceModal" type="Map" default="{}" access="private"/>
+	<aura:attribute name="accountId" type="String"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:handler event="c:AddSubscriptionEvent" action="{!c.closeModal}"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="Map" />
+    
+    <div class="{!join(' ','slds-section backgroundColor',v.openSection ? 'slds-is-open slds-m-bottom_medium' : (v.subscriptionType == 'Origin' ? 'slds-m-bottom_large' : 'slds-m-bottom_medium'))}" >
+        
+        <!--<div class="slds-section backgroundColor slds-is-open" aura:id="ishaq">-->
+        <h3 class="slds-section__title " onclick="{!c.toggleExpand}">
+            <button aria-controls="expando-unique-id" aria-expanded="true" class="slds-button slds-section__title-action">  
+                <div aura:id="expandableIcon">
+                    <c:SvgIcon
+                               svgPath="{!$Resource.TSM_LDS + '/icons/utility-sprite/svg/symbols.svg#switch'}" 
+                               category="action" 
+                               size="x-small" 
+                               name=""
+                               class="slds-section__title-action-icon slds-button__icon slds-button__icon_left"/>
+                </div>
+                <div aura:id="avatarIcon" class='icon-container slds-m-left_medium'>
+                    <aura:if isTrue="{!(v.subscriptionType == 'Origin' || v.subscriptionType == 'Stacked')}">
+                        <lightning:avatar src="{!$Resource.OriginIcon}" size="small" class="originAvatar"/>
+                    </aura:if> 
+                    <aura:if isTrue="{!(v.subscriptionType == 'Nucleus')}">
+                        <lightning:avatar src="{!$Resource.NucleusSubscriptionIcon}" size="small" />
+                    </aura:if>
+                    <aura:if isTrue="{!(v.subscriptionType == 'EAAccess')}">
+                        <lightning:avatar src="{!$Resource.EAAccessIcon}" size="small" />
+                    </aura:if>
+                </div>
+                <div aura:id="TitleMessage" class="slds-m-left_small lineHeight">
+                    <div containerClass="slds-truncate" class="slds-text-body_regular">
+                        {!v.currentSubscription.title || if(v.subscriptionType == 'Origin', 'Origin Access') }
+                    </div>
+                    <aura:if isTrue="{!(v.subscriptionType == 'Origin')}">
+                        <div containerClass="slds-truncate" class="fontStyle">
+                            <aura:if isTrue="{!not(empty(v.currentSubscription))}">
+                                <aura:if isTrue="{!v.currentSubscription.status == 'PENDINGEXPIRED'}">
+                                    Cancel Effective Date: <c:FormattedDateTime value="{!v.currentSubscription.cancelEffectiveDate}" format="only-date" alternative="N/A" />
+                                    <aura:set attribute="else">
+                                        Next Billing Date: <c:FormattedDateTime value="{!v.currentSubscription.nextBillingDate}" format="only-date" alternative="N/A" />
+                                    </aura:set>
+                                </aura:if>
+                                <aura:set attribute="else">
+                                    No Next Billing Date
+                                </aura:set>
+                            </aura:if>                         
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{!(v.subscriptionType == 'EAAccess')}">
+                        <div containerClass="slds-truncate" class="fontStyle">{!v.currentSubscription.accessDuration}</div>
+                    </aura:if>
+                </div>
+                <div>
+                    <aura:if isTrue="{!(v.subscriptionType == 'Stacked')}">
+                        <lightning:badge label="STACK CARDS" class="slds-p-left_medium slds-p-right_medium slds-m-right_small badgeBackground" />
+                    </aura:if>
+                    <aura:if isTrue="{!(v.subscriptionType == 'Origin')}">
+                        <lightning:badge label="{!v.currentSubscription.status}" class="{! join(' ',
+                                                                                        'slds-p-left_medium slds-p-right_medium slds-m-right_small slds-m-right_xx-large badgeBackground',
+                                                                                        if(v.currentSubscription.status == 'PENDINGEXPIRED', 'badgeBackground_yellow')
+                                                                                        ) }" />
+                    </aura:if>
+                    <aura:if isTrue="{!(v.subscriptionType == 'EAAccess')}">
+                        <lightning:badge label="{!v.currentSubscription.status}" class="slds-p-left_medium slds-p-right_medium slds-m-right_small badgeBackground" />
+                    </aura:if>
+                </div>               
+            </button>
+        </h3>
+        
+        
+        <aura:if isTrue="{! and(v.currentSubscription, v.currentSubscription.status == 'STACK CARDS') }">
+            <div class="slds-text-align_right buttonMenuMargin slds-m-right_small">
+                <lightning:buttonMenu aura:id="menu" onselect="{! c.handleStackedSelect }" alternativeText="Show menu" menuAlignment="right" iconSize="small">
+                    <lightning:menuItem value="Stop" label="Stop Subscription (Immediate)" disabled="{!not(v.accountMaskingList.StopSubscription)}"/>
+                </lightning:buttonMenu>
+            </div>
+            <aura:set attribute="else">
+                <aura:if isTrue="{!and(v.subscriptionType == 'Origin', or(v.currentSubscription.status == 'ACTIVE',v.currentSubscription.status == 'PENDINGEXPIRED'))}">
+                    <div class="slds-text-align_right buttonMenuMargin slds-m-right_small">
+                        <lightning:buttonMenu aura:id="menu" onselect="{! c.handleSelect }" alternativeText="Show menu" menuAlignment="right" iconSize="small">
+                            <lightning:menuItem value="Stop" label="Stop Subscription (Immediate)" disabled="{!not(v.accountMaskingList.StopSubscription)}"/>
+                            <lightning:menuItem value="Modify" label="Modify Subscription" disabled="{!not(v.accountMaskingList.ModifySubscription)}"/>
+                            <aura:if isTrue="{!v.currentSubscription.status == 'ACTIVE'}">
+
+                                <!-- commenting this as part of  TSM-2990 -->
+                                <!--lightning:menuItem value="Add" label="Add Subscription Time" /-->
+                                
+                                <lightning:menuItem value="Cancel" label="Cancel Subscription (Scheduled)" disabled="{!not(v.accountMaskingList.CancelSubscription)}"/>
+                            </aura:if>
+                        </lightning:buttonMenu>
+                    </div>
+                </aura:if>
+            </aura:set>            
+        </aura:if>
+        
+        
+        <div aria-hidden="true" class="slds-section__content">
+            <aura:if isTrue="{!(v.subscriptionType == 'Origin')}">
+                <aura:if isTrue="{!not(empty(v.currentSubscription))}">
+                    <div class="slds-m-top_medium slds-m-bottom_medium" >
+                        <div class="slds-m-right_medium">                        
+                            <div class="slds-text-body_small edit-field-label">Current Subscription</div>
+                            <div class="slds-text-body_regular">{!v.currentSubscription.productName || 'N/A'}</div>
+                        </div>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!not(empty(v.currentSubscription))}">
+                    <div class="slds-grid slds-m-bottom_medium">
+                        <div class="slds-size_4-of-12">
+                            <div class="slds-text-body_small edit-field-label">Start Date</div>
+                            <div class="slds-text-body_regular">
+                                <!--<ui:outputDateTime value="{!v.currentSubscription.startDate}" format="MMM/d/Y"/>-->
+                                <c:FormattedDateTime value="{!v.currentSubscription.startDate}" format="only-date" alternative="N/A" />
+                            </div>
+                        </div>
+                        <div class="slds-size_4-of-12" >
+                            <div class="slds-text-body_small edit-field-label" >End Date</div>
+                            <div class="slds-text-body_regular" >
+                                <!--<ui:outputDateTime value="{!v.currentSubscription.endDate}" format="MMM/d/Y"/>-->
+                                <c:FormattedDateTime value="{!v.currentSubscription.endDate}" format="only-date" alternative="N/A" />
+                            </div>
+                        </div>
+                        <div class="slds-size_4-of-12" >
+                            <div class="slds-text-body_small edit-field-label" >Recurring</div>
+                            <div class="slds-text-body_regular">{!v.currentSubscription.recurring || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <aura:if isTrue="{! not(empty(v.currentSubscription.upcomingSubscriptionOption)) }">
+                        <div class="slds-m-bottom_medium">                          
+                            <div class="slds-text-body_small edit-field-label">Upcoming Subscription</div>
+                            <div class="slds-text-body_regular">{!v.currentSubscription.upcomingSubscriptionOption.productName}</div>                            
+                        </div>
+                    </aura:if>
+                    <div class="slds-grid slds-m-bottom_medium">
+                        <lightning:button label="View Invoice" title="View Invoice" value="{!v.currentSubscription.subscriptionId}" onclick="{! c.openInvoices }" />
+                    </div>
+                    <aura:set attribute="else">
+                        <div class="slds-text-body_regular slds-m-top_xx-small">No subscription</div>
+                        <aura:if isTrue="{!v.showSubscriptionButton}">
+                            <lightning:button label="Add Subscription" title="Neutral action" class="slds-m-top_medium" onclick="{!c.addSubscription}"/>
+                            <aura:set attribute="else">
+                                No billing method found, 
+                                <lightning:button variant="base" label="Copy Secure Purchase Link" iconPosition="left" onclick="{!c.copy}"/>
+                                <TEXTAREA ID="holdtext" style="width: 0px; height: 0px; opacity: 0;">
+                                    https://integration.www.x.origin.com/store/origin-access/wwce
+                                </TEXTAREA>
+                            </aura:set>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+                <div class="slds-text-heading_small slds-m-bottom_medium slds-m-top_medium">
+                    <strong>Previous Subscriptions</strong>
+                </div>
+            </aura:if>
+            <!-- Start - Table Heading -->
+            <aura:if isTrue="{!(v.subscriptionType == 'Origin' || v.subscriptionType == 'Nucleus')}">
+                <div class="slds-border_bottom slds-grid tsm-table-heading">
+                    <div class="slds-size_7-of-12">
+                        <div class="slds-text-body_regular edit-field-label slds-p-left_xx-large">PRODUCT NAME</div>
+                    </div>
+                    <div class=" slds-size_2-of-12" >
+                        <div class="slds-text-body_regular edit-field-label" >STATUS</div>
+                    </div>
+                    <div class=" slds-size_2-of-12" >
+                        <div class="slds-text-body_regular edit-field-label" >DATE</div>
+                    </div>
+                </div>
+            </aura:if>
+            <!-- End - Table Heading -->
+            
+            <!-- Start - Table Content -->
+            <aura:iteration items="{!v.previousSubscriptions}" var="row" indexVar="idx">
+                <div class="slds-border_bottom" aria-controls="{!idx}" aria-expanded="false">
+                    <div class="slds-grid tsm-table-row slds-grid_vertical-align-center slds-grid_align-center"
+                         data-index="{!idx}" onclick="{!c.expandClick}">
+                        <div class="slds-size_7-of-12">
+                            <div class="slds-truncate link-column" data-row="{!idx}" data-pk="{!row.pk}" >
+                                <aura:if isTrue="{!(v.subscriptionType == 'Origin' || v.subscriptionType == 'Nucleus')}">
+                                    <span class="slds-icon_container slds-p-left_medium">
+                                        <lightning:buttonIcon variant="bare" size="small" 
+                                                              class="slds-m-right_xx-small" 
+                                                              iconName="{!row.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                    </span>
+                                </aura:if>
+                                <span class="slds-text-body_regular slds-p-left_small">{!row.productName || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="slds-size_2-of-12">
+                            <span class="slds-text-body_regular">{!row.status || 'N/A'}</span>
+                        </div>
+                        
+                        <div class="slds-size_2-of-12">
+                            <aura:if isTrue="{!(v.subscriptionType == 'Origin' || v.subscriptionType == 'Nucleus')}">
+                                <!--<ui:outputDateTime value="{!row.dateCreated}" format="MMM/d/Y"/>-->
+                                <c:FormattedDateTime value="{!row.dateCreated}" format="only-date" alternative="N/A" />
+                            </aura:if>
+                        </div>
+                        
+                        
+                        <div class="slds-size_1-of-12" onclick="{!c.suppressExpandClick}">
+                            <div class="slds-text-align_right">
+                                <aura:if isTrue="{! row.subscriptionType == 'Stacked' }">                                    
+                                    <lightning:buttonMenu aura:id="menu" onselect="{! c.handleStackedSelect }" alternativeText="Show menu" menuAlignment="right" iconSize="small">
+                                        <lightning:menuItem value="Stop" label="Stop Subscription (Immediate)" disabled="{!not(v.accountMaskingList.StopSubscription)}"/>
+
+                                        <!-- commenting this as part of  TSM-2990 -->
+                                        <!--aura:if isTrue="{! row.status == 'ACTIVE' }">
+                                            <lightning:menuItem value="Add" label="Add Time" />
+                                        </aura:if-->
+
+                                    </lightning:buttonMenu>                                    
+                                </aura:if>
+                                <aura:if isTrue="{! and(v.subscriptionType == 'Nucleus', row.status == 'ACTIVE') }">                                
+                                    <lightning:buttonMenu aura:id="menu" value="{!row}" onselect="{! c.handleSelectNuclues }" alternativeText="Show menu" menuAlignment="right" iconSize="small">
+                                        <lightning:menuItem value="Stop" label="Stop Subscription (Immediate)" disabled="{!not(v.accountMaskingList.StopSubscription)}"/>
+                                        <lightning:menuItem value="Cancel" label="Cancel Subscription (Scheduled)" disabled="{!not(v.accountMaskingList.CancelSubscription)}"/>
+                                    </lightning:buttonMenu>                               
+                                </aura:if>                                
+                            </div>
+                        </div>                        
+                    </div>
+                    <aura:if isTrue="{!row.expanded}">
+                        <aura:if isTrue="{!v.subscriptionType == 'Origin'}">
+                            <div class="slds-grid slds-m-bottom_medium slds-p-left_xx-large" >
+                                <div class="slds-size_4-of-12">
+                                    <div class="slds-text-body_small edit-field-label">Start Date</div>
+                                    <div class="slds-text-body_regular">
+                                        <!--<ui:outputDateTime value="{!row.startDate}" format="MMM/d/Y"/>-->
+                                        <c:FormattedDateTime value="{!row.startDate}" format="only-date" alternative="N/A" />                                       
+                                    </div>
+                                </div>
+                                <div class=" slds-size_4-of-12" >
+                                    <div class="slds-text-body_small edit-field-label" >End Date</div>
+                                    <div class="slds-text-body_regular" >
+                                        <!--<ui:outputDateTime value="{!row.endDate}" format="MMM/d/Y"/>-->
+                                        <c:FormattedDateTime value="{!row.endDate}" format="only-date" alternative="N/A" />
+                                    </div>
+                                </div>
+                                <div class=" slds-size_4-of-12" >
+                                    <div class="slds-text-body_small edit-field-label" >Recurring</div>
+                                    <div class="slds-text-body_regular" >{!v.currentSubscription.recurring || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </aura:if>
+                        <aura:if isTrue="{!v.subscriptionType == 'Nucleus'}">
+                            <div class="slds-grid slds-m-bottom_large slds-p-left_xx-large" >
+                                <div class="slds-m-right_xx-small slds-size_4-of-12">
+                                    <div class="slds-text-body_small edit-field-label">Account #</div>
+                                    <div class="slds-text-body_regular">
+                                        <div class="slds-text-body_regular" >{!row.accountNumber || 'N/A'}</div> 
+                                    </div>
+                                </div>
+                                <div class=" slds-size_4-of-12" >
+                                    <div class="slds-text-body_small edit-field-label">Recurring</div>
+                                    <div class="slds-text-body_regular" >
+                                        <div class="slds-text-body_regular" >{!row.recurring || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class=" slds-size_4-of-12" >
+                                    <div class="slds-text-body_small edit-field-label">Duration</div>
+                                    <div class="slds-text-body_regular" >{!row.duration || 'N/A'}</div>
+                                </div>
+                            </div>                          
+                        </aura:if>
+                        <div class="slds-m-bottom_large slds-p-left_xx-large">
+                            <lightning:button label="View Invoice" title="View Invoice" value="{!row.subscriptionId}" onclick="{! c.openInvoices }" />
+                        </div>
+                    </aura:if>                       
+                </div>
+            </aura:iteration>
+            <!-- End - Table Content -->
+            <aura:if isTrue="{!(v.subscriptionType == 'EAAccess')}">
+                <div class="slds-grid slds-m-bottom_medium" >
+                    <div class="slds-size_4-of-12">
+                        <div class="slds-text-body_small edit-field-label">Persona ID</div>
+                        <div class="slds-text-body_regular">
+                            <div class="slds-text-body_regular" >{!v.currentSubscription.personaId || 'N/A'}</div> 
+                        </div>
+                    </div>
+                    <div class=" slds-size_4-of-12" >
+                        <div class="slds-text-body_small edit-field-label" >Display Name</div>
+                        <div class="slds-text-body_regular" >
+                            <div class="slds-text-body_regular" >{!v.currentSubscription.displayName || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class=" slds-size_4-of-12" >
+                        <div class="slds-text-body_small edit-field-label" >Product ID</div>
+                        <div class="slds-text-body_regular slds-truncate" title="{!v.currentSubscription.productId || 'N/A'}">{!v.currentSubscription.productId || 'N/A'}</div>
+                    </div>
+                </div>
+                <div class="slds-grid slds-m-bottom_medium" >
+                    <div class="slds-size_4-of-12">
+                        <div class="slds-text-body_small edit-field-label">Status</div>
+                        <div class="slds-text-body_regular">
+                            <div class="slds-text-body_regular" >{!v.currentSubscription.status || 'N/A'}</div> 
+                        </div>
+                    </div>
+                    <div class=" slds-size_4-of-12" >
+                        <div class="slds-text-body_small edit-field-label" >Recurring</div>
+                        <div class="slds-text-body_regular" >
+                            <div class="slds-text-body_regular" >{!v.currentSubscription.recurring || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class=" slds-size_4-of-12" >
+                        <div class="slds-text-body_small edit-field-label" >Duration</div>
+                        <div class="slds-text-body_regular" >{!v.currentSubscription.duration || 'N/A'}</div>
+                    </div>
+                </div>
+                <div class="slds-m-bottom_large">
+                    <!--titleId >> {!v.currentSubscription.titleId}-->
+                    <!--<lightning:button label="View Invoices" title="View Invoices" value="{!v.currentSubscription.titleId}" onclick="{! c.openInvoices }"/>-->
+                </div>
+            </aura:if>
+        </div>
+    </div>
+    
+    <!-- Stop subscription -->
+    <aura:handler name="refundSubscriptionEventAction" event="c:RefundSubscriptionEvent" action="{!c.handleRefundSubsComponentEvent}"/>
+    <aura:if isTrue="{!v.stopSubscriptionModal.isOpen}">
+        <c:StopSubscription subscriptionType="{!v.subscriptionType}" stopOrCancel="{!v.stopOrCancel}" subscription="{!v.stopSubscriptionObj}" caseId="{!v.caseId}" isOpen="true" offerId="{!v.currentSubscription.offerId}" accountId="{!v.accountId}"/><!-- TSM-2246 -->
+    </aura:if>
+    
+    <!-- Modify subscription -->
+    <aura:if isTrue="{!v.modifySubscriptionModal.isOpen}">
+        <c:ModifySubscription subscription="{!v.modifySubscriptionObj}" caseId="{!v.caseId}" nucleusId="{!v.nucleusId}" accountId="{!v.accountId}" />
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showAddSubscription}">
+        <c:AddSubscription nucleusId="{!v.nucleusId}" billingAccList="{!v.billingAccList}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+    </aura:if>
+    
+    <c:SubscriptionInvoiceModal accountMaskingList="{!v.accountMaskingList}" isOpen="{!v.invoiceModal.isOpen}" subscriptionType="{!v.subscriptionType}" subscription="{!v.invoiceModal.subscription}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+</aura:component>

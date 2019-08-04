@@ -1,0 +1,153 @@
+.THIS {
+}
+
+.THIS .expand-body_label-1 {
+    /*font-size: 14px;
+    color: #2B2826;*/
+    font-weight: bold;
+}
+
+.THIS .expand-body_label-2 {
+    /*font-size: 14px;
+    color: #2B2826;*/
+}
+
+.THIS .details-row:last-child {
+    padding-bottom: 0px;
+}
+
+.THIS th lightning-primitive-header-actions {
+    display: none;
+}
+
+
+/* ================================ Table headings ================================ */
+
+.THIS .tsm-table-heading {    
+    background-color: #FAFAF9;
+}
+
+.THIS .tsm-table-heading_label {
+    line-height: 32px; 
+    vertical-align: middle;
+    font-size: 12px;
+    color: #514f4d;
+}
+
+/* Table row */
+.THIS .tsm-table-row {
+   height: 50px;
+}
+
+.THIS .tsm-table-row_success {
+	background-color: #D8D8D8;
+}
+
+.THIS .tsm-table-row_suspcious-failed {
+	background-color: #FFF8E1;
+}
+
+.THIS .tsm-table-row_suspcious-success {
+	background-color: #D4162D;
+}
+
+/* =================================== Table column ==================================== */
+
+.THIS .tsm-table-col {
+    display: flex;
+}
+
+.THIS .tsm-table-col_items {
+    width: 100%;
+}
+
+.THIS .tsm-table-col_text-primary-item {
+    font-size: 12px;
+    color: #2B2826;
+}
+
+.THIS .tsm-table-col_text-sub-item {
+    font-size: 10px;
+    color: #706E6B;
+}
+
+.THIS .tsm-table-expand-heading_label {
+    font-size: 12px;
+    color: #706E6B;
+}
+
+/* ============================= margin =============================== */
+
+.THIS .tsm-m-vertical_auto {
+    margin: auto 0;
+}
+
+/* =========================== Login Status ========================= */
+
+.THIS .tsm-login_is-success {
+    background : rgb(216,216,216, 0.3);
+}
+
+.THIS .tsm-login_is-failed.tsm-login_is-suspicious {
+    background : #FFF8E1;
+}
+
+.THIS .tsm-login_is-success.tsm-login_is-suspicious {
+    background : rgb(212,22,45,0.3);
+}
+
+/* ============================ Badges ===============================*/
+
+.THIS .status-badge lightning-primitive-cell-wrapper {
+    padding: .25rem .5rem;
+    border-radius: 15rem;
+}
+
+/*
+.THIS .reward-table .status-badge lightning-primitive-cell-wrapper {
+    background-color: #4bca81;
+   	color: white;
+}
+*/
+
+.THIS .trade-table .status-badge lightning-primitive-cell-wrapper {
+    background-color: gray;
+   	color: white;
+}
+
+/* =============================== View Team ======================*/
+
+.THIS.view-team .modal-header {
+    font-size: 20px;
+}
+
+.THIS .modal-large,
+.THIS .modal-small {
+	width: 50%;
+    margin: 0 auto;
+}
+
+.THIS .modal-small + .slds-backdrop_open,
+.THIS .modal-large + .slds-backdrop_open {
+    margin: 0 auto;
+}
+
+.THIS .modal-small .slds-modal__content {
+    height: calc(320px - 117px);
+}
+
+.THIS .modal-large .slds-modal__content {
+    height : calc(440px - 117px);
+}
+
+.THIS .modal-large .slds-modal__container {
+    width: 80%;
+}
+
+.THIS .modal-small .slds-modal__container {
+    width: 50%;
+}
+.THIS .load-more-div {
+    text-align:center;
+    background-color:#fafaf9;
+}

@@ -1,0 +1,67 @@
+<aura:component controller="CaseDetailAuraCtl">
+    <!-- attributes -->
+    <aura:attribute name="activity" type="Object"/>
+    <aura:attribute name="iconList" type="Object" default="{'transfered': 'forward', 'resolved': 'check', 'appended': 'note', 'escalated': 'forward', 'created': 'recent'}"/>
+    <aura:attribute name="caseId" type="String" default=""/>     
+    <aura:attribute name="viewAllFlag" type="Boolean" default="false" />
+    <aura:attribute name="viewCollapse" type="Boolean" default="false" />
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <!-- Methods -->
+    <aura:method name="getCaseNotes" 
+                 action="{!c.getCaseNotes}" 
+                 access="PUBLIC"
+                 description="call the getCaseNotes method" />
+    <div class="slds-is-relative">
+        <ul class="slds-timeline" aura:id="activityTimeline">
+            <aura:iteration items="{!v.activity}" var="activity" indexVar="idx">
+                <li class="{!'activity '+activity.className}" aura:id="activityItem">
+                    <div class="slds-timeline__item_expandable slds-timeline__item_task">
+                        <span class="slds-assistive-text">task</span>
+                        <div class="slds-media">
+                            <div class="{!'slds-media__figure '+ activity.type}">                            
+                                    <lightning:icon class="slds-icon slds-icon_small"  iconName="{!activity.iconType}" size="medium" />
+                            </div>
+                            <div class="slds-media__body">
+                                <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
+        
+                                        <h3 class="slds-truncate" title="{!activity.caseAction}">
+                                            <a class="subject" href="javascript:void(0);">
+                                                {!activity.strCaseAction}
+                                            </a>
+                                        </h3>
+           
+                                    </div>
+                                    <div class="slds-timeline__actions slds-timeline__actions_inline">
+                                        <p class="slds-timeline__date"> {!activity.strLastModifiedDate}<!--<ui:outputDateTime value="{!activity.strLastModifiedDate}" format="MMM/d/Y"/>--></p>
+        
+                                    </div>
+                                </div>
+                                <aura:if isTrue="{!activity.note !=''}">
+                                    <p class="slds-m-horizontal_xx-small thor-white-space">
+                                        <span>Note: </span>{!activity.strCaseNotes}
+                                    </p>
+                                    <p class="slds-m-horizontal_xx-small">
+                                        <span>Advisor: </span><a class="advisor" href="">{!activity.strLastModifiedBy}</a>
+                                    </p>
+                               </aura:if>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </aura:iteration>     
+        </ul>
+		<aura:if isTrue="{!v.viewAllFlag}">
+            <div>
+                <a class="viewAll" onclick="{!c.viewAllClick}">View All</a>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.viewCollapse}">
+            <div>
+                <a class="viewAll" onclick="{!c.collapseClick}">Collapse</a>
+            </div>
+        </aura:if>
+        <lightning:spinner class="slds-is-absolute slds-hide" aura:id="actspinner" variant="brand" size="small"/>
+    </div>
+</aura:component>

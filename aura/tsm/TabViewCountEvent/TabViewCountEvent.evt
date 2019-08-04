@@ -1,0 +1,5 @@
+<!-- Count of petition events -->
+<aura:event type="COMPONENT" description="Event template">
+    <aura:attribute name="queueCnt" type="Integer" default="0" />
+    <aura:attribute name="completedCnt" type="Integer" default="0" />
+</aura:event>

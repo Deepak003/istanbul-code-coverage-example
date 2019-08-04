@@ -1,0 +1,50 @@
+<aura:component controller="HistoryFilterController">
+    <aura:attribute name="modalData" type="Object" access="public" description="Modal data exchange from parent" />
+    <aura:attribute name="parentRow" type="Map" access="public" description="Data from parent" />
+    <aura:attribute name="selectedProduct" type="Map" access="public" description="Selected Product from ProductSnapshort" />
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Selected Persona from ProductSnapshort"/>
+    
+    <aura:attribute name="columns" type="List" access="private" default="" />
+    <aura:attribute name="rows" type="List" access="private" />
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="true" />
+    
+    <!--<aura:handler name="init" value="{! this }" action="{! c.doInit }" />-->
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{! c.doInit }"/>
+    
+    <div class="slds-is-relative">
+        <section role="dialog" class="slds-modal slds-fade-in-open modal-large">
+            <div class="slds-modal__container" aura:id="dialog">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{! c.closeModal }"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">
+                        View Team
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_large slds-is-relative">                    
+                    <aura:if isTrue="{!v.isLoading}">
+                        <lightning:spinner variant="brand" size="small"/>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{! empty(v.rows) }">
+                                <c:EmptyState message="No player available"></c:EmptyState>
+                                <aura:set attribute="else">
+                                    <lightning:datatable
+                                                         columns="{! v.columns }"
+                                                         data="{! v.rows }"
+                                                         class="view-table"
+                                                         keyField="id"
+                                                         hideCheckboxColumn="true"
+                                                         resizeColumnDisabled="true"/>
+                                </aura:set>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                </div>                
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

@@ -1,0 +1,54 @@
+.THIS {
+    background: token(homepageComponentBackgroundColor);
+    height: token(homepageComponentHeight); 
+    overflow-y: auto;
+}
+.THIS .slds-card {
+    height: 8rem;
+    cursor: pointer;
+}
+.THIS .bColor{
+    background-color: #16325c;
+}
+.THIS .scope-promotion{
+    color : white;
+    background-color : #4bca81;
+}
+.THIS .scope-promotionBlue{
+    color : white;
+    background-color : rgb(0, 57, 107);
+}
+.THIS .scope-notpublic{
+    color : #969492;
+    background-color : rgb(233, 234, 236);
+}
+.THIS .dateField{
+    color: grey;
+    font-size: 10px;
+    padding-bottom: 0.25rem;
+}
+.THIS .slds-card__header{
+    margin-bottom: -0.75rem;
+    margin-left: -0.25rem;
+    font-weight: bold;
+}
+.THIS .slds-text-heading_small {
+    font-size: 12px;
+}
+.THIS .textField{
+    font-size: 10px;
+    padding-bottom: 14px;
+}
+
+.THIS .icon-container {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.THIS .icon-container lightning-primitive-icon svg{
+    height: token(homepageComponentIconHeight);
+    width: token(homepageComponentIconWidth);
+}
+.THIS .colorCss{
+    color: t(colorGray9);
+}

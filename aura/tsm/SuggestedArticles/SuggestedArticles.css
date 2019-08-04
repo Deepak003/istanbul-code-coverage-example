@@ -1,0 +1,40 @@
+.THIS .font-bold{
+    font-weight:bold;
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS h2 span{
+    font-weight:bold;
+    font-size: 0.75rem;
+}
+.THIS p{
+    font-size: 0.625rem;
+}
+.THIS .body-text-small{
+    font-size: 0.625rem;
+}
+.THIS .card-details:hover{
+    border-color: #1589ee;
+    cursor: pointer;
+}
+.THIS .scope-internal{
+    color : white;
+    background-color : #4bca81;
+}
+.THIS .scope-external{
+    color : white;
+    background-color : #0070d2;
+}
+.THIS .container-height{
+    overflow:hidden;
+}
+.THIS .card-details{
+    border: 1px solid rgb(221, 219, 218);
+    border-radius: 0.25rem;
+}
+.THIS .summary-ellipsis{
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

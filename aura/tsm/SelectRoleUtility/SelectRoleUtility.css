@@ -1,0 +1,19 @@
+.THIS [selected]{
+    margin-left: 0rem !important;
+}
+.THIS [role="option"] {
+    margin-left:1.0rem;
+}
+.THIS svg.slds-icon.slds-icon-text-default.slds-icon_x-small{
+    fill:blue;
+}
+
+.THIS .change-job-role .backdropClass {
+    margin-left: 0;
+    width: 100%;
+}
+
+.THIS .change-job-role .slds-modal__container {
+    left: auto;
+    margin-top: auto;
+}

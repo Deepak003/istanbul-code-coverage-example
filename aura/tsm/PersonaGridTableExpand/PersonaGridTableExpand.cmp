@@ -1,0 +1,327 @@
+<aura:component access="global" controller="AccountBasicInfoAuraController">   
+    <aura:attribute name="cols" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid columns."/> 
+    
+    <aura:attribute name="rows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The grid row data."/>
+    
+    <aura:attribute name="filteredRows" 
+                    type="Object[]" 
+                    access="GLOBAL" 
+                    description="The filtered grid row data." />
+    
+    <aura:attribute name="selectedRow"
+                    type="Object"
+                    access="GLOBAL" /> 
+    <aura:attribute name="cmpName"
+                    type="String"
+                    access="GLOBAL" />
+	<aura:attribute name="caseObj" type="Object"/>
+	<aura:attribute name="personaStatus" type="List" default="[
+                                                                     {'label': 'Active', 'value': 'ACTIVE'},
+                                                                     {'label': 'Disabled', 'value': 'DISABLED'},
+                                                                     {'label': 'Deactivated', 'value': 'DEACTIVATED'},
+                                                                     {'label':'Suspended','value':'SUSPENDED'},
+                                                                     {'label':'Banned','value':'BANNED'},
+                                                                     {'label':'Pending','value':'PENDING'}
+                                                                     
+                                                                     ]"/>
+    <aura:attribute name="banCategory" type="List" default="[
+                                                                     {'label': 'Service Ban Friends', 'value': 'SERVICE_BAN_FRIENDS'},
+                                                                     {'label': 'Service Ban Chat', 'value': 'SERVICE_BAN_CHAT'},
+                                                                     
+                                                                     {'label':'Service Ban Leaderboards','value':'SERVICE_BAN_LEADERBOARDS'},
+                                                                   
+                                                                     {'label':'Service Ban Groups','value':'SERVICE_BAN_GROUPS'}
+                                                                     
+                                                                     ]"/>
+	<aura:attribute name="reasonCodes" type="List" default="[
+                                                                     {'label': 'Service Ban Friends', 'value': 'SERVICE_BAN_FRIENDS'},
+                                                                     {'label': 'Service Ban Chat', 'value': 'SERVICE_BAN_CHAT'},
+                                                                     
+                                                                     {'label':'Service Ban Leaderboards','value':'SERVICE_BAN_LEADERBOARDS'},
+                                                                   
+                                                                     {'label':'Service Ban Groups','value':'SERVICE_BAN_GROUPS'}
+                                                                     
+                                                                     ]"/>	
+    
+    <aura:attribute name="primaryState" type="String"/>
+    <aura:attribute name="editPersonaModal" type="Boolean" default="false"/>
+    <aura:attribute name="deletePersonaModal" type="Boolean" default="false"/>
+    <aura:attribute name="openSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="currentPersona" type="Object"/>
+    <!--tsm3025/26-->
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="true"/>
+    
+    <aura:registerEvent name="refreshPersonaGrid" type="c:RefreshPersona"/>
+    <aura:registerEvent name="rowclick"  
+                        type="c:DataGridRowClick"/>
+    
+    <aura:registerEvent name="rowdblclick"  
+                        type="c:DataGridRowDblClick"/>
+    
+    <aura:registerEvent name="rowclickApp"  
+                        type="c:DataGridRowClickApp"/>
+    <aura:handler event="c:GetNextRowClickApp" action="{!c.getNextRowClickEvent}" />
+    <aura:handler event="c:FilterQueueEvt" action="{!c.getFilterSelectEvt}" />
+    
+    <aura:handler name="change" 
+                  value="{!v.rows}" 
+                  action="{!c.init}"/>
+    
+    <aura:method name="setSelection" 
+                 action="{!c.setSelection}" 
+                 access="PUBLIC"
+                 description="Set selected row, by ID">
+        
+        <aura:attribute name="Id" 
+                        type="String" 
+                        default="" />
+    </aura:method>
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <div class="slds-border_bottom slds-grid" id="{!v.cmpName}">
+        <aura:iteration items="{!v.cols}" var="col" indexVar="idx">
+            <aura:if isTrue="{!col.label != 'hidden'}">            
+            <div class="{!idx ? 'slds-text-heading--label slds-col slds-size_1-of-4 slds-m-bottom--x-small' : 'slds-text-heading--label slds-col slds-size_1-of-4 slds-m-bottom--x-small'}">
+                <span class="slds-truncate">{!col.label}</span>
+                <aura:if isTrue="{!col.class == 'slds-is-sortable '}">
+                    <div onclick="{!c.sortDesc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small arrowdown">
+                        <lightning:icon iconName="utility:arrowdown" size="small" alternativeText="Sort by"/>
+                    </div>
+                    <div onclick="{!c.sortAsc}" data-index="{!idx}" data-label="{!col.label}" class="slds-icon_container slds-p-left_x-small slds-hide arrowup">
+                        <lightning:icon iconName="utility:arrowup" size="small" alternativeText="Sort by"/>
+                    </div>
+                </aura:if>
+            </div> 
+         </aura:if>
+        </aura:iteration>
+    </div>
+        <!-- Data Iteration -->
+        <aura:iteration items="{!v.filteredRows}" var="row" indexVar="idx">
+            <div class="slds-border_bottom slds-section caseHistoryData" aria-controls="{!idx}" aria-expanded="false" >
+            <div class="slds-has-flexi-truncate slds-grid">
+                <aura:iteration items="{!row.data}" var="colData" indexVar="id">
+                    <aura:if isTrue="{!colData.label != 'hidden'}">
+                    <div class="{!id ? 'slds-col slds-size_1-of-4 slds-m-bottom--x-small' : 'slds-col slds-size_1-of-4 slds-m-bottom--x-small' +colData.label}">
+                        <aura:if isTrue="{!colData.label == 'ID'}">
+                            <div class="slds-truncate subject" data-row="{!idx}" data-pk="{!row.pk}" title="{!colData.value}" onclick="{!c.expandClick}" >
+                               <lightning:layout>
+                                   <lightning:layoutItem>  
+                                   <lightning:buttonIcon iconName="utility:up" 
+                                                size="small"
+                                                aura:id="upIcon"
+                                                variant="bare" 
+                                                class="slds-hide"
+                                                alternativeText="up" />
+                                  <lightning:buttonIcon iconName="utility:right" 
+                                                size="small" 
+                                                aura:id="downIcon"
+                                                variant="bare" 
+                                                class="slds-show"
+                                                alternativeText="down" />
+                                   </lightning:layoutItem>
+                                   
+                                   <lightning:layoutItem>
+                                   <span>{!colData.value}</span>
+                                   </lightning:layoutItem>
+                                   
+                                </lightning:layout>  
+                            </div>                        
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!colData.label == 'Date'}">
+                                    <ui:outputDateTime value="{!colData.value}" format="MMM/d/Y"/>
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{!colData.label == 'See More'}">                                                    
+                                                    <div class="slds-media slds-text-link">
+                                                        <div class="slds-media__figure">
+                                                            <lightning:icon class="slds-icon slds-icon_small"  iconName="utility:open" size="small" />
+                                                        </div>
+                                                        <div class="slds-media__body">
+                                                            <a>{!colData.value}</a>                                                   
+                                                        </div>
+                                                    </div>
+                                                <aura:set attribute="else">
+                                                    <aura:if isTrue="{!colData.label == 'STATUS'}">
+                                                        <lightning:layout>
+                                                             <lightning:layoutItem> 
+                                                                 <aura:if isTrue="{!colData.value == 'ACTIVE'}">
+                                                        			  	<!--<lightning:icon class="icon-active" iconName="utility:record" size="small" alternativeText="status" />-->
+																		<div class="type-green">Active</div>
+                                                                 </aura:if>  
+                                                                 <aura:if isTrue="{!colData.value == 'SUSPENDED'}">
+                                                                 		<!--<lightning:icon class="icon-suspended" iconName="utility:record" size="small" alternativeText="status" />-->
+																		<div class="type-red">Suspended</div>
+                                                                 </aura:if>   
+                                                                 <aura:if isTrue="{!colData.value == 'BANNED'}">
+                                                                 		<!--<lightning:icon class="icon-banned" iconName="utility:record" size="small" alternativeText="status" />-->
+																		<div class="type-red">Banned</div>
+                                                                 </aura:if> 
+                                                                 <aura:if isTrue="{!colData.value == 'DISABLED'}">
+                                                                 		<!--<lightning:icon class="icon-disabled" iconName="utility:record" size="small" alternativeText="status" />-->
+																		<div class="type-grey">Disabled</div>
+                                                                 </aura:if> 
+                                                                 <aura:if isTrue="{!colData.value == 'DEACTIVATED'}">
+                                                                 		<!--<lightning:icon class="icon-deactivated" iconName="utility:record" size="small" alternativeText="status" />-->
+																		<div class="type-grey">Deactivated</div>
+                                                                 </aura:if> 
+                                                                  <!--tsm 3026 pending state not included <aura:if isTrue="{!colData.value == 'PENDING'}">
+                                                                 		<lightning:icon class="icon-pending" iconName="utility:record" size="small" alternativeText="status" />
+                                                                 </aura:if> -->
+                                                            </lightning:layoutItem>
+                                                            <lightning:layoutItem class="persona-margin-top"> 
+                                                         		<!--<span class="{!'slds-m-right_x-small '+colData.value}"></span>{!colData.value}-->
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>    
+                                                        <aura:set attribute="else">
+                                                            {!colData.value}
+                                                        </aura:set>
+                                                    </aura:if>                                                  
+                                                </aura:set>
+                                        </aura:if>                                        
+                                    </aura:set>
+                                </aura:if>                                
+                            </aura:set>
+                        </aura:if>                        
+                    </div>
+                </aura:if>  
+                </aura:iteration> 
+            </div>
+                <div aria-hidden="true" class="slds-grid slds-truncate slds-section__content" id="{!idx}">                            
+                    <div class="slds-col slds-size_1-of-4"></div>
+                   <!-- <div class="slds-col slds-size_3-of-4">-->
+                        <!-- Expanded data STARTS here -->
+                        <!--<div class="slds-grid slds-wrap">-->
+                           <div class="slds-col slds-size_1-of-4">
+                                <div class="edit-field-label slds-text-body_small">
+                                    Persona Name
+                                </div>
+                                <div class="slds-m-bottom_small field-label-data remove-white-wrap">
+                                   {!row.data[4].value}
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4">
+                                <div class="edit-field-label slds-text-body_small">
+                                    Date Created
+                                </div>
+                                <div class="slds-m-bottom_small field-label-data remove-white-wrap">
+                                    <lightning:formattedDateTime value="{!row.data[5].value}" year="numeric" month="short" day="2-digit" hour="2-digit"
+                                 minute="2-digit" timeZone="GMT" timeZoneName="short" hour12="false"/>
+                                </div>
+                            </div>
+                                                         
+                            <div class="slds-col slds-size_1-of-4">
+                              <aura:if isTrue="{!row.data[6].value !=''}"> 
+                                <div class="edit-field-label slds-text-body_small">
+                                    Last Login
+                                </div>
+                                <div class="slds-m-bottom_small field-label-data remove-white-wrap">
+                                    <lightning:formattedDateTime value="{!row.data[6].value}" year="numeric" month="short" day="2-digit" hour="2-digit"
+                                 minute="2-digit" timeZone="GMT" timeZoneName="short" hour12="false"/>
+                                </div>
+                               </aura:if>    
+                            </div>   
+                        </div>
+						
+						 <div aria-hidden="true" class="slds-grid slds-truncate slds-section__content"  data-index="{!row}" id="{!idx}">
+                    <div class="slds-grid slds-gutters">
+                        <aura:if isTrue="{!row.data[2].value=='cem_ea_id'}">
+                            <div class="slds-col slds-size_1-of-2">
+                                <span> <lightning:button onclick="{!c.editPersonaDetail}"
+                                                         value="{!row}" label="Edit" /></span>
+                            </div>
+                            
+                        </aura:if>
+                        <div class="slds-col slds-size_2-of-2">
+                            <span> <lightning:button  onclick="{!c.openDeleteModal}" 
+                                                     value="{!row}" label="Delete" /></span>
+                        </div>
+                    </div>
+                </div><br/>
+				
+				
+						
+						
+                        <!-- END -->
+                    </div>
+                <!--</div>    -->                           
+           <!-- </div>-->
+        </aura:iteration>
+		
+		<!--modal to display edit details of persona-->
+    <aura:if isTrue="{!v.editPersonaModal}">
+	 <div class="deletPersona">
+    <c:ParentModal isModalOpen="{!v.editPersonaModal}" >
+        <aura:set attribute="class" value="slds-modal_small" />
+            <aura:set attribute="outerClass" value="modal-container" />
+            <aura:set attribute="content">
+              
+                 <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_2-of-4">
+                        <span><lightning:input type="text" aura:id="personaEdit" label="Persona Name" value="{!v.selectedRow[4].value}" onchange="{!c.handleNameChange}"/></span>
+                    </div>
+                    <div class="slds-col slds-size_1-of-4">
+                        <span class="slds-media__body"> Namespace <br/>{!v.selectedRow[2].value}</span>
+                    </div>
+                </div><br/>
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_2-of-4">
+                        <span> <lightning:combobox name="status" aura:id="personaEdit" label="Persona Status" value="{!v.primaryState}" placeholder="Select Reason" options="{! v.personaStatus }"  onchange="{!c.handleStatechange}"/>
+                                                </span>
+                    </div>
+                    <div class="slds-col slds-size_2-of-4"><!--TODO ban category-->
+                        <span>  <lightning:combobox name="status" aura:id="personaEdit" label="Ban Category" value="NONE" placeholder="Select Reason" options="{! v.banCategory }"  onchange="{!c.handleBanChange}"/>
+                                               </span>
+                    </div>
+                </div><br/>
+                <lightning:combobox name="status"  aura:id="personaEdit" label="Reason" value="" placeholder="Select Reason" options="{! v.reasonCodes }" onchange="{!c.handleReasonChange}" />
+                
+           </aura:set>
+            <aura:set attribute="title">
+                <p>Edit Persona Details</p>
+            </aura:set>
+            <aura:set attribute="clickClose" value="false"/>
+        
+        <aura:set attribute="escapeClose" value="false"/>
+        <aura:set attribute="success" value="Submit"/>
+        <aura:set attribute="showSpinner" value="{!v.openSpinner}"/>
+        <aura:set attribute="cancel" value="Cancel"/>
+        <aura:set attribute="onSuccess" value="{!c.updatePersonaDetails}"/>
+        <aura:set attribute="onCancel" value="{!c.closeEditModal}"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+        </c:ParentModal>
+		</div>
+        </aura:if>
+		
+		<aura:if isTrue="{!v.deletePersonaModal}">
+		 <div class="deletPersona">
+    <c:ParentModal isModalOpen="{!v.deletePersonaModal}">
+        <aura:set attribute="class" value="slds-modal_small" />
+            <aura:set attribute="outerClass" value="modal-container" />
+            <aura:set attribute="content">
+              
+                <p>Are you sure you want to delete this persona?</p>
+                
+            </aura:set>
+            <aura:set attribute="title">
+                <p>Delete this Persona</p>
+            </aura:set>
+            <aura:set attribute="clickClose" value="false"/>
+        
+            <aura:set attribute="escapeClose" value="false"/>
+            <aura:set attribute="success" value="Yes, Delete"/>
+        	<aura:set attribute="showSpinner" value="{!v.openSpinner}"/>
+            <aura:set attribute="cancel" value="No"/>
+       		<aura:set attribute="onSuccess" value="{!c.handleDelPersona}" /> 
+            <aura:set attribute="onCancel" value="{!c.closedeleteModal}"/>
+            <!--<aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>-->
+        </c:ParentModal>
+		 </div>
+    </aura:if>
+		
+</aura:component>

@@ -1,0 +1,255 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="cols" 
+                    type="List" 
+                    access="public" 
+                    description="The grid columns." /> 
+    
+    <aura:attribute name="rows" 
+                    type="List" 
+                    access="public" 
+                    description="The grid row data." />
+    
+    <aura:attribute name="formattedRows" 
+                    type="List" 
+                    access="private"
+                    description="Formatted grid row data." />
+    
+    <aura:attribute name="externalData"
+                    type="Map" 
+                    access="public"
+                    description="External data to the grid."/> 
+    <aura:attribute name="caseId"  type="Id"  access="public" />
+    <aura:attribute name="accountId" type="String" access="private" />
+    <aura:attribute name="nucleusId" type="Id" access="private" /> 
+    <aura:attribute name="rewardColumns" type="List" access="private" />
+    <aura:attribute name="tradeColumns" type="List" access="private" />
+    
+    <aura:attribute name="viewTeamModal" type="Map" default="{}" access="private" />
+    <aura:attribute name="resetModal" type="Map" default="{}" access="private" />
+    <aura:attribute name="targetedRow" type="Map" access="private" />
+    <aura:attribute name="hasGrantPermission" type="Boolean" default="false"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+    <aura:handler name="change" value="{! v.rows }" action="{! c.doInit }" />
+    <aura:handler name="change" value="{! v.externalData }" action="{! c.handleExternalDataChange }" />
+    
+    <aura:registerEvent name="onClickViewHistory" type="c:HistoryFilterEvt" />
+    <!-- For History Grant -->
+    <aura:registerEvent name="onChangeArrayList" type="c:GrantComponentEvent" />
+    <!-- TSM-2813 For Pagination -->
+    <aura:registerEvent name="onClickPagination" type="c:HistoryFilterEvt" />
+    
+    <div class="slds-is-relative">
+        <!-- Table Heading -->
+        <div class="slds-border_bottom slds-grid tsm-table-heading">
+            <aura:iteration items="{!v.cols}" var="col" indexVar="idx">
+                <!--<aura:if isTrue="{!col.label != 'hidden'}">-->
+                <div class="{! join(' ', 
+                            'tsm-table-heading_label slds-col',
+                            col.class                            
+                            )}">
+                    <span class="{! join(' ', 
+                                 'slds-truncate tsm-table-heading_label',
+                                 idx == 0 ? 'slds-p-left_xx-large' : ''
+                                 )}">{! col.label}</span>                        
+                </div>
+                <!--</aura:if>-->
+            </aura:iteration>
+        </div>
+        
+        <!-- Table Content -->
+        <aura:if isTrue="{! v.formattedRows.length != 0 }">
+            <aura:iteration items="{!v.formattedRows}" var="row" indexVar="idx">
+                <div class="slds-border_bottom">
+                    <div class="{! join(' ',
+                                'slds-grid tsm-table-row slds-grid_vertical-align-center slds-grid_align-center slds-text-link_reset',
+                                if(row.isLoginSuccess, 'tsm-login_is-success', 'tsm-login_is-failed'),
+                                if(row.isSuspicious, 'tsm-login_is-suspicious')                          
+                                )}"
+                         data-index="{!idx}" onclick="{!c.toggleExpand}">
+                        <aura:iteration items="{!row.data}" var="colData" indexVar="id">             
+                            <div class="{! join(' ', 
+                                        'tsm-table-col slds-col',
+                                        colData.class
+                                        )}">
+                                <aura:if isTrue="{! id == 0 }">
+                                    <!--<lightning:input type="checkbox" label="" variant="label-hidden" />-->
+                                    <aura:if isTrue="{!and((row.isChecked == true), v.hasGrantPermission)}">
+                                        <div class="tsm-m-vertical_auto slds-p-right_small">
+                                            <lightning:input id="{!idx}" aura:id="grant-check" type="checkbox" onchange="{!c.grantCheckChange}"/>
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <div class="tsm-m-vertical_auto slds-p-right_small">
+                                                <lightning:input type="checkbox" disabled="true"/>
+                                            </div>
+                                        </aura:set>    
+                                    </aura:if>                                    
+                                    <lightning:buttonIcon variant="bare" size="small" class="slds-m-right_xx-small" iconName="{!row.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                </aura:if>
+                                
+                                <div class="tsm-table-col_items">
+                                    <div class="slds-truncate tsm-table-col_text-primary-item" title="{!colData.value}">
+                                        <aura:if isTrue="{! colData.type == 'DATE' }">
+                                            <aura:if isTrue="{!colData.value}">
+                                                <c:FormattedDateTime value="{! colData.value }" format="only-date"/>
+                                            </aura:if>
+                                            <aura:set attribute="else">
+                                                <aura:if isTrue="{! and(colData.label == 'VALUE', row.isSuspicious) }">
+                                                    <lightning:icon iconName="utility:warning" variant="{! row.isLoginSuccess ? 'error' : 'warning' }" size="x-small" class="slds-p-right_x-small" />
+                                                </aura:if>
+                                                {! colData.value }
+                                            </aura:set>
+                                        </aura:if>
+                                    </div>
+                                    
+                                    <!-- TIME UTC sub-item -->
+                                    <aura:if isTrue="{! colData.label == 'TIME UTC' }">
+                                        <div class="slds-truncate tsm-table-col_text-sub-item">
+                                            <aura:if isTrue="{!colData.value}">
+                                                <c:FormattedDateTime value="{! colData.value }" format="only-time"/>
+                                            </aura:if>
+                                        </div>
+                                    </aura:if>
+                                    
+                                    <!-- CONTENT sub-item -->
+                                    <aura:if isTrue="{! colData.label == 'CONTENT' }">
+                                        <aura:iteration items="{!row.data}" var="data">
+                                            <aura:if isTrue="{! data.label == 'description' }">
+                                                <div class="slds-truncate tsm-table-col_text-sub-item">{! data.value } </div>    
+                                            </aura:if>
+                                        </aura:iteration>
+                                    </aura:if>
+                                </div>
+                            </div>
+                        </aura:iteration>                
+                    </div>
+                    
+                    <!-- TSM-2813 Checking for pagination -->
+                    <aura:if isTrue="{!row.rowData.isPagination}">
+                        <div class="load-more-div"> 
+                            <!-- Button to load more items in the current category -->
+                            <lightning:button iconName="utility:loop" variant="base" value="{!row.rowData}" label="Load more data" title="Load more data" onclick="{! c.loadPaginationData }"/>
+                        </div>
+                    </aura:if>
+
+                    <!-- Table Expand Section -->
+                    <aura:if isTrue="{!row.expanded}">
+                        <div class="slds-p-left_x-large slds-p-top_medium">                    
+                            <aura:iteration items="{!row.data}" var="data">
+                                <!-- Scores section -->
+                                <aura:if isTrue="{! and(data.label == 'scores', not(empty(data.value))) }">                            
+                                    <div class="details-container slds-p-bottom_x-large">
+                                        <div class="tsm-table-expand-heading_label">
+                                            Scores
+                                        </div>                                
+                                        <aura:iteration items="{!data.value}" var="item">
+                                            <div class="slds-p-top_small slds-grid details-row">
+                                                 <span class="slds-size_1-of-4 expand-body_label-1">Game {!item.round}:</span>
+                                                 <span class="slds-size_3-of-4 expand-body_label-2">({!item.userScore}) - ({!item.opponentScore})</span>                                                
+                                            </div>
+                                        </aura:iteration>                                 
+                                    </div>
+                                </aura:if>
+                                <!-- Details section -->
+                                <aura:if isTrue="{! and(data.label == 'details', not(empty(data.value))) }">                            
+                                    <div class="details-container slds-p-bottom_x-large">
+                                        <div class="tsm-table-expand-heading_label">
+                                            Details
+                                        </div>                                
+                                        <aura:iteration items="{!data.value}" var="detail">
+                                            <aura:if isTrue="{! not(empty(detail.value)) }">
+                                                <div class="slds-p-top_small slds-grid details-row">
+                                                    <span class="slds-size_1-of-4 expand-body_label-1">{! detail.key }:</span>
+                                                    <span class="slds-size_3-of-4 expand-body_label-2">{! detail.value }</span>
+                                                </div>
+                                            </aura:if>
+                                        </aura:iteration>                                        
+                                    </div>
+                                </aura:if>
+                                <!-- Skill section -->
+                                <aura:if isTrue="{! and(data.label == 'skills', not(empty(data.value))) }">                            
+                                    <div class="details-container slds-p-bottom_x-large">
+                                        <div class="tsm-table-expand-heading_label">
+                                            Player Skill
+                                        </div>             
+                                        <aura:iteration items="{!data.value}" var="detail">
+                                            <aura:if isTrue="{! not(empty(detail.value)) }">
+                                                <div class="slds-p-top_small slds-grid details-row">
+                                                    <span class="slds-size_1-of-4 expand-body_label-1">{! detail.key }:</span>
+                                                    <span class="slds-size_3-of-4 expand-body_label-2">{! detail.value }</span>
+                                                </div>
+                                            </aura:if>
+                                        </aura:iteration>                                        
+                                    </div>
+                                </aura:if>
+                                <!-- rewards section -->
+                                <aura:if isTrue="{! and(data.label == 'rewards', not(empty(data.value))) }">                            
+                                    <div class="rewards-container slds-p-bottom_x-large">
+                                        <div class="tsm-table-expand-heading_label slds-p-bottom_small">
+                                            Received
+                                        </div>
+                                        
+                                        <lightning:datatable
+                                                             keyField="id"
+                                                             data="{! data.value }"
+                                                             columns="{! v.rewardColumns }"
+                                                             class="reward-table"
+                                                             hideCheckboxColumn="true"
+                                                             resizeColumnDisabled="true" />
+                                    </div>
+                                </aura:if>
+                                <!-- trades section -->
+                                <aura:if isTrue="{! and(data.label == 'trades', not(empty(data.value))) }">                            
+                                    <div class="trades-container slds-p-bottom_x-large">
+                                        <div class="tsm-table-expand-heading_label slds-p-bottom_small">
+                                            Player Traded
+                                        </div>
+                                        
+                                        <lightning:datatable
+                                                             keyField="id"
+                                                             data="{! data.value }"
+                                                             columns="{! v.tradeColumns }"
+                                                             class="trade-table"
+                                                             hideCheckboxColumn="true"
+                                                             resizeColumnDisabled="true" />
+                                    </div>
+                                </aura:if>
+                            </aura:iteration>
+                            
+                            <!-- Action Buttons -->
+                            <aura:iteration items="{!row.data}" var="data">                                
+                                <aura:if isTrue="{! data.label == 'historyType'}">
+                                    <!-- Actions for Draft History -->
+                                    <aura:if isTrue="{! data.value == 'Draft' }">
+                                        <lightning:button label="Reset" title="Reset" class="slds-m-bottom_x-large" value="{!idx}" onclick="{! c.onClickReset }" />
+                                        <lightning:button label="View Team" title="View Team" class="slds-m-bottom_x-large" value="{!idx}" onclick="{! c.onClickViewTeam }" />
+                                    </aura:if>
+                                    <!-- Actions for Event History -->
+                                    <!--
+                                    //TSM-1950 : Grant button should not show for event
+                                    <aura:if isTrue="{! and(data.value == 'Event', row.status != 'In progress') }">                                        
+                                        <lightning:button label="Grant" title="Grant" class="slds-m-bottom_x-large" value="{!idx}" />
+                                    </aura:if>
+                                    -->
+                                    <!-- Actions for All History -->
+                                    <aura:if isTrue="{!and((row.isChecked == true), v.hasGrantPermission)}">
+                                        <lightning:button label="Grant Items" title="Grant items" class="slds-m-bottom_x-large" value="{!idx}" onclick="{! c.onClickGrantHistory }" />
+                                    </aura:if>    
+                                    <lightning:button label="New Search" title="View History" class="slds-m-bottom_x-large" value="{!idx}" onclick="{! c.onClickViewHistory }" />
+                                </aura:if>
+                            </aura:iteration>
+                        </div>
+                    </aura:if>
+                </div>
+            </aura:iteration>
+        </aura:if>
+    </div>
+    
+    <aura:if isTrue="{!v.viewTeamModal.isOpen}">
+        <c:ViewTeam modalData="{!v.viewTeamModal}" parentRow="{!v.targetedRow}" selectedProduct="{! v.externalData.selectedProduct }" selectedPersona="{! v.externalData.selectedPersona }" />
+    </aura:if>
+    
+    <aura:if isTrue="{!v.resetModal.isOpen}"> 
+        <c:ResetDraft modalData="{!v.resetModal}" parentRow="{!v.targetedRow}" selectedProduct="{! v.externalData.selectedProduct }" selectedPersona="{! v.externalData.selectedPersona }" caseId="{!v.caseId}" accountId="{!v.accountId}" nucleusId="{!v.nucleusId}" />
+    </aura:if>    
+</aura:component>

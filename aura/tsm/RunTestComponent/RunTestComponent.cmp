@@ -1,0 +1,117 @@
+<aura:component controller="FraudAdminToolController">
+    <!--use boolean attribute for Store true/false value,
+    make default to "false" so modal box are not display on the load of component. 
+    --> 
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:attribute name="isDisabledRunTestButton" type="boolean" default="true"/>
+    <aura:attribute name="caseNumber" type="String"/>
+    <aura:attribute name="isRendred" type="boolean" default="false"/>
+    <aura:registerEvent name="runTestEvent" type="c:TestRunEvent"/>
+    <aura:attribute name="testRunObject" type="Object"/>
+    <aura:attribute name="oldLRFCount" type="Integer"/>
+    <aura:attribute name="newLRFCount" type="Integer"/>
+    <aura:attribute name="oldHRFCount" type="Integer"/>
+    <aura:attribute name="newHRFCount" type="Integer"/>
+    <aura:attribute name="isDisabled" type="boolean" default="true"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="selectedLocale" type="String" default="English"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <div class="slds-m-around_xx-large action-button">
+ 		<div class="run-test-action">
+        <lightning:button 
+                          label="Run Test"
+                          title="Run Test"
+                          onclick="{! c.openModel }" disabled="{!v.isDisabled}"/></div>
+        <aura:if isTrue="{!v.isOpen}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <aura:if isTrue="{!v.Spinner}">
+                                    <div aura:id="spinnerId" class="slds-spinner_container">
+                                       <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                                         <span class="slds-assistive-text">Loading</span>
+                                         <div class="slds-spinner__dot-a"></div>
+                                         <div class="slds-spinner__dot-b"></div>
+                                       </div>
+                                    </div>
+                                 </aura:if>
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModel }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate"><b>Algorithm Test</b></h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <lightning:textarea name="inputCaseNumber" onchange="{!c.handleCaseNumberChange}" label="Enter case numbers:" placeholder="Please enter case numbers separated by semi-colon here. i.e. 432321;432678;427688" value="{!v.caseNumber}" />
+                            <aura:if isTrue="{!v.isRendred}">
+                                <div class="run-test-note" style="font-size: 0.9rem">NOTE: Run Test results are shown for locale :<b> {!v.selectedLocale} </b>(which is current selected locale)</div>
+                            	<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                              <th class="slds-text-title_caps" scope="col">
+                                                  <div class="slds-truncate" title="CaseNumber"><b>Case Number</b></div>
+                                              </th>
+                                              <th class="slds-text-title_caps" scope="col">
+                                                  <div class="slds-truncate" title="Current"><b>Current</b></div>
+                                              </th>
+                                              <th class="slds-text-title_caps" scope="col">
+                                                <div class="slds-truncate" title="New"><b>New</b></div>
+                                              </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.testRunObject}" var="fraudData">
+                                                <tr class="slds-hint-parent">
+                                                    <td data-label="CaseNumber">
+                                                        <div class="slds-truncate">{!fraudData.caseNumber}</div>
+                                                    </td>
+                                                    <td data-label="Current">
+                                                        <div class="slds-truncate">{!fraudData.oldFraudScore} {!fraudData.oldfraudType}</div>
+                                                    </td>
+                                                    <td data-label="New">
+                                                        <div class="slds-truncate">{!fraudData.newFraudScore} {!fraudData.newfraudType}</div>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                            	<tr class="slds-hint-parent">
+                                                    <td data-label="CaseNumber">
+                                                        <div class="slds-truncate"><b>Total Low Risk Count</b></div>
+                                                    </td>
+                                                    <td data-label="Current">
+                                                        <div class="slds-truncate">{!v.oldLRFCount}</div>
+                                                    </td>
+                                                    <td data-label="New">
+                                                        <div class="slds-truncate">{!v.newLRFCount}</div>
+                                                    </td>
+                                                </tr>
+                                            	<tr class="slds-hint-parent">
+                                                    <td data-label="CaseNumber">
+                                                        <div class="slds-truncate"><b>Total High Risk Count</b></div>
+                                                    </td>
+                                                    <td data-label="Current">
+                                                        <div class="slds-truncate">{!v.oldHRFCount}</div>
+                                                    </td>
+                                                    <td data-label="New">
+                                                        <div class="slds-truncate">{!v.newHRFCount}</div>
+                                                    </td>
+                                                </tr>
+                                        </tbody>
+                                    </table>                    
+                                </div>
+                            </aura:if>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" 
+                                          label="Run Test"
+                                          title="Run Test"
+                                          onclick="{!c.callRunTest}" disabled="{!v.isDisabledRunTestButton}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>  
+        </aura:if>
+    </div>
+</aura:component>

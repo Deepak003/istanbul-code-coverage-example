@@ -1,0 +1,186 @@
+<aura:component controller="CaseManagementAuraController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    
+    <aura:attribute name="accountId" type="String" access="global"/> 
+    <aura:attribute name="nucleusId" type="String" access="global"/> 
+    
+    <aura:attribute name="case" type="Object" /> 
+    <aura:attribute name="subject" type="String" default="" access="private" /> 
+    <aura:attribute name="canSubmit" type="Boolean" default="false" access="private" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>         
+    <aura:handler name="change" value="{!v.subject}" action="{!c.handlePropertyChange}"/>
+    <aura:handler name="change" value="{!v.case}" action="{!c.handlePropertyChange}"/>
+    
+    <!--Attributes for Lookup-->
+    <aura:attribute name="allProducts" type="Object"/>
+    <aura:attribute name="platformData" type="Object"/>
+    <aura:attribute name="platformDisable" type="Boolean" default="true"/>
+    <aura:attribute name="categoryData" type="Object"/>
+    <aura:attribute name="categoryDisable" type="Boolean" default="true"/>
+    <aura:attribute name="issueData" type="Object"/>
+    <aura:attribute name="issueDisable" type="Boolean" default="true"/>
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleBubbling}"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    
+    <!-- TSM-2521 -->
+    <aura:attribute name="activeCasesComboboxOptions" type="List" />
+    <aura:attribute name="allTabInfo" type="List" />
+    <aura:attribute name="selectedActiveCase" type="String" />    
+    <aura:attribute name="currentCase" type="Object" />    
+    <aura:handler name="change" value="{!v.allTabInfo}" action="{!c.handleChangeAllTabInfo}"/>
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <!-- TSM-2521 -->
+    <aura:attribute name="selectedWorkingCase" type="String" />  
+
+    <article class="slds-card slds-p-left_large slds-p-right_large slds-p-bottom_large slds-p-top_medium">
+        <lightning:spinner class="slds-hide" variant="brand" size="small" aura:id="spinner"/>
+        
+        <aura:if isTrue="{! not(v.currentCase) }">            
+            <div class="slds-card__header slds-grid slds-p-top_none slds-m-bottom_x-small slds-p-left_none slds-p-right_none">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container ">
+                            <lightning:icon iconName="standard:contact_list" alternativeText="emoji" size="large" class="create-case-icon-container"/>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <span class="slds-text-heading_small" style="font-size: 18px; color: #16325C;">Create a New Case</span>                                                
+                    </div>
+                </header>
+            </div>
+            <div class="slds-card__body slds-card__body_inner slds-p-left_none slds-p-right_none">
+                <div class="slds-is-relative">
+                    <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                    <div class="slds-m-top_small">
+                        <div class="slds-m-bottom_xx-small slds-is-relative">
+                            <aura:if isTrue="{!v.allProducts != null}">  
+                                <c:LookupTSM selectedName="{!v.case.product}" fieldName="Product" lookupData="{!v.allProducts}"/>
+                            </aura:if>    
+                        </div>
+                    </div>   
+                    
+                    <div class="slds-m-top_small">
+                        <div class="slds-m-bottom_xx-small slds-is-relative">
+                            <aura:if isTrue="{!v.allProducts != null}"> 
+                                <c:LookupTSM selectedName="{!v.case.platform}" fieldName="Platform" lookupData="{!v.platformData}" disableFlag="{!v.platformDisable}"/>
+                            </aura:if> 
+                        </div>
+                    </div>
+                    
+                    <div class="slds-m-top_small">
+                        <div class="slds-m-bottom_xx-small slds-is-relative">
+                            <aura:if isTrue="{!v.allProducts != null}">  
+                                <c:LookupTSM selectedName="{!v.case.category}" selectedURL="" fieldName="Category" lookupData="{!v.categoryData}" disableFlag="{!v.categoryDisable}"/>
+                            </aura:if> 
+                        </div>
+                    </div>
+                    
+                    <div class="slds-m-top_small">
+                        <div class="slds-m-bottom_xx-small slds-is-relative">
+                            <aura:if isTrue="{!v.allProducts != null}">  
+                                <c:LookupTSM selectedName="{!v.case.subCategory}" selectedURL="" fieldName="Issue" lookupData="{!v.issueData}" disableFlag="{!v.issueDisable}"/>
+                            </aura:if>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-form-element slds-m-bottom_large">
+                    <div class="slds-form-element__control">                        
+                        <div class="slds-input-has-icon slds-input-has-icon_right">                        
+                            <lightning:input label="Enter a Subject"  value="{!v.subject}"/>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="separator"></div>
+            <footer class="slds-card__footer slds-p-left_none slds-p-right_none slds-p-bottom_none">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-m-right_small">
+                        <lightning:button label="Cancel" 
+                                          title="" 
+                                          class="slds-p-horizontal_none"
+                                          onclick="{! c.handleCancel }"/>
+                    </div>
+                    <div class="slds-col">
+                        <lightning:button variant="brand" 
+                                          label="Create &amp; Open Case"
+                                          class="slds-p-horizontal_none"
+                                          title="" 
+                                          onclick="{! c.createCase }" 
+                                          disabled="{! !v.canSubmit }"/>
+                    </div>
+                </div>
+            </footer>
+            
+            <!-- TSM-2521 -->
+            <div class="slds-grid slds-wrap slds-p-top_x-large">
+                <div class="slds-size_1-of-1">
+                    Or work this account under an Active Case
+                </div>
+                <div class="slds-size_1-of-1 slds-p-top_x-small">
+                    <lightning:combobox label="Active Case" value="{!v.selectedActiveCase}" placeholder="Select an Active Case" options="{! v.activeCasesComboboxOptions }" onfocus="{! c.getAllTabInfo }" />
+                </div>
+                <div class="slds-size_1-of-1 slds-p-top_medium">
+                    <lightning:button class="width-100-percentage" variant="brand" label="Work Account Under Selected Case" title="Work Account Under Selected Case" disabled="{! not(v.selectedActiveCase) }" onclick="{! c.changeCase }" />
+                </div>
+            </div>            
+            <aura:set attribute="else">
+            	<div class="slds-card__header slds-grid slds-p-top_none slds-m-bottom_x-small slds-p-left_none slds-p-right_none">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container ">
+                                <lightning:icon iconName="standard:avatar" alternativeText="avatar" size="small" />
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <span class="slds-text-heading_small" style="font-size: 15px;color: #3e3e3c;font-weight: bold;">Case Details: {!v.currentCase.caseNumber}</span>                                                
+                        </div>
+                    </header>
+                </div>
+            
+                <div class="slds-card__body slds-card__body_inner slds-p-left_none slds-p-right_none">
+                    <div class="slds-m-top_small">
+                        <div class="slds-m-bottom_large">
+                            <div class="slds-text-body_regular slds-size_11-of-12">
+                                <bdi>
+                                    <div>This account is now associated with a case.</div>
+                                    <div>You need to verify the account first before making any edits to the account.</div>
+                                    <div>Any changes will be linked to the current case.</div>
+                                </bdi>
+                            </div>
+                        </div>
+                        <div class="slds-m-bottom_medium">
+                            <div class="slds-text-body_small field-label">Platform</div>
+                            <div class="slds-text-body_regular slds-size_11-of-12"><bdi>{!v.currentCase.platformName || 'N/A'}</bdi></div>
+                        </div>
+                        <div class="slds-m-bottom_medium">
+                            <div class="slds-text-body_small field-label">Product</div>
+                            <div class="slds-text-body_regular slds-size_11-of-12"><bdi>{!v.currentCase.productName || 'N/A'}</bdi></div>
+                        </div>
+                        <div class="slds-m-bottom_medium">
+                            <div class="slds-text-body_small field-label">Category</div>
+                            <div class="slds-text-body_regular slds-size_11-of-12"><bdi>{!v.currentCase.categoryName || 'N/A'}</bdi></div>
+                        </div>
+                        <div class="slds-m-bottom_medium">
+                            <div class="slds-text-body_small field-label">Issue</div>
+                            <div class="slds-text-body_regular slds-size_11-of-12"><bdi>{!v.currentCase.issueName || 'N/A'}</bdi></div>
+                        </div>
+                        <div class="slds-m-bottom_medium">
+                            <div class="slds-text-body_small field-label">Subject</div>
+                            <div class="slds-text-body_regular slds-size_11-of-12"><bdi>{!v.currentCase.subject || 'N/A'}</bdi></div>
+                        </div>
+                        <div class="slds-m-bottom_x-small">
+                            <div class="slds-text-body_regular slds-size_11-of-12"><bdi>To work this account under a new case,</bdi></div>
+                        </div>
+                        <div>
+                            <lightning:button class="width-100-percentage" label="Enter New Case Details" title="Enter New Case Details" onclick="{! c.goBack }" />
+                        </div>
+                    </div>                    
+                </div>
+            </aura:set>
+        </aura:if>
+    </article>
+    
+</aura:component>

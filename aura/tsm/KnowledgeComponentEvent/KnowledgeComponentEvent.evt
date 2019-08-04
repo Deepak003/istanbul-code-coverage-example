@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT">
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="currentSelection" type="Object"/>
+    <aura:attribute name="url" type="String"/>
+</aura:event>

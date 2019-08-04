@@ -1,0 +1,37 @@
+<aura:component controller="CaseActivityAuraHelper" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global" >
+	<aura:attribute name="accountId" type="String" default="0011g00000LrVADAA3"/>
+    <aura:attribute name="tosVoliationCount" type="Integer" default=""/>
+	<aura:handler name="init" value="{!this }" action="{!c.getToSVoilationCount}"/>
+    
+    <div class="slds-grid caseActivitySummary">
+        <div class="slds-col slds-size_5-of-12 slds-p-left_small slds-align_absolute-center bold">
+            <div class="slds-form-element activitySummary spacingXLarge">
+                <div class="slds-form-element__control">
+                    <span class="slds-form-element__static">{!v.tosVoliationCount}</span>
+                </div>
+                <span class="slds-form-element__label">ToS Violation</span>
+            </div>
+            <div class="slds-form-element activitySummary">
+                <div class="slds-form-element__control">
+                    <span class="slds-form-element__static satisfactionLevel">60%</span>
+                </div>
+                <span class="slds-form-element__label">Case Satisfication</span>
+            </div>
+        </div>
+        <div class="slds-col slds-size_7-of-12">
+            <div class="summaryBox slds-m-around_medium slds-p-left_medium">
+                <div class="slds-grid">
+                    <div class="slds-col slds-size_1-of-12">
+                        <div class="slds-m-top_small flag"><lightning:icon iconName="custom:custom26" alternativeText="Event" /></div>
+                    </div>
+                    <div class="slds-col slds-size_11-of-12">
+                        <div class="summaryContainer">
+                            <p>The standard chunk of Lorem Ipsum.</p>
+                            <p>Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

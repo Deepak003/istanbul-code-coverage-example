@@ -1,0 +1,91 @@
+<aura:component controller="ProductAuraController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="viewcodes" 
+                    type="boolean" 
+                    description="Used to manipulate Modal Box"/>
+    
+    <aura:attribute name="items" 
+                    type="List" 
+                    default=""
+                    description="Data shown in the modal box"/>
+    
+    <aura:attribute name="cols" 
+                    type="List" 
+                    default=""
+                    description="Coloumns shown in the modal box"/>
+    
+    <aura:attribute name="nucleusId" type="String" default="" description="Stores Nucleus ID"/>
+    <aura:attribute name="selectedProduct" type="String" access="public" description="Selected Product's Name"/>
+    <aura:attribute name="isViewCode" type="Boolean" default="true" description="Identifier for Codes"/>
+    <aura:attribute name="formattedProdName" type="String" default="" description="Stores formatted name of Product"/>
+    <aura:attribute name="isLoading" type="Boolean" default="true" description="Loading indicator"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <div>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" >
+                <header class="slds-modal__header" style="border-bottom: 2px solid #f0f2f7;">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeviewcodes}"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight: normal">View Codes</h2>
+                </header>
+                
+                <!-- Formatted Table -->
+                <aura:if isTrue="{!v.isViewCode}">
+                    <div class="modalBody slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large setting-height slds-is-relative">
+                        <aura:if isTrue="{! v.isLoading }">
+                            <lightning:spinner variant="brand" size="small"/>
+                            <aura:set attribute="else">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <aura:iteration items="{!v.cols}" var="col">
+                                                <th class="slds-text-title_caps HeadingContent" scope="col">
+                                                    <div class="slds-truncate">{!col}</div>
+                                                </th>
+                                            </aura:iteration>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.items}" var="item">
+                                            <tr class="slds-hint-parent">
+                                                <td data-label="CODE" scope="row">
+                                                    <div class="slds-truncate">{!item.code}</div>
+                                                </td>
+                                                <td data-label="DESCRIPTION">
+                                                    <div class="slds-truncate">{!item.description}</div>
+                                                </td>
+                                                <td data-label="GRANT DATE">
+                                                    <div class="slds-truncate">{!item.grantDate}</div>
+                                                    <!--<div class="slds-truncate">
+                                                <c:FormattedDateTime value="{!item.grantDate}" format="only-date"/>
+                                            </div>-->
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table> 
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!!v.isViewCode}">
+                    <div class="modalBodyEmptyState slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large setting-height slds-is-relative">
+                        <aura:if isTrue="{! v.isLoading }">
+                            <lightning:spinner variant="brand" size="small"/>
+                            <aura:set attribute="else">
+                                <c:EmptyState message="{!'No Codes Applied for ' +v.formattedProdName}"></c:EmptyState>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </aura:if>
+                <footer class="slds-modal__footer slds-p-top_large" style="border-top:2px solid #f0f2f7">
+                    <lightning:button aura:id="closeButton" label="Close" onclick="{!c.closeviewcodes}" />
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

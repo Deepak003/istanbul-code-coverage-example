@@ -1,0 +1,45 @@
+.THIS .setting-bottom{
+    position:fixed;
+    bottom:0;
+    width: 100%;
+    left:0;
+}
+.THIS .setting-scroll{
+    height: 10rem;
+    overflow:auto;
+}
+.THIS .title-style{
+    font-weight: bold;
+}
+.THIS .commment-style{
+    font-size: 10px;
+    color: #2b2826;
+}
+.THIS .feedback-description{
+    min-height: 15rem;
+    max-height: 15rem;
+    overflow:auto;
+}
+.THIS .attachment-heigh{
+    min-height: 4rem;
+    max-height: 4rem;
+    overflow:auto;
+}
+.THIS .align-center{
+    text-align:center;
+}
+.THIS .margin-nullify{
+    margin-left:0;
+}
+.THIS lightning-primitive-file-droppable-zone{
+    width:19rem;
+}
+.THIS lightning-textarea label{
+    display:none;
+}
+.THIS .file-attach{
+    color: #1589ee;
+}
+.THIS .file-pointer:hover{
+    cursor:pointer;
+}

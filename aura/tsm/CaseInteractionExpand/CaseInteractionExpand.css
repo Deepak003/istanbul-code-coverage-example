@@ -1,0 +1,32 @@
+.THIS {
+}
+
+.THIS .section-title {
+    font-size: 11px;
+    color : #706e6b;
+}
+
+.THIS .bold {
+    font-weight: bold
+}
+
+/* Chat accordian custom css */
+
+.THIS .chat-accordian .slds-accordion__summary-heading {
+    height: 30px;
+    background: #f5f8fa;
+}
+
+.THIS .chat-accordian .slds-accordion__section {
+    padding-left: 0px;
+}
+
+.THIS .chat-accordian .slds-accordion__summary-action {    
+    font-weight: normal;
+    font-size: 13px;
+}
+
+.THIS .chat-accordian .slds-accordion__summary-action-icon {
+    margin-left: 8px;
+    width: 12px;
+}

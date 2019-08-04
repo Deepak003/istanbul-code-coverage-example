@@ -1,0 +1,34 @@
+.THIS {
+    
+}
+
+.THIS.case-activity-container > div {    
+}
+
+.THIS .case-activity-title {
+    font-size: 18px;
+    font-weight: bold;
+    background : #F3F2F2;
+}
+
+.THIS .case-activity-title svg {
+    fill : black
+}
+
+.THIS .search-input label {
+    display: none;
+}
+
+.THIS .activity-filter select {
+    border: 0;
+    font-size: 13px;
+    color: #3E3E3C;
+}
+
+.THIS .activity-filter .slds-form-element__label{
+    display : none
+}
+
+.THIS .search-container {
+    margin-bottom : t(spacingLarge)
+}

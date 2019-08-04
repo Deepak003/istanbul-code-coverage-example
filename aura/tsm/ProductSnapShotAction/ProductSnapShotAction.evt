@@ -1,0 +1,10 @@
+<aura:event type="APPLICATION" description="Product Snapshot Action">
+	<aura:attribute name="type" type="String"/>
+    <aura:attribute name="changedProduct" type="Object"/>
+    <aura:attribute name="oldProduct" type="Object"/>
+    <aura:attribute name="oldPlatform" type="Object"/>
+    <aura:attribute name="changedPlatform" type="Object"/>
+    <aura:attribute name="changedCategory" type="Object"/>
+    <aura:attribute name="changedPersona" type="Object"/>
+    <aura:attribute name="caseId" type="String"/>
+</aura:event>

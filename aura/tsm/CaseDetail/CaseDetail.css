@@ -1,0 +1,88 @@
+.THIS .detail-container{
+    border-right: 1px solid;
+    border-color: #e3e5ed;
+}
+.THIS .edit-field {
+    border-bottom: 1px solid rgb(221,219,218);
+    color: #565452;
+    font-weight:500;
+}
+.THIS .edit-field-label {
+    color: #B0BACA;
+}
+.THIS .case-id-container {
+    display: inline-block;
+    width: 50%;
+}
+.THIS .content-type-container {
+    display: inline-block;
+    width: 40%;
+}
+.THIS .edit-field .slds-icon_container {
+    float: right;
+    cursor: pointer;
+}
+.THIS .c-inline {
+    display: inline-block;
+    width: 90%;
+}
+.THIS .c-icon-container {
+    display: inline-block;
+    vertical-align: bottom;
+    width: 10%;
+}
+.THIS .strike-container {
+    background-color: #f3f2f2;
+}
+.THIS .active-indicator {
+    background-color: #5DC93C;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .banned-indicator {
+    background-color: #3A3B3B;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .thor-line-height {
+    line-height: 0.45rem;
+}
+.THIS .thor-line-height ul {
+    line-height: 1rem;
+}
+.THIS .petitionDetails{
+    margin-bottom: 50px;
+}
+.THIS.account-open-spin {
+    position: absolute;
+    margin-top: 489px;
+    left: 134px;
+    width: 100%;
+}
+.THIS .deactivate-indicator {
+    background-color: #FFFFFF;
+    border: 1px solid #7c7c7c;
+    border-radius: 5px;
+    width: 11px;
+    height: 11px;
+    display: inline-block;
+}
+.THIS .disabled-indicator {
+    background-color: #7C7C7C;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+
+.THIS .suspended-indicator {
+    background-color: #E21A4F;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}

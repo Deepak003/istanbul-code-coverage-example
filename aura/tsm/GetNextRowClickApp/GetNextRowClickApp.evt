@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Get Next Petition Application event">
+	<aura:attribute name="pk" type="String"/>
+    <aura:attribute name="gNxtFlag" type="Boolean"/>
+</aura:event>

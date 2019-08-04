@@ -1,0 +1,3 @@
+<design:component>
+	<design:attribute name="twitterList" label="Twitter List" description="A Twitter list created under EA account." />
+</design:component>

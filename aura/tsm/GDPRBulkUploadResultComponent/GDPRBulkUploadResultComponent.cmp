@@ -1,0 +1,157 @@
+<aura:component controller="GDPRBulkRequestController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global">
+    <!-- Imports -->
+    <ltng:require styles="{!$Resource.GDPRTool}" />
+    
+    <!-- attributes -->
+    <aura:attribute name="processDisable" type="Boolean" default="false" />
+    <aura:attribute name="downloadDisable" type="Boolean" default="false" />
+    <aura:attribute name="batchId" type="String" default=""/>
+    <aura:attribute name="csvLink" type="String" default=""/>
+    <aura:attribute name="refreshTime" type="String" default="Just now" />
+    <aura:attribute name="sortingField" type="String" default="Creation Date" />
+    <aura:attribute name="type" type="String" />
+    <aura:attribute name="message" type="String" />
+    <aura:attribute name="userProfile" type="String" />
+    <aura:attribute name="bulkUploadFlag" type="Boolean" default="false" />
+    <aura:attribute name="newReqFlag" type="Boolean" default="false" />
+    <aura:attribute name="sortedBy" type="String" />
+    <aura:attribute name="sortedDirection" type="Boolean" default="true" />
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="total" type="integer" default="0" description="total records count store "/>
+    <aura:attribute name="successCount" type="integer"/>
+    <aura:attribute name="errorCount" type="integer"/>
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <aura:attribute name="isProcessRequets" type="Boolean" default="true" />
+    
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <!--aura:handler event="aura:waiting" action="{!c.showSpinner}"/-->
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:handler name="change" value="{!v.newReqFlag}" action="{!c.showToast}"/>
+    
+    
+    
+    <!-- Header-->
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        
+                        <lightning:icon iconName="standard:event" alternativeText="Event" />
+                        
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                    <span class="slds-page-header__title slds-truncate" title="GDPR Bulk Uploads">GDPR Bulk Uploads</span>
+                                </h1>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="slds-page-header__row" style="margin-top:10px;">
+            <div class="slds-page-header__col-meta">
+                <p class="slds-page-header__meta-text">{!v.total} Items</p>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner_brand  slds-spinner slds-spinner_large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end-->    
+    
+    
+    <!-- the container element determine the height of the datatable -->
+    
+    <div class="slds-grid slds-gutters" style="margin:5px;">
+        <div class="slds-col slds-size_3-of-4">
+            <lightning:datatable
+                                 keyField="id"
+                                 data="{! v.data }"
+                                 columns="{! v.columns }"
+                                 hideCheckboxColumn="true"
+                                 showRowNumberColumn="false"
+                                 initialRows="{! v.recordsToDisplay}"
+                                 sortedBy="{! v.sortedBy }"
+                                 sortedDirection="{! v.sortedDirection }"
+                                 defaultSortDirection="{! v.defaultSortDirection }"
+                                 onsort="{! c.updateColumnSorting}"
+                                 onrowaction="{! c.handleRowAction }"
+                                 />
+        </div>
+        {!isProcessRequets}
+        
+        <div class="slds-col slds-size_1-of-4" style="margin:10px;">
+            <aura:if isTrue="{! v.successCount > 0}">
+                <div class="slds-box">
+                    <div class="slds-grid slds-gutters">
+                        
+                        <div class="slds-col slds-size_1-of-4 slds-align_absolute-center">
+                            <div class="slds-border_right">
+                                <lightning:icon iconName="utility:like" alternativeText="Success" />
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_3-of-4">
+                            
+                            <div>
+                                <p style="font-size:16px;font-weight:bold;">Process Successful Requests</p>
+                                <p><button 
+                                           disabled="{!v.processDisable}"
+                                           style="text-align:left;padding:0px;margin:0px;color:DodgerBlue;border:0px;background-color:transparent;"
+                                           onclick="{!c.processSuccessBulkRequest}">Process successful requests to be sent to subscribers</button></p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+            <br/>
+            <aura:if isTrue="{! v.errorCount > 0}">
+                <div class="slds-box">
+                    <div class="slds-grid slds-gutters">
+                        
+                        <div class="slds-col slds-size_1-of-4 slds-align_absolute-center">
+                            <div class="slds-border_right">
+                                <lightning:icon iconName="utility:like" alternativeText="Success" />
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_3-of-4">
+                            
+                            <div>
+                                <p style="font-size:16px;font-weight:bold;">Download Failed Requests</p>
+                                <p><button 
+                                           disabled="{!v.downloadDisable}"
+                                           style="text-align:left;padding:0px;margin:0px;color:DodgerBlue;border:0px;background-color:transparent;"
+                                           onclick="{!c.downloadErrorRequests}">Download a CSV of requests that failed to upload</button></p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+        </div>
+        
+   
+    </div>
+    
+    
+    
+    
+    
+</aura:component>

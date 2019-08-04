@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Event template" >
+	<aura:attribute name="paymentOption" type="List"/>
+    <aura:attribute name="clearSearch" type="Boolean"/>
+    <aura:attribute name="errorMsg" type="String"/>
+</aura:event>

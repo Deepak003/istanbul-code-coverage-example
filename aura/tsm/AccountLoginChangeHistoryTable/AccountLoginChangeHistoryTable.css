@@ -1,0 +1,50 @@
+.THIS .suspiciousSuccessful{
+	
+    background-color:#FFF7F7;
+    
+    margin-bottom:4px;
+}
+
+.THIS .regularSuccessful{
+	background-color:#F4F6F9;
+	 
+}
+.THIS .suspiciousFailed{
+	background-color:#FFF8E1;
+	  
+}
+.THIS .iconDivStyle{
+    display:inline-block;
+    margin-right:10px
+}
+.THIS .wrapText{
+    white-space:normal;
+    line-height:15px;
+}
+
+.THIS .iconStyle{
+    position:relative;
+    top:-10px;
+}
+.THIS .gridHeight{
+    min-height:50px;
+}
+.THIS .secondLineRow{
+    font-size:10px;
+}
+.THIS .bodySection{
+    border-bottom: 1px solid #EBEBEB;
+}
+.THIS .activityMargin{
+    margin: auto;
+}
+.THIS .headerColor{
+    color:#514F4D;
+    font-size:12px;    
+}
+.THIS.backgroundColor{
+    background-color:#FAFAF9;
+}
+.THIS.gridHeight{
+    height:32px;
+}

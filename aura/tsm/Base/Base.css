@@ -1,0 +1,8 @@
+.THIS {
+    margin-top: -0.9em;
+    margin-left: -0.75em;
+    margin-right: -0.75em;
+}
+.THIS .slds-global-header__item .slds-global-header__item--search{
+    display:none
+}

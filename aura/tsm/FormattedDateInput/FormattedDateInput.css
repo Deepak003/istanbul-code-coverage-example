@@ -1,0 +1,14 @@
+.THIS.formatted-date-input {
+    position: relative;
+}
+.THIS.formatted-date-input input {
+    color: transparent;
+}
+.THIS.formatted-date-input:before {
+    position: absolute;
+    top: 30px;
+    left: 12px;
+    content: attr(title);
+    color: black;
+    z-index: 1;
+}

@@ -1,0 +1,68 @@
+.THIS .pending-charge-row:not(:last-child) {
+    border-bottom: 1px solid #B2B2B2;
+}
+
+.THIS .pending-charge-row:last-child {    
+    padding-bottom: 0;
+}
+
+.THIS .left-align {
+    text-align: left;
+}
+
+.THIS .right-align {
+    text-align: right;
+}
+
+.THIS .green-badge {
+    background-color: #2ac02a;
+    color: white;
+    vertical-align: middle;
+}
+
+.THIS .row-1 {
+    font-size: 0.9rem;
+}
+.THIS .row-2 {
+    font-size: 0.7rem;
+}
+
+.THIS .pending-charges-header {    
+    font-size: 0.7rem;
+}
+
+.THIS .SCIENCE_BLUE {
+    color: #0070d2;
+}
+
+.THIS .part-1 {
+    
+}
+
+.THIS .part-2 {
+    color: #B2B2B2;
+}
+
+.THIS .slds-scrollable {
+    max-height: 200px;
+}
+
+.THIS .pending-list {
+    padding-right: 5px;    
+    overflow-x: hidden;
+}
+
+.THIS .billing-icon-2 {
+    width : 40px;
+}
+
+.THIS .modal-header {
+    font-size: 16px;
+}
+
+.THIS .modal-body {
+    padding-bottom: 0px;
+}
+.THIS .warning-text{
+    color:#d0021b;
+}

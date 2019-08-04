@@ -1,0 +1,28 @@
+.THIS * {
+    border-color: #e3e5ed;
+}
+.THIS .slds-tabs_default__nav {
+    border-bottom: 1px solid;
+    border-color: #e3e5ed;
+}
+.THIS .slds-tabs_default__content {
+    padding: 0;
+}
+.THIS .back-icon {
+    position: absolute;
+    cursor: pointer;
+}
+.THIS .back-icon .slds-icon {
+    width: 1rem;
+    height: 1rem;
+}
+.THIS .petition-actions {
+    position: relative;
+    top: 0;
+}
+.THIS.alert-container + div {
+    opacity: .5;
+}
+.THIS .archive-icon svg{
+    fill: #222;
+}

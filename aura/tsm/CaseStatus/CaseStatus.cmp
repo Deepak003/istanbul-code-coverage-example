@@ -1,0 +1,89 @@
+<aura:component controller="CaseDetailAuraCtl">
+    <!-- Attribute -->
+    <aura:attribute name="simpleCase" type="Object" />
+    <aura:attribute name="caseNotes" type="Object"/>
+    <aura:attribute name="lastAction" type="Object"/>
+    <aura:attribute name="caseStatus" type="String"/>
+    <aura:attribute name="lastActionLength" type="Integer" default="0"/>
+    <!-- Methods -->
+    <aura:method name="getCaseEventsData" 
+                 action="{!c.getCaseEventsData}" 
+                 access="PUBLIC"
+                 description="call the get case events method" />
+    
+    <div class="caseStatus slds-border_left slds-border_top slds-border_right">    
+        <aura:if isTrue="{!or(v.caseStatus == 'New', v.caseStatus == 'Open')}" >
+            <div class="slds-p-around_large ">
+                <span class="status-label">Case status</span>
+                <p><span class="status">New. </span> <span class="slds-text-color_weak">This case has not been opened before.</span></p>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.caseStatus == 'Resolved'}" >           
+            <div class="slds-p-around_large">
+                <span class="status-label">Case status</span>
+                <p><span class="status">Resolved. </span> <span class="slds-text-color_weak">This case has been resolved but may still be reopened for additional action.</span></p>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.caseStatus == 'Transferred'}" >           
+            <div class="slds-p-around_large">
+                <span class="status-label">Case status</span>
+                <p><span class="status">Transferred. </span> <span class="slds-text-color_weak">
+                    This case has been transferred to a new queue for additional/immediate action.
+                    </span>
+                </p>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.caseStatus == 'Escalated'}" >           
+            <div class="slds-p-around_large ">
+                <span class="status-label">Case status</span>
+                <p><span class="status">Escalated. </span> <span class="slds-text-color_weak">This case has been escalated from T1 queue to T2 queue.</span></p>               
+            </div>           
+        </aura:if>    
+        <!-- Last Action Summary STARTS  -->
+        <aura:if isTrue="{!v.lastActionLength != 0}">
+            <div class="slds-border_top ">
+                <div class="slds-p-bottom_small slds-p-right_large slds-p-top_large slds-p-left_large slds-media">
+                    <div class="slds-media__figure slds-align-top">
+                        <h2><lightning:icon iconName="utility:list"
+                                            title="Last Action Summary" /></h2>
+                    </div>
+                    <div class="slds-media__body">
+                        <!-- Inserts the user’s current number, pulled from the flow, into the script -->
+                        <ui:outputRichText class="slds-text-heading_small last-actions-header" value="{!'Last Action Summary'}"/>                        
+                    </div>                   
+                </div>
+                <div class="slds-p-right_large slds-p-bottom_large slds-p-left_large">                    
+                    <!-- Status -->
+                    <aura:if isTrue="{!v.lastAction.status}" > 
+                        <p class="slds-p-top_medium"><span class="slds-text-color_default">{!v.lastAction.status}.</span></p>
+                    </aura:if>
+                    <!-- Content Action if any -->
+                    <aura:if isTrue="{!v.lastAction.contentAction == 'Hide'}" >                                           
+                        <div class="slds-p-top_medium">Hide Content Permanently.</div>
+                    </aura:if>
+                    <aura:if isTrue="{!v.lastAction.contentAction == 'Unhide'}" >                                           
+                        <div class="slds-p-top_medium">Un Hide Content.</div>
+                    </aura:if>
+                    <!--aura:if isTrue="{!v.lastAction.strEventCategory == 'MajorStrike'}" >                                           
+                         <div class="slds-p-top_medium">{!row.accountEventDetailList[0].strNewValue} Major Strike.</div>
+                        </aura:if>
+                        <aura:if isTrue="{!v.lastAction.strEventCategory == 'MinorStrike'}" >                                           
+                         <div class="slds-p-top_medium">{!row.accountEventDetailList[0].strNewValue} Minor Strike.</div>
+                        </aura:if-->
+                    <aura:if isTrue="{!v.lastAction.accActionVal}" >                                           
+                        <div class="slds-p-top_medium">{!v.lastAction.accActionVal}.</div>
+                    </aura:if>
+                    <!-- Case Notes -->
+                    <aura:if isTrue="{!v.lastAction.caseNote}" >
+                        <div class="slds-p-top_medium"><span class="status">Case Notes: </span> {!v.lastAction.caseNote}</div>
+                    </aura:if>
+                    <!-- Account Notes -->
+                    <aura:if isTrue="{!v.lastAction.accNote}" >
+                        <div class="slds-p-top_medium"><span class="status">Account Notes: </span> {!v.lastAction.accNote}</div>
+                    </aura:if>                    
+                </div>
+            </div>
+        </aura:if>
+        <!-- LAS ENDS -->
+    </div>
+</aura:component>

@@ -1,0 +1,7 @@
+<aura:component >
+    <aura:registerEvent name="resetEvent" type="c:CancelEvent"/>
+    <aura:attribute name="isDisabled" type="boolean" default="true"/>
+    <div class="slds-m-around_xx-large action-button">
+        <lightning:button label="Cancel All Changes" title="Cancel changes action" onclick="{!c.handleCancelClick}" disabled="{!v.isDisabled}"/>
+    </div>
+</aura:component>

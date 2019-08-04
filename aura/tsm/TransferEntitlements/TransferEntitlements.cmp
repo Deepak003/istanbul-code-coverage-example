@@ -1,0 +1,133 @@
+<aura:component controller="EntitlementAuraController">
+    <aura:attribute name="PCSelected" type="Boolean" default="false" />
+    <aura:attribute name="searchAccount" type="Boolean" default="false" />
+    <aura:attribute name="isEmailError" type="Boolean" default="false" />
+    <aura:attribute name="showTable" type="Boolean" default="false" />
+    <aura:attribute name="showDelete" type="Boolean" default="false" />
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="true" /> 
+    <aura:attribute name="noRecords" type="Boolean" default="true" />
+    <aura:attribute name="spinner" type="boolean" default="false" />
+    <aura:attribute name="radioOptions" type="List" default="[]"/>
+    <aura:attribute name="chkOptions" type="List" default="[]"/>
+    <aura:attribute name="accountRecord" type="Object"/>
+    <aura:attribute name="radioValue" type="String"/>
+    <aura:attribute name="searchEmail" type="String" default="searchAccount"/>
+    <aura:attribute name="chkValue" type="List"/>
+    <aura:attribute name="searchString" type="string"/>
+    <aura:attribute name="accountSummary" type="Object" />
+    <aura:attribute name="nucleusId" type="Id"/>
+    <aura:attribute name="canDelete" type="Boolean" default="false" />
+    <aura:attribute name="deleteAccount" type="Boolean" default="false" />
+    <aura:attribute name="parentStatus" type="Boolean" default="false" />
+    <aura:attribute name="targetUserId" type="Id"/>
+    
+    <aura:attribute name="initSpinner" type="boolean" default="false" />
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    
+    <aura:if isTrue="{!v.PCSelected}">
+        <aura:if isTrue="{!v.parentStatus}">
+            <span class="slds-text-title">
+                Note: Only PC entitlements can be transferred. If you have selected non-PC entitlements, these will not be transferred.
+            </span>
+            <br/>
+            <div class="slds-text-body_small slds-p-top_medium">Select an account to transfer entitlements to</div>
+            <aura:if isTrue="{!v.initSpinner}">
+                <lightning:spinner aura:id="spinner" variant="brand" size="small" />
+            </aura:if>
+            <lightning:radioGroup name="radioGroup"
+                                  aura:Id="selectAccount"
+                                  options="{! v.radioOptions }"
+                                  value="{! v.radioValue }"
+                                  type="radio"
+                                  onchange="{! c.handleChangeRadio}"/>
+            
+            
+        </aura:if>
+        <aura:set attribute="else">
+            <!-- removed passing imgClass attribute value to EmptyState components as there is no use/attribute with that name-->
+            <!--<c:EmptyState imgclass="imgCSS">-->
+             <c:EmptyState>   
+                <aura:set attribute="message">
+                    <span class="bold">No PC Entitlement Selected</span>
+                    <div class="slds-text-align_center slds-text-body_regular slds-p-top_medium">
+                        <div>It seems all entitlements that you have selected are non-PC entitlements. Only PC entitlements can be transferred.</div>
+                    </div>
+                </aura:set>
+            </c:EmptyState>
+        </aura:set>
+    </aura:if>
+    <aura:if isTrue="{!v.searchAccount}">
+        <aura:if isTrue="{!!v.parentStatus}">
+            <span class="slds-text-title">
+                Note: Only PC entitlements can be transferred. If you have selected non-PC entitlements, these will not be transferred.
+            </span>
+        </aura:if>
+            <div onkeyup="{!c.keyPressController}">
+                <lightning:input placeholder="Search by email" aura:id="accountSearch" title="Search" type="search" 
+                                 value="{!v.searchString}" 
+                                 isLoading="{! v.spinner }"
+                                 pattern="^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$" 
+                                 messageWhenPatternMismatch  ="You have entered an invalid format"
+                                 class="{!v.isEmailError? 'slds-has-error' :''}"/>
+                
+            </div>
+            
+            <aura:if isTrue="{!v.showTable}">
+                <!-- TABLE CONTENT--> 
+                <aura:if isTrue="{!and(v.accountRecord, !v.noRecords)}">
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-p-top_small">
+                        <thead>
+                            <tr class="slds-text-title_caps">
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Email">Email</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Name">Name</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Nucleus ID">Nucleus ID</div>
+                                </th>
+                                <th scope="col">
+                                    <div class="slds-truncate" title="Phone Number">Phone Number</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody> 
+                            <!--### display all records of searchResult attribute by aura:iteration ###-->                        
+                            <tr>
+                                <td>
+                                    <div class="slds-truncate">{!v.accountRecord.email}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!v.accountRecord.firstName}&nbsp;{!v.accountRecord.lastName}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!v.accountRecord.customerId}</div>
+                                </td>
+                                <td>
+                                    <div class="slds-truncate">{!v.accountRecord.phone}</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <aura:set attribute="else">
+                        <div class="slds-p-top_medium">
+                            <span class="slds-text-title">
+                                No result found. Please try again and make sure you enter the full email address.
+                            </span>
+                        </div>
+                    </aura:set>
+                </aura:if>
+            </aura:if>
+        </aura:if>
+        <aura:if isTrue="{!and(v.showDelete, v.canDelete)}">
+            <lightning:checkboxGroup name="Checkbox Group"
+                                     aura:Id="deleteAccount"
+                                     label="Delete account (Optional)"
+                                     options="{! v.chkOptions }"
+                                     value="{! v.chkValue }"
+                                     onchange="{! c.handleChangeChk}"
+                                     class="slds-p-top_medium"/>
+        </aura:if>
+</aura:component>

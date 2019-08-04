@@ -1,0 +1,73 @@
+<aura:component controller="AccountBillingAuraCtl" implements="force:hasRecordId">
+    <aura:attribute name="nucleusId" type="Id" access="public"/>
+    <aura:attribute name="invoices" type="List" access="public" />
+    <aura:attribute name="isLoading" type="Boolean" access="public" />
+    <aura:attribute name="pageNumber" type="Integer" access="public" />    
+    <aura:attribute name="totalInvoiceCount" type="Integer" access="public" /> 
+    <aura:attribute name="invoiceSource" type="String" access="public"/>
+    <aura:attribute name="billingCmpId" type="String" />
+    <aura:attribute name="perPageInvoice" type="Integer" default="20" access="private" />
+    <aura:attribute name="invoiceTypes" type="List" default="[]" access="private" />
+    <aura:attribute name="selectedInvoiceType" type="String" access="public" default="" />
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="externalData" type="Map" default="{}" access="private" />
+    <aura:attribute name="accountId" type="Id"/>
+    
+    <aura:handler name="init" value="{! this }" action="{!c.setPurchaseType}"/>
+    <aura:handler name="change" value="{! v.selectedInvoiceType }" action="{!c.onChangeSelectedPurchaseType}"/>
+    
+    <aura:registerEvent name="setInvoiceType" type="c:BillingEvt" />
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="List" />
+    <aura:handler name="change" value="{! v.accountMaskingList }" action="{!c.onChangeAccountMaskingList}"/>
+    
+    <div class="slds-is-relative">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        <!--
+        <div class="slds-p-bottom_xx-small" style="color: #796E6B;">
+            RECENT INVOICES
+        </div>
+        -->
+        <div class="slds-p-bottom_medium slds-size_1-of-3">
+            <lightning:combobox variant="label-hidden" options="{! v.invoiceTypes }" value="{!v.selectedInvoiceType}" />
+        </div>
+        <aura:if isTrue="{! !empty(v.invoices) }">
+            <!-- Check if invoice belongs to different account -->
+            <aura:if isTrue="{! v.invoices[0].otherAccountId }">
+                <div style="text-align: center; font-weight: bold;" class="slds-p-top_medium">
+                    <div>The invoice you are searching for belongs to another account.</div>
+                    <div>
+                        <c:AccountAsSubTab nucleusId="{! v.invoices[0].otherAccountId }" paymentId="{! v.invoices[0].billingAccountId }" source="BillingTab" >
+                            <a>Open that account</a>
+                        </c:AccountAsSubTab>
+                        to view invoice details.
+                    </div>
+                </div>
+                <aura:set attribute="else">
+                    <c:DataGrid data="{!v.invoices}" 
+                                pkField="invoiceId" 
+                                aura:id="datagrid"
+                                type="expand"
+                                gridName="paymentHistoryGrid"
+                                cmpName="c:InvoiceDetails"
+                                externalData="{!v.externalData }">
+                        <c:DataGridColumn fieldName="invoiceId" label="INVOICE #" class="slds-size_3-of-12"/>
+                        <c:DataGridColumn fieldName="invoiceDescription" label="Description" class="slds-size_3-of-12"/>
+                        <c:DataGridColumn fieldName="invoiceDate" label="DATE" class="slds-size_2-of-12 slds-is-sortable" type="Date"/>
+                        <c:DataGridColumn fieldName="statusInfo" label="STATUS" class="slds-size_2-of-12 slds-is-sortable"/>        
+                        <c:DataGridColumn fieldName="amount" label="AMOUNT" class="slds-size_2-of-12"/>       
+                    </c:DataGrid> 
+                    <div style="text-align: center">                
+                        <c:Pagination totalPages="{! div(v.totalInvoiceCount,v.perPageInvoice) }" activePage="{!v.pageNumber}" />
+                    </div>
+                </aura:set>
+            </aura:if>
+            <aura:set attribute="else">
+                <!--<c:EmptyState message="{! v.invoiceSource == 'search' ? 'No result found' : 'No invoice' }"></c:EmptyState>-->
+                <c:EmptyState message="No result found"></c:EmptyState>
+            </aura:set>
+        </aura:if>
+    </div>
+    
+</aura:component>

@@ -1,0 +1,147 @@
+<aura:component controller="CaseManagementAuraController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="outboundEmailId" type="String" />
+    <aura:attribute name="accountId" type="String" access="global"/> 
+    <aura:attribute name="nucleusId" type="String" access="global"/> 
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="caseObj" type="Object" />
+    <aura:attribute name="caseType" type="String"/>
+    <aura:attribute name="caseData" type="Object"/>
+    <aura:attribute name="outboundEmailVO" type="Object"/>
+    <aura:attribute name="caseId" type="String" default="" />
+    <aura:attribute name="showSelectStateModal" type="boolean" default="false"/>
+    <aura:attribute name="showResolution" type="boolean" default="false"/>
+    <aura:attribute name="showQueue" type="boolean" default="false"/>
+
+    <aura:attribute name="note" type="String" access="private" description="Case Notes string for case" />
+    <aura:attribute name="outboundLocale" type="String" access="private" description="outbound locale string for case" />
+    <aura:attribute name="emailText" type="String" access="private" description="Email string for case" default="" />
+    <aura:attribute name="articleLinkText" type="String" access="private" description="Email string for case" />
+    
+    <aura:attribute name="selectedCaseStatus" type="String" access="private" />
+    <aura:attribute name="selectedCaseQueue" type="String" access="private" />
+    <aura:attribute name="selectedCaseResolution" type="String" access="private" />
+    
+    <aura:attribute name="saveDisabled" type="boolean" default="true"/>
+    <aura:attribute name="isValidCaseData" type="boolean" default="true"/>
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="false" />
+
+    <aura:attribute name="isDuplicateCase" type="Boolean" default="false"/>
+    <aura:attribute name="saveAndOriginalDisabled" type="Boolean" default="true"/>
+    <aura:attribute name="originalCaseNumber" type="String" />
+    <aura:attribute name="originalCaseId" type="String" /> 
+    <aura:attribute name="currentStatusId" type="String" />      
+    
+    <aura:handler event="c:CaseDetailEvent" action="{!c.handleCaseDetailEvent}"/>
+    <aura:handler name="presenceStatusEvt" event="c:PresenceStatusEvt" action="{!c.saveGoIdleEvent}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:workspaceAPI aura:id="workspace" />
+    <ltng:require styles="{! $Resource.TSMArabic }" />
+    
+    <aura:attribute name="emailLocales" type="List" />
+    <aura:attribute name="caseStatusValues" type="List" />
+    <aura:attribute name="caseQueueValues" type="List" />
+    <aura:attribute name="caseResolutionValues" type="List" />
+    <aura:attribute name="knowledgeArticles" type="List" />
+    <aura:attribute name="transferChatCase" type="boolean" default="false" />
+    <!-- Handlers-->
+    <aura:handler name="change" value="{!v.transferChatCase}" action="{!c.chatTranfer}" />
+    <aura:handler name="change" value="{!v.caseData}" action="{!c.handleSaveButton}" />
+	<!-- TSM-4261 Case interaction for Chat transcript -->
+    <aura:handler event="lightning:tabClosed" action="{! c.onTabClosed }"/>
+    
+    <aura:attribute name="knowledgeArticlesId" type="List" />
+    
+    <article class="slds-card slds-p-left--large slds-p-right--large">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        <div class="slds-card__header slds-grid slds-p-top_none slds-m-bottom_x-small slds-p-left_none slds-p-right_none">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure slds-p-right_x-small">
+                    <span class="slds-icon_container ">
+                        <lightning:icon iconName="standard:contact_list" class="bColor" alternativeText="emoji" size="small" />
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <span class="slds-page-header__title">Case Action</span>
+                </div>
+            </header>
+        </div>
+        <!--following lines added by Sunil -->
+        <c:Display_Guided_Survey_Flow caseId="{!v.caseId}" flowType='Workflow'></c:Display_Guided_Survey_Flow>
+        <aura:if isTrue="{!v.caseObj.Current_Channel__c=='Phone'}">
+            <lightning:layout>
+                 <lightning:layoutItem size="8" class="slds-p-bottom--small" >  
+                        <lightning:input label="Call player" class="" variant="brand" type="tel" aura:id="enterCallBackNumber"                                     
+                                     value="{!v.caseObj.callBackNumber__c}"    
+                                     onblur="{!c.updateClickToDialNumber}"/>
+                     </lightning:layoutItem>
+                 <lightning:layoutItem size="3" class="slds-p-bottom--small" >  
+                        <lightning:clickToDial class="slds-var-m-left_small" recordId="{!v.recordId}" 
+                                                                aura:id="callBackNumber" value="{!v.caseObj.callBackNumber__c}"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </aura:if>
+        <div class="slds-card__body slds-card__body_inner slds-p-left_none slds-p-right_none">
+            <div class="slds-form-element slds-m-bottom_x-small">
+                <lightning:textarea class="no-asterisk" required="true" messageWhenValueMissing=" " name="caseNotes" label="{!'Case Notes (Limited to '+ $Label.c.CASE_NOTES_TSM+' Characters)'}" maxlength="{!$Label.c.CASE_NOTES_TSM}" value="{!v.note}" onchange="{! c.validateFields }" />             
+            </div>
+            <div class="slds-form-element slds-m-bottom_x-small">
+                <lightning:combobox name="outboundLanguageLocalization" label="Outbound Language Localization" value="{! v.outboundLocale}" options="{! v.emailLocales }" onchange="{! c.validateFields }" />
+            </div>
+            <div class="slds-form-element slds-m-bottom_x-small">
+                <lightning:textarea name="customEmailMessage" label="Custom Email Message (optional)" value="{!v.emailText}" maxlength="32000" />             
+            </div>
+           <div>
+                <span>Links Appended to Email Message</span><br/>
+                <aura:iteration items="{!v.knowledgeArticles}" var="article" indexVar="idx">
+                    <lightning:pill name="{!idx}" title="{!article}" label="{!article}" onremove="{! c.handleRemove }"/>
+                </aura:iteration>
+            </div>
+            <div class="slds-form-element slds-m-top_medium">
+                <div class="slds-text-heading_small">
+                    Case Status
+                </div>
+            </div>
+                <lightning:combobox name="caseStatus" placeholder="Choose Case Status" value="{! v.selectedCaseStatus}" label="" options="{! v.caseStatusValues }" onchange="{! c.handleCaseStatusChange }" />
+                <aura:if isTrue="{!v.showQueue}">
+                    <lightning:combobox name="caseQueue" placeholder="Pick Queue" value="{! v.selectedCaseQueue}" label=""  options="{! v.caseQueueValues }" onchange="{! c.handleCaseQueueChange }" />
+                </aura:if>
+                <aura:if isTrue="{!v.isDuplicateCase}">
+                     <lightning:input name="duplicateCase" value="{! v.originalCaseNumber}" placeholder="Type Original Case ID" onchange="{! c.handleDuplicateCase }" pattern="[0-9]*" messageWhenPatternMismatch="Enter only numbers" />
+                </aura:if>
+                <aura:if isTrue="{!v.showResolution}">
+                    <lightning:combobox class="no-asterisk" required="true" messageWhenValueMissing=" " name="caseResolution" placeholder="Reason" value="{! v.selectedCaseResolution}" label="" options="{! v.caseResolutionValues }" onchange="{! c.handleCaseResolutionChange }" />
+                </aura:if>
+        </div>
+        <lightning:layout multipleRows="true" class="">
+            <aura:if isTrue="{!v.isDuplicateCase}">
+                <lightning:layoutItem size="12"  class="slds-align_absolute-center slds-p-top--small slds-p-bottom--small">
+                    <lightning:button variant="brand" label="Save &amp; Open Original" onclick="{! c.saveAndOpenOriginalCase }"  class="buttonFullWidth" disabled="{! or(v.saveAndOriginalDisabled, !v.isValidCaseData) }"/>
+                </lightning:layoutItem>
+            </aura:if>
+            <lightning:layoutItem size="12" class="slds-align_absolute-center slds-p-bottom--small" >
+                <lightning:button variant="brand" label="Save &amp; Get Next" onclick="{! c.saveAndGetNext }"  disabled="{! or(v.saveDisabled, !v.isValidCaseData) }" class="buttonFullWidth" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="12">
+                <lightning:layout >
+                    <lightning:layoutItem size="6" class="slds-p-right_xx-small">
+                        <lightning:button label="Save &amp; Create New"
+                                          class="buttonFullWidth" 
+                                          onclick="{! c.saveAndCreateNew }" 
+                                          disabled="{! or(v.saveDisabled, !v.isValidCaseData) }"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="6" class="slds-p-left_xx-small" >
+                        <lightning:button label="Save &amp; Go Idle"
+                                          class="buttonFullWidth" 
+                                          onclick="{! c.saveAndGoIdle }" 
+                                          disabled="{! or(v.saveDisabled, !v.isValidCaseData) }"/>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </lightning:layoutItem>
+        </lightning:layout>
+    </article>
+    <aura:if isTrue="{! v.showSelectStateModal}">
+        <c:SelectStateModal showSelectStateModal="{!v.showSelectStateModal}" />
+    </aura:if>
+</aura:component>

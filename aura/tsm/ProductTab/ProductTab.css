@@ -1,0 +1,21 @@
+.THIS {
+}
+.THIS .uppercase {
+    text-transform: uppercase;
+}
+.THIS .fontWT{
+    text-align: center;
+    font-size: large;
+    line-height: 3rem;
+}
+.THIS .GridSize{
+    height: -webkit-fill-available;
+}
+.THIS .product-image {
+    width: 84px; 
+    height: 120px; 
+    float: left;
+}
+.THIS .overview-tab{
+    min-height: calc(100vh - 200px);
+}

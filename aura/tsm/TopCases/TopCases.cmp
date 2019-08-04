@@ -1,0 +1,81 @@
+<aura:component controller="TopCasesAuraController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    
+    <aura:attribute name="topCasesDetails" type="Object"/>
+    <aura:attribute name="caseType" type="String" default ="All Cases" />
+    <aura:attribute name="emptySpace" type="String" default =" " />
+    
+    <aura:attribute name="totalCount" type="Integer" />
+    <aura:attribute name="options" type="List" 
+                    default="[{'label': 'Tech Cases', 'value': 'Tech Cases'},{'label': 'Account Cases', 'value': 'Account Cases'},{'label': 'All Cases', 'value': 'All Cases'},]"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div class="p-container slds-box"  aura:id="mainLayoutContainer"> 
+        <lightning:layout class="" >
+            <div class='icon-container titleBox'>
+                <lightning:icon class="dashboardCSS" iconName="standard:dashboard" title="Top Case Data" />
+                <span class="slds-p-left_x-small slds-text-title_bold">  Top Case Data </span>  
+            </div>
+        </lightning:layout>
+        <!-- 
+   <div class='icon-container'>
+                <lightning:icon class="dashboardCSS"  iconName="standard:dashboard" size="small" title="Top Case Data" /> <b> Top Case Data </b>
+            </div> 
+            <div class="thinking" > 
+                <img src="{!$Resource.thinking_emoji}" />
+            </div>
+            <div class="slds-media__body slds-text-heading_small slds-p-left_x-small">
+               <b> Top Case Data </b> 
+            </div> 
+          -->  
+        <!--
+            <div class="slds-col_bump-left" >
+                <lightning:icon iconName="utility:refresh" title="Process" size="xx-small"/> 
+                <span> 12 hours ago </span>
+            </div>
+   -->
+        
+        
+        <lightning:layoutItem flexibility="auto"  size="12" class="" >  
+            <lightning:combobox name="progress" label=" " value="{!v.caseType}"  options="{!v.options}" onchange="{!c.handleChange}"/>
+        </lightning:layoutItem>
+        
+        <lightning:layoutItem  size="12" class="slds-m-top_medium" >  
+            
+            <aura:if isTrue="{!v.topCasesDetails.updatedAgo != null}">
+                <span class="slds-m-top_medium slds-m-bottom_medium" > <b>Top {!v.topCasesDetails.topCasesList.length} out of {!v.totalCount} {!v.emptySpace} {!v.caseType} </b> </span>
+                <p class="lastUpdated"> Last updated {!v.topCasesDetails.updatedAgo} minutes ago</p>
+                <aura:set attribute="else">
+                    <span class="slds-m-top_medium slds-m-bottom_medium" > <b>Top 0 out of 0 {!v.caseType}</b> </span>
+                    <p class="lastUpdated"> Last updated 0 minutes ago</p>
+                </aura:set>
+            </aura:if>
+        </lightning:layoutItem>
+        
+        <lightning:layoutItem class="slds-m-top_medium slds-m-bottom_medium" >
+            <aura:iteration items="{!v.topCasesDetails.topCasesList}" var="ssvo" indexVar="index">
+                <lightning:layout>
+                    <lightning:layoutItem flexibility="auto" size="12">
+                        <lightning:layout class="slds-m-top_small">
+                            <lightning:layoutItem flexibility="auto" size="1">
+                                <div class="circle">
+                                    <p>{!index+1}</p>
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="10" >
+                                <div class="topCaseDetails">
+                                    <p>
+                                        {! ssvo.topcaseTxt}
+                                    </p>
+                                </div>
+                            </lightning:layoutItem> 
+                            <lightning:layoutItem size="1" class="slds-text-align_right">
+                                <p class=""> {!ssvo.Count_Percentage__c}% </p>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </aura:iteration>
+        </lightning:layoutItem>
+    </div>
+    
+</aura:component>

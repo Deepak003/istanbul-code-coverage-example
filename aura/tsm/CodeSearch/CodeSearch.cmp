@@ -1,0 +1,229 @@
+<aura:component controller="CodeSetAuraCtl" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="searchCodes" 
+                    type="boolean" 
+                    description="Used to manipulate Modal Box"/>
+    <aura:attribute name="consumeCodes" 
+                    type="boolean" 
+                    description="Used to manipulate Modal Box"/>
+    
+    <aura:attribute name="items" 
+                    type="List" 
+                    default=""
+                    description="Data shown in the modal box"/>
+    
+    <aura:attribute name="cols" 
+                    type="List" 
+                    default=""
+                    description="Coloumns shown in the modal box"/>
+    
+    <aura:attribute name="nucleusId" type="String" default="" description="Stores Nucleus ID"/>
+    <aura:attribute name="selectedProduct" type="String" access="public" description="Selected Product's Name"/>
+    <aura:attribute name="isViewCode" type="Boolean" default="true" description="Identifier for Codes"/>
+    <aura:attribute name="formattedProdName" type="String" default="" description="Stores formatted name of Product"/>
+    <aura:attribute name="isSearching"  type="Boolean" default="false"/>
+    <aura:attribute name="noResults" type="Boolean" default="false"/>
+    <aura:attribute name="codeSearchResult" type="Object"/>
+    <aura:attribute name="code" type="String" default="" description="searched code string"/>
+    <aura:attribute name="wrongCode" type="String" default=""/>
+    <aura:attribute name="codeSearchData" type="Object"/>
+    <aura:attribute name="codeIsConsumed" type="Boolean" default="false"/>
+    <aura:attribute name="codeNotConsumed" type="Boolean" default="false"/>
+    <aura:attribute name="codeAllowdForMultipleUse" type="Boolean" default="false"/>
+    <aura:attribute name="showAccountButton" type="Boolean" default="false"/>
+    <aura:attribute name="showConsumeButton" type="Boolean" default="false"/>
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <div>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container" >
+                <header class="slds-modal__header" style="border-bottom: 2px solid #f0f2f7;">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                        <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeSearchCodes}"/>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="font-weight: normal">Search Code</h2>
+                </header>
+                
+                <!-- Formatted Table -->
+                <div class="modalBody slds-modal__content slds-p-top_small slds-p-right_x-large slds-p-left_x-large setting-height">
+                    <div class="slds-p-bottom_small" onkeyup="{! c.handleSearch }">
+                        <lightning:input
+                                         aura:id="search-input"
+                                         type="search"
+                                         label=""
+                                         value="{!v.code}"
+                                         isLoading="{! v.isSearching }"
+                                         placeholder="Search for any product code"
+                                         />
+                    </div>
+                    <div aura:id="resultContainer" class="slds-hide">
+                    <aura:if isTrue="{!!v.noResults}">
+                        <div class="{! join(' ', 'slds-p-bottom_small',
+                                if(v.codeIsConsumed, 'slds-show', 'slds-hide')
+                                )}">The code “{!v.code}” has already been consumed by a player with email “{!v.codeSearchResult.email}”</div>  
+                        <div class="{! join(' ', 'slds-p-bottom_small',
+                                if(v.codeNotConsumed, 'slds-show', 'slds-hide')
+                                )}" >The code “{!v.code}” hasn't been consumed yet.</div>  
+                        <div class="{! join(' ', 'slds-p-bottom_small',
+                                if(v.codeAllowdForMultipleUse, 'slds-show', 'slds-hide')
+                                )}" >The code “{!v.code}” can be consumed {!v.codeSearchResult.multiUseLimit} times and it has already been consumed by {!v.codeSearchResult.multiUseCount} accounts.</div>  
+                        <div class="{! join(' ', 'slds-p-bottom_large',
+                                if(v.showAccountButton, 'slds-show', 'slds-hide')
+                                )}"><lightning:button label="Open Account" title="Open Account" onclick="{! c.handleOpenAccount }"/></div>  
+                        <div class="{! join(' ', 'slds-p-bottom_large',
+                                if(v.showConsumeButton, 'slds-show', 'slds-hide')
+                                )}"><lightning:button label="Consume Code" title="Consume Code" onclick="{! c.handleConsumeCode }"/></div>  
+                        <div class="font-bold slds-text-heading_small slds-m-bottom--medium">Code Details</div>
+                        <lightning:layout multipleRows="true" >
+                            <lightning:layoutItem size="12">
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h3>Catalog Product Name</h3>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.crmProductName || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Status</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.status || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Created Date</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div><c:FormattedDateTime value="{!v.codeSearchResult.createdDate}"></c:FormattedDateTime></div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Consumption URI</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.consumptionUri || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Consumption Date</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <aura:if isTrue="{!v.codeSearchResult.consumptionDate}">
+                                                <div><c:FormattedDateTime value="{!v.codeSearchResult.consumptionDate}"></c:FormattedDateTime></div>
+                                                    <aura:set attribute="else">
+                                                       N/A
+                                                    </aura:set>
+                                            </aura:if>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Catalog</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.sourceCatalog || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>CRM Product Name</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.crmProductName || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Product ID</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.defaultOfferOfbProductId || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>Code Set ID</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.codesetId || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                                <lightning:layout>
+                                    <lightning:layoutItem size="4">
+                                        <div class="font-bold slds-m-bottom--small">
+											<h2>External Ref</h2>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <lightning:layoutItem size="8">
+                                        <div class="page-section">
+                                            <div>{!v.codeSearchResult.externalRef || 'N/A'}</div>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        <!--<div class="slds-grid">
+                          <div class="slds-col slds-size_4-of-12">
+                            <span>1</span>
+                          </div>
+                          <div class="slds-col slds-size_8-of-12">
+                            <span>2</span>
+                          </div>
+                        </div>-->
+                        <aura:set attribute="else">
+                            <c:EmptyState message="{!'No Results for ' +v.wrongCode}"></c:EmptyState>
+                        </aura:set>
+                    </aura:if>
+                </div>
+                    
+                </div>
+                <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                    <lightning:button aura:id="closeButton" label="Close" onclick="{!c.closeSearchCodes}" />
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

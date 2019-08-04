@@ -1,0 +1,94 @@
+.THIS {
+    cursor: pointer;
+}
+.THIS span > a{
+    word-break: break-all;
+}
+.THIS a:hover {
+    text-decoration: none;
+}
+.THIS .expand-reportcontent {
+    position: relative;
+    margin-left: -28px;
+    left: 100%;
+    background-color: #444444;
+    height: 28px;
+    width: 28px;
+    margin-top: -28px;
+}
+.THIS .ugc-content {
+    word-break: break-word;
+}
+.THIS .expand-reportcontent .slds-icon {
+    width: 24px;
+    height: 24px;
+    fill: rgb(255, 255, 255); 
+    padding: 3px;
+    transform: rotate(270deg);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+}
+.THIS .ugc-container {
+    display: flex;
+    flex-direction: column;
+    height: 25vh;
+}
+.THIS .ugc-container img {
+    height: 80%;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.THIS .status-image {
+    background-color: rgb(243, 242, 242);
+    border-style: solid;
+    border-width: 0 1px 1px;
+    border-color: rgb(168, 183, 199);
+    height: 20%;
+    line-height: 40px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.THIS .chat-log-container {
+    background: linear-gradient(#ffffff 5%,#ffffff 15%,#fff 85%);    
+    border: 1px solid #dddbda;
+    position: relative;
+    height: 196px;
+    overflow: hidden;
+}
+.THIS .petitioner-chat-log {
+    width: 90%;
+}
+.THIS .petitioner-chat-log > span {
+    opacity: 0.3;
+}
+.THIS .petitioner-chat-log .date-user {
+    opacity: 0.5;
+}
+.THIS .petitioner-msg {
+    border: 1px solid #ddd;
+}
+.THIS .petitioner-msg .msg {
+    opacity: 0.8;
+}
+.THIS .target-msg {
+    border: 1px solid #ddd;
+    color: #fff;
+    background: linear-gradient(#93c7f5 1%,#1589ee 55%,#1589ee 100%);
+}
+.THIS .date-user > span {
+    padding-left: 5px;
+}
+.THIS .target-container {
+    position: relative;
+}
+.THIS .target-container .target-chat-log  {
+    width: 90%;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.THIS .target-container .target-chat-log > span {
+    opacity: 0.8;
+}

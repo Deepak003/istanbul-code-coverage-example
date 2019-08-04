@@ -1,0 +1,91 @@
+<aura:component access="global" controller="SelectJobroleAuraCtl" >
+	<aura:attribute name="UGContent" type="Object" />
+    <aura:attribute name="buttonLabel" type="string" default="No violation"/>
+    <aura:attribute name="violationFlag" type="boolean" default="false"/>
+    <aura:attribute name="roleFlag" type="boolean" default="false"/>
+    <aura:attribute name="queueSelectionPermission" type="Boolean" />
+    <aura:attribute name="nextSaveFlag" type="boolean" default="false"/>
+    <aura:attribute name="roleValidFlag" type="boolean" default="false"/>
+    <aura:attribute name="queueValidFlag" type="boolean" default="false"/>
+    <aura:attribute name="ContentType" type="String" default=""/>
+    <aura:attribute name="contentActPermsHide" type="Boolean" default="false" />
+    <aura:attribute name="contentActPermsShow" type="Boolean" default="false" />
+    <aura:attribute name="jobRoleId" type="String" default="" />
+    <aura:attribute name="lstcontentData" type="Array" default="[]"/>
+    <aura:attribute name="isChat" type="Boolean" default="false" />
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    <!-- Event handler -->
+    <aura:handler event="c:ViolationSelectEvt" action="{!c.violationSelectEvent}" />
+    <aura:handler name="change" value="{!v.queueSelectionPermission}" action="{!c.onQueueSelectionPermissionChange}" />
+    <aura:registerEvent name="violationActionSelectComEvt" type="c:ViolationActionClickEvt"/>
+    <!-- aura:registerEvent name="RoleQueueAppEvt" type="c:RoleQueueAppEvt"/-->
+    
+    <aura:if isTrue="{!v.ContentType == 'image' || v.ContentType == 'Graphic'}" >
+        <div class="slds-text-align_left">
+            <div class="user-Info-report">
+                Uploaded to {!v.UGContent.ProductLR__r.Name} by {!v.UGContent.Petition_Details__r.Target_Persona_Id__c} on 
+                <ui:outputDateTime value="{!v.UGContent.LastModifiedDate}" format="MM/d/Y HH:mma z"/>
+            </div>
+            <div class="status-image">
+                <lightning:icon iconName="utility:preview" class="slds-p-right_small"
+                                size="small" title="" /> 
+                <aura:if isTrue="{!v.contentActPermsHide}" >
+                	Image is being displayed.
+                    <aura:set attribute="else">
+                    	Image is hidden.
+                    </aura:set>
+                </aura:if>
+            </div>
+        </div>
+    </aura:if>
+   <aura:if isTrue="{!v.isChat}">
+        <div class="slds-text-align_right">
+            <lightning:button variant="neutral" aura:id="noViolation"
+                              label="{!v.buttonLabel}" title="{!v.buttonLabel}"
+                              onclick="{!c.handleNoViolationClick }" />
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.roleFlag}">
+    	<div class="slds-grid">
+            <div class="slds-col slds-text-align_left"> 
+                <aura:if isTrue="{!v.nextSaveFlag}">
+            		<lightning:button variant="neutral" aura:id="changeRole"                              
+                              label="Change Role" title="Change Role"
+                              onclick="{!c.changeRoleButtonClick }" />
+                    </aura:if>
+            </div>
+            <div class="slds-col slds-text-align_right">
+                <lightning:button variant="neutral" aura:id="cancel"
+                                  label="Cancel" title="Cancel"
+                                  onclick="{!c.cancelButtonClick }" />
+                
+                <aura:if isTrue="{!v.nextSaveFlag}">
+                	<lightning:button variant="brand" aura:id="save"                              
+                              label="Save" title="Save"
+                              class="thor-disable"
+                              onclick="{!c.saveButtonClick }" />
+                    <aura:set attribute="else">
+                        
+                        <aura:if isTrue="{!v.queueSelectionPermission}">
+                            <lightning:button variant="brand" aura:id="next"
+                                                  label="Next" title="Next"
+                                                  class="thor-disable"
+                                                  onclick="{!c.nextButtonClick }" />
+                            
+                            <aura:set attribute="else">
+                                
+                                <lightning:button variant="brand" aura:id="save"                              
+                                              label="Save" title="Save"
+                                              class="thor-disable"
+                                              onclick="{!c.saveButtonClick }" />
+                            </aura:set>
+                        
+                        </aura:if>
+                        
+                    	
+                    </aura:set>
+                </aura:if>
+        </div>
+        </div>        
+    </aura:if>
+</aura:component>

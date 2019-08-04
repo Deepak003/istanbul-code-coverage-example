@@ -1,0 +1,90 @@
+<aura:component controller="ProductAuraController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Selected persona object from ProductSnapshort" />
+    <aura:attribute name="nucleusId" type="Id" access="public" description="Getting the nucleus Id from product tab"/>
+    <aura:attribute name="selectedProduct" type="Object" access="public" description="Selected product object"  />
+    <aura:attribute name="selectedPlatform" type="Object" access="public" description="Selected platform object"  />
+    <aura:attribute name="gameMode" type="String" access="public" description="Selected gameMode string"  />
+    <aura:attribute name="caseId" type="String" description="Getting selectthe case id from product tab"/>
+	<aura:attribute name="isMobileProduct" type="Boolean" default="false" />
+    <aura:attribute name="selectedIdentity" type="Object" />
+    <aura:attribute name="accountId" type="String" access="public" />
+    
+    <!-- Global Storage attributes -->
+    <aura:attribute name="cacheBulkData" type="Object" />
+    <aura:attribute name="filterClick" type="boolean" default="false"/>
+    <aura:handler name="change" value="{!v.selectedProduct}" action="{!c.showFilter}"/>
+    <aura:handler name="change" value="{!v.selectedPersona}" action="{!c.showFilter}"/>
+    
+    <!-- Private attributes -->
+    <aura:attribute name="historyData" type="List" access="private" description="Data from History Search component" />
+    <aura:attribute name="searchTerm" type="String" default="" access="private" description="Search Term from smart search" />
+    <aura:attribute name="filterInputData" type="Map" default="{}" access="private" description="Input data for Filters" />
+    
+    <!-- Event Handlers -->
+    <aura:handler name="onClickViewHistory" event="c:HistoryFilterEvt" action="{!c.onClickViewHistory}" description="This will be triggered from HistoryTableExpand component"/>
+    <aura:handler name="showFilter" event="c:HistoryFilterEvt" action="{!c.showFilter}" description="This will be triggered from HistoryHeader component"/>
+    <aura:handler name="onHistoryData" event="c:HistoryTableEvt" action="{!c.onHistoryData}" description="This will be triggered from HistoryFilter component"/>
+    <aura:handler name="onChangeSearchTerm" event="c:HistoryHeaderEvt" action="{!c.onChangeSearchTerm}" description="This will be triggered from HistoryHeader component"/>
+    
+    <!-- Config UI values -->
+    <aura:attribute name="configUIData" type="Object" description="getting the game integration config UI data"/>
+    
+    <!-- Grant UI values -->
+    <aura:attribute name="itemList" type="List"  description="Getting the item list to verify in transactions items"/>
+    <aura:attribute name="packList" type="List" description="Getting the pack list to verify in transactions items"/>
+    <aura:attribute name="isMultiGrant" type="boolean" default="false" description="Check if the grant is selected for multiple items"/>
+    
+     <!-- For History Grant -->
+    <aura:attribute name="openHistoryGrant" type="boolean" default="false" description="To open History grant dialog"/>
+    <aura:attribute name="openHistoryGrantResponse" type="boolean" default="false" description="To open grant response dialog (conformation dialog)"/>
+    <aura:attribute name="globalSelectionArray" type="List" default="[]" description="Getting selected items list for granting"/>
+    <aura:handler name="onChangeArrayList" event="c:GrantComponentEvent" action="{!c.handleArrayListChange}" description="Handle grant array list change event"/>
+    <aura:handler name="onGrantPublish" event="c:GrantComponentEvent" action="{!c.handleGrantPublish}" description="Handle grant publish event"/>
+    <aura:handler name="grantResetEvent" event="c:GrantComponentEvent" action="{!c.handleGrantReset}"/>
+    
+    <aura:attribute name="successData" type="List" default="[]" description="Getting the success data of grant"/>
+    <aura:attribute name="failedData" type="List" default="[]" description="Getting the error data for grant"/>
+    <aura:attribute name="inventoryStats" type="List" default="" description="Formatted Row Data"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" description="Init function handler"/> 
+    
+    <!-- Loading history data (This is for development) -->
+    <!--<aura:handler name="init" value="{! this }" action="{! c.loadProductHistory }"/>-->
+
+    <!-- TSM-1622 -->
+    <aura:attribute name="failedFilterData" type="Object" default="Test"/>
+    <aura:attribute name="filterDataCount" type="Object"/>
+    
+    <!-- Selected Date from category TSM -1622 --> 
+    <aura:attribute name="currentInventoryObject" type="Object" access="public"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <!-- TSM-2813 Function used to handle pagination -->
+    <aura:handler name="onClickPagination" event="c:HistoryFilterEvt" action="{!c.onClickPagination}" description="This will be triggered from HistoryTableExpand component when load more is pressed"/>
+    <aura:attribute name="paginationData" type="Object" access="public" default="{}"/>
+    <aura:attribute name="paginatedNumber" type="Integer" access="public" default="0"/>
+
+    <!-- History Filter Component Here -->
+    <div aura:id="historyFilter">
+        <aura:if isTrue="{!v.packList != undefined}">
+            <c:HistoryFilter paginationData="{!v.paginationData}" currentInventoryObject="{!v.currentInventoryObject}" selectedIdentity="{!v.selectedIdentity}" isMobileProduct="{!v.isMobileProduct}" filterClick="{!v.filterClick}" cacheBulkData="{!v.cacheBulkData}" configUIData="{!v.configUIData}" inputData="{!v.filterInputData}"  selectedPersona="{!v.selectedPersona}" gameMode="{!v.gameMode}" selectedProduct="{!v.selectedProduct}" nucleusId="{!v.nucleusId}" selectedPlatform ="{!v.selectedPlatform}" inventoryStats="{!v.inventoryStats}"/>
+        </aura:if>
+    </div>
+    
+    <!-- History Table Component Here (Updated for TSM-1622) -->
+    <div aura:id="historyTable" class="slds-hide">
+        <c:HistoryHeader aura:id="historyHeader" filterDataCount="{!v.filterDataCount}" failedFilterData="{!v.failedFilterData}" isMultiGrant="{!v.isMultiGrant}" openHistoryGrant="{!v.openHistoryGrant}" globalSelectionArray="{!v.globalSelectionArray}"/>
+        <c:HistoryTable paginatedNumber = "{!v.paginatedNumber}" productMaskingData = "{!v.productMaskingData}" globalSelectionArray="{!v.globalSelectionArray}" itemList="{!v.itemList}" packList="{!v.packList}" data="{! v.historyData }" searchTerm="{! v.searchTerm }" selectedPersona="{!v.selectedPersona}" selectedProduct="{!v.selectedProduct}" caseId="{!v.caseId}" accountId="{!v.accountId}" nucleusId="{!v.nucleusId}" />
+    </div> 
+    
+    <aura:if isTrue="{!v.openHistoryGrant}">
+         <c:HistoryGrantAwardSection caseId="{!v.caseId}" selectedProduct="{!v.selectedProduct.Url_Name__c}" nucleusId="{!v.nucleusId}" selectedPersona="{!v.selectedPersona}"
+                                    openHistoryGrant="{!v.openHistoryGrant}"  globalSelectionArray="{!v.globalSelectionArray}"/>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.openHistoryGrantResponse}">
+         <c:GrantResultDialog successData="{!v.successData}" failedData="{!v.failedData}" openGrantResponse="{!v.openHistoryGrantResponse}" />
+    </aura:if>
+</aura:component>

@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Update petition actions event">
+	<aura:attribute name="actionsList" type="String[]" default="[]"/>
+    <aura:attribute name="eventType" type="String"/>
+</aura:event>

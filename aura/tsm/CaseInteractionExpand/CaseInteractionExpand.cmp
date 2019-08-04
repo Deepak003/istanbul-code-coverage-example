@@ -1,0 +1,170 @@
+<aura:component controller="CaseSummaryAuraController">
+    <aura:attribute name="data" type="Object" access="public" />
+    <aura:attribute name="interaction" type="Object" access="public" />
+    <aura:attribute name="isLoading" type="Boolean" access="public" />
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+    <!--<aura:handler name="change" value="{! v.interaction }" action="{! c.doInit }" />-->
+    <aura:attribute name="eventId" type="String" access="private" />
+    <aura:attribute name="callDuration" type="String" access="private" />
+    <aura:attribute name="interactions" type="List" access="public" />
+    <aura:attribute name="interactionIndex" type="String" access="public" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <div class="slds-is-relative">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner variant="brand" size="small"/>
+        </aura:if>
+        <!-- Subject -->
+        <aura:if isTrue="{! v.interaction.subject }">
+            <div class="slds-p-top_medium section-title">Subject</div>
+            <div class="slds-p-top_xxx-small">{! v.interaction.subject }</div>
+        </aura:if>
+        
+        <!-- Inbound Email -->
+        <aura:if isTrue="{! v.interaction.inboundEmail }">
+            <div class="slds-p-top_medium section-title">Inbound Email</div>
+            <div class="slds-p-top_xxx-small">{! v.interaction.inboundEmail }</div>
+        </aura:if>
+        
+        <!-- Outbound Email -->
+        <aura:if isTrue="{! v.interaction.outboundEmail }">
+            <div class="slds-p-top_medium section-title">Outbound Email</div>
+            <div class="slds-p-top_xxx-small">
+                <lightning:formattedRichText value="{! v.interaction.outboundEmail }" />
+            </div>
+        </aura:if>
+        
+        <!-- Case Details -->
+        <aura:if isTrue="{! not(empty(v.interaction.caseDetails)) }">
+            <div class="slds-p-top_medium section-title">Case Details</div>
+            <aura:iteration items="{! v.interaction.caseDetails }" var="row" indexVar="idx">
+                <aura:if isTrue="{!row.value}">
+                    <div class="slds-grid slds-p-top_xxx-small">
+                        <div class="slds-size_1-of-4 bold">{!row.key}: </div>
+                        <div class="slds-size_3-of-4">{!row.value}</div>
+                    </div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+        
+        <!-- Attachments -->
+        <aura:if isTrue="{! not(empty(v.interaction.attachments)) }">
+            <div class="slds-p-top_medium section-title">Attachments</div>
+            <aura:iteration items="{! v.interaction.attachments }" var="row" indexVar="idx">
+                <aura:if isTrue="{!row.name}">
+                    <div class="slds-p-top_xxx-small">
+                        <!--<a>{!row.name}</a>-->
+                        <a href="#" onclick="{!c.openAttachmentWithSubtab}" id="{!row.urlValue}">{!row.name}</a>
+                    </div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+        
+        <!-- Case Notes -->
+        <aura:if isTrue="{! not(empty(v.interaction.caseNotes)) }">            
+            <aura:iteration items="{! v.interaction.caseNotes }" var="row" indexVar="idx">
+                <aura:if isTrue="{!row.commentBody}">
+                    <aura:if isTrue="{!idx == 0}">
+                        <div class="slds-p-top_medium section-title">Case Note</div>
+                    </aura:if>                
+                    <div class="slds-p-top_xxx-small">{!row.commentBody}</div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+        
+        <!-- Advisor Actions -->
+        <aura:if isTrue="{! not(empty(v.interaction.advisorActions)) }">
+            <div class="slds-p-top_medium section-title">Advisor Actions</div>
+            <aura:iteration items="{! v.interaction.advisorActions }" var="row" indexVar="idx">
+                <aura:if isTrue="{!row}">
+                    <div class="slds-p-top_xxx-small">- {!row}</div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+                
+        <!-- Call Details -->
+        <aura:if isTrue="{! not(empty(v.interaction.phoneDetails)) }">
+            <div class="slds-p-top_medium section-title">Call Details</div>
+            <aura:iteration items="{! v.interaction.phoneDetails }" var="row" indexVar="idx">
+                <aura:if isTrue="{!row.value}">            
+                    <div class="slds-grid slds-p-top_xxx-small">
+                        <aura:if isTrue="{!row.key=='CallId'}">
+                            <audio class="slds-m-top_xx-small" controls="controls" src='{! $Label.c.EA_CALL_URL + row.value}' preload="auto"></audio>
+                            <aura:set attribute="else">
+                                <div class="slds-size_1-of-4 bold">{!row.key}: </div>
+                                <div class="slds-size_3-of-4">
+                                    <aura:if isTrue="{!row.key=='Call Duration'}">
+                                        {!v.callDuration}
+                                        <aura:set attribute="else">
+                                            {!row.value}
+                                        </aura:set>
+                                    </aura:if>                                            
+                                </div>                                           
+                            </aura:set>                            
+                        </aura:if>
+                    </div>
+                </aura:if>
+            </aura:iteration>
+        </aura:if>
+        
+        <!-- Capture VOP Survey -->
+        <aura:if isTrue="{! or(not(empty(v.interaction.CaptureFlowDataVOs)),not(empty(v.interaction.VOCResponses)))}">
+            <lightning:accordion allowMultipleSectionsOpen="true" class="chat-accordian">
+                <lightning:accordionSection label="Additional Case Details">
+                    <div class="slds-p-top_xxx-small slds-p-left_large">
+                        <aura:if isTrue="{! not(empty(v.interaction.VOCResponses))}">
+                            <span class="slds-text-title">Player Entered Info</span>
+                            <aura:iteration items="{! v.interaction.VOCResponses }" var="row" indexVar="idx">
+                                <aura:if isTrue="{!row.questionAsked}">                                    
+                                    <div class="slds-grid slds-p-top_medium slds-text-title">
+                                        <div class="slds-size_1-of-4 bold">{!row.questionAsked}</div>
+                                        <div class="slds-size_3-of-4 slds-p-left_x-small">{!row.playersAnswer}</div>
+                                    </div>
+                                </aura:if>
+                            </aura:iteration>
+                        </aura:if>
+                        </div>
+                    	<div class="slds-p-top_xxx-small slds-p-left_large">
+                        <aura:if isTrue="{! not(empty(v.interaction.CaptureFlowDataVOs))}">
+                            <span class="slds-text-title">Advisor Entered Info</span>
+                            <aura:iteration items="{! v.interaction.CaptureFlowDataVOs }" var="row" indexVar="idx">
+                                <aura:if isTrue="{!row.questionAsked}">                                        
+                                    <div class="slds-grid slds-p-top_medium slds-text-title">
+                                        <div class="slds-size_1-of-4 bold">{!row.questionAsked}</div>
+                                        <div class="slds-size_3-of-4 slds-p-left_x-small">{!row.playersAnswer}</div>
+                                    </div>
+                                </aura:if>
+                            </aura:iteration>
+                        </aura:if>
+                    </div>
+                </lightning:accordionSection>
+            </lightning:accordion>            
+        </aura:if>
+        
+        <!-- Game Data -->
+        <aura:if isTrue="{! not(empty(v.interaction.caseAuxiliaryData)) }">
+            <lightning:accordion allowMultipleSectionsOpen="true" class="chat-accordian">
+                <lightning:accordionSection label="Game Data">
+                    <aura:iteration items="{! v.interaction.caseAuxiliaryData }" var="row" indexVar="idx">
+                        <div class="slds-grid slds-p-top_xxx-small slds-p-left_large">
+                            <div class="slds-size_1-of-4 bold">{!row.key}: </div>
+                            <div class="slds-size_3-of-4">{!row.value}</div>
+                        </div>
+                    </aura:iteration>
+                </lightning:accordionSection>
+            </lightning:accordion>
+        </aura:if>
+        
+        <!-- Chat Transcript -->
+        <aura:if isTrue="{! and(v.interaction.chatTranscript, v.interaction.chatTranscript.body) }">
+            <lightning:accordion allowMultipleSectionsOpen="true" class="chat-accordian">
+                <lightning:accordionSection label="Chat Transcript">
+                    <div class="slds-p-top_xxx-small slds-p-left_large">
+                        <lightning:formattedRichText value="{! v.interaction.chatTranscript.body }"></lightning:formattedRichText>    
+                    </div>
+                </lightning:accordionSection>
+            </lightning:accordion>            
+        </aura:if>
+    </div>
+</aura:component>

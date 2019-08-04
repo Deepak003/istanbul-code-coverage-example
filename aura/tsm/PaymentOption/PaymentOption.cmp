@@ -1,0 +1,147 @@
+<aura:component controller="AccountBillingAuraCtl">
+    <aura:attribute name="paymentOptions" type="List" access="public"/>
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="public"/>
+    <aura:attribute name="showPaymentSearchModal" type="Boolean" access="public"/>
+    <aura:attribute name="nucleusId" type="Id" access="public"/>
+    <aura:attribute name="invoiceType" type="String" access="public" />
+    <aura:attribute name="caseId" type="Id" access="public"/>
+    <aura:attribute name="accountId" type="Id" access="public"/>
+    <!-- For PaymentHistory -->
+    <aura:attribute name="invoicesRaw" type="List" access="public"/>   
+    <aura:attribute name="isInvoiceLoading" type="Boolean" access="public"/>        
+    <aura:attribute name="invoiceSource" type="String" access="public"/>
+    <aura:attribute name="invoicePageNumber" type="Integer" access="public"/>
+    <aura:attribute name="totalInvoiceCount" type="Integer" access="public" />    
+    <aura:attribute name="selectedPaymentOption" type="Map" access="public"/>
+    
+    <aura:attribute name="updateIndex" type="Integer" access="public"/>
+    
+    <aura:attribute name="numberOfVisibleItems" type="Integer" default="3" access="private" />
+    <aura:attribute name="showAll" type="Boolean" default="false" access="private" />
+    <aura:attribute name="invoicesRaw_Copy" type="List" access="private"/>   
+    <aura:attribute name="totalInvoiceCount_Copy" type="Integer" access="private" />
+    
+    <aura:attribute name="viewPaymentOptions" type="Boolean" default="false" access="private" />
+    <aura:attribute name="editPaymentOptions" type="Boolean" default="false" access="private" />
+    <aura:attribute name="selectedPaymentAccount" type="Object" access="public" />
+    
+    <aura:handler name="change" value="{! v.selectedPaymentOption }" action="{!c.onSelectedPaymentOptionChange}"/>
+    <aura:handler name="change" value="{! v.invoicesRaw }" action="{!c.keepCopy}"/>
+    <aura:handler name="change" value="{! v.totalInvoiceCount }" action="{!c.keepCopy}"/>
+    <aura:handler name="change" value="{! v.invoiceType }" action="{!c.onChangeInvoiceType}"/>
+    
+    <aura:handler name="init" value="{! this }" action="{!c.keepCopy}"/>
+    <aura:handler name="init" value="{! this }" action="{!c.addUnassociatedPaymentCard}"/>
+    
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    
+    <aura:handler event="c:DeletePaymentAccountEvent" action="{!c.handleDeletePaymentAccountEvent}"/>
+
+    <aura:handler name="change" value="{! v.invoicePageNumber }" action="{!c.onChangeInvoicePageNumber}"/>
+    <aura:handler name="cmpEvent" event="c:PaymentUpdateEvt" action="{!c.handlePaymentUpdate}"/> 
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="List" />
+    
+    <div class="slds-is-relative">
+        <div class="slds-p-bottom_xx-small" style="color: #796E6B;">
+            PAYMENT OPTIONS
+        </div>
+        <aura:if isTrue="{! v.isLoading }">
+            <lightning:spinner variant="brand" size="small"/>
+            <aura:set attribute="else">
+                <div class="slds-grid slds-gutters slds-wrap" aura:id="div2">
+                    <aura:iteration items="{!v.paymentOptions}" var="row" indexVar="idx">
+                        <aura:if isTrue="{! or(v.showAll, lessthan(idx, v.numberOfVisibleItems)) }">
+                            <div class="{! join(' ',
+                                        'slds-col slds-p-bottom_small slds-has-dividers_around-space single-payment',                        
+                                        'slds-size_1-of-' + v.numberOfVisibleItems,
+                                        v.selectedPaymentOption.accountId == row.accountId ? 'selected-payment-card' : 'nothing'
+                                        )}">                        
+                                <div class="slds-item" onclick="{!c.togglePaymentCardSelect}" data-index="{!idx}">
+                                    <aura:if isTrue="{! not(row.hideAction) }">
+                                        <div class="slds-float_right payment-action-menu" onclick="{!c.stopClickPropagation}">
+                                            <lightning:buttonMenu onselect="{! c.handleActionMenuSelect }" alternativeText="Show Action" 
+                                                                  iconSize="xx-small" value="{! idx }" menuAlignment="right">
+                                                <lightning:menuItem value="view" label="View Payment Details" />
+                                                <lightning:menuItem value="edit" label="Edit Payment Details" disabled="{! not(v.accountMaskingList.EditPaymentInfo)}"/>
+                                                <lightning:menuItem value="delete" label="Delete Payment Account" class="{! row.isPendingInvoices=='true' ? 'slds-hide' : 'slds-show' }" disabled="{! not(v.accountMaskingList.DeletePaymentInfo)}"/>
+                                            </lightning:buttonMenu>
+                                        </div>
+                                    </aura:if>
+                                    <div class="slds-tile slds-media payment-card-body">
+                                        <div class="slds-media__figure">
+                                            <span class="slds-icon_container" title="">
+                                                <c:BillingIcons class="billing-icon" type="{!row.iconType}" />
+                                            </span>
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <h3 class="slds-tile__title slds-truncate slds-p-bottom_x-small" title="{! row.titleFormatted || row.title }"
+                                                style="font-size: 14px; font-weight: bold; color: #2B2826; line-height: normal;">
+                                                <lightning:formattedText value="{! row.titleFormatted || row.title }" />
+                                            </h3>
+                                            <div class="slds-tile__detail" style="margin-bottom: 5px;">
+                                                <dl class="slds-wrap" style="font-size: 10px;font-weight: normal;color: #796E6B;">
+                                                    <aura:if isTrue="{! and(row.expirationMonth, row.expirationYear) }">        
+                                                        <dd class="slds-truncate slds-p-bottom_x-small">
+                                                            Exp {! row.expirationMonth + '/' + row.expirationYear }
+                                                        </dd>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{! row.email }">
+                                                        <dd class="slds-truncate slds-p-bottom_x-small" title="{! row.email }">
+                                                            {! row.email }
+                                                        </dd>
+                                                    </aura:if>                                    
+                                                </dl>
+                                                <span class="{! join (' ',
+                                                             'slds-badge slds-badge_inverse slds-p-horizontal_large',
+                                                             if(row.status == 'ACTIVE', 'active-badge '),
+                                                             if(row.status == 'EXPIRED', 'expired-badge '),
+                                                             if(row.status == 'DISABLED', 'disabled-badge ')
+                                                             )
+                                                             }">
+                                                    {! row.status }
+                                                </span>
+                                            </div>
+                                        </div>                                    
+                                    </div>
+                                </div>                        
+                            </div>
+                        </aura:if>
+                    </aura:iteration>            
+                </div> 
+                <!-- Global Search Link -->
+                <aura:if isTrue="{! or(v.showAll, lessthanorequal(v.paymentOptions.length,v.numberOfVisibleItems) ) }">
+                    <div class="slds-p-top_small" style="text-align: center;">                        
+                        <aura:if isTrue="{! and(v.invoiceSource == '', empty(v.paymentOptions)) }">
+                            <div>
+                                There is no payment option associated with this account.
+                            </div>
+                            <div>
+                                <a onclick="{! c.openSearchPaymentOptionModal }">Search payment option</a> globally.
+                            </div>
+                            <aura:set attribute="else">
+                                Can't find a particular payment option? 
+                                <a onclick="{! c.openSearchPaymentOptionModal }">Search payment option</a> globally.
+                            </aura:set>
+                        </aura:if>                        
+                    </div>
+                </aura:if>
+                <!-- When more payment options are there -->
+                <aura:if isTrue="{!greaterthan(v.paymentOptions.length,v.numberOfVisibleItems)}">
+                    <div class="slds-align_absolute-center">
+                        <span style="cursor: pointer;color: blue;" onclick="{! c.toggleMoreVisibility }">
+                            Show {! v.showAll ? 'Less' : 'More' }
+                        </span>
+                    </div>
+                </aura:if>         
+            </aura:set>
+        </aura:if>
+    </div>
+    <aura:if isTrue="{! v.viewPaymentOptions}">
+        <c:PaymentAccountDetailsModal isOpen="{!v.viewPaymentOptions}" accountDetails="{!v.selectedPaymentAccount}" nucleusId="{!v.nucleusId}" variant="view" title="Payment Account Details" />
+    </aura:if>
+    <aura:if isTrue="{! v.editPaymentOptions }">
+        <c:PaymentAccountDetailsModal isOpen="{!v.editPaymentOptions}" accountDetails="{!v.selectedPaymentAccount}" nucleusId="{!v.nucleusId}" variant="edit" title="Payment Account Details" />
+    </aura:if>  
+</aura:component>

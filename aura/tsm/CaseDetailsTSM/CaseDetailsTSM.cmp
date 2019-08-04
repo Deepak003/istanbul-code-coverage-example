@@ -1,0 +1,207 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" access="global" controller="CaseManagementAuraController">
+    <!-- check this VO type -->
+    <aura:attribute name="simpleCase" type="CaseDetailAuraVO" />
+    <aura:attribute name="tagRecs" type="List" default="[]" />
+    <aura:attribute name="objCase" type="Case" default="" />    
+    <aura:attribute name="products" type="List" />
+    <aura:attribute name="platforms" type="List" default="[]" />
+    <aura:attribute name="categories" type="List" default="[]" />   
+    <aura:attribute name="issues" type="List" default="[]" /> 
+    <aura:attribute name="tags" type="List" default="[]" />
+    <aura:attribute name="contentTypes" type="List" default="[]" />  
+    <aura:attribute name="Editable" type="boolean" default="false" /> 
+    <aura:attribute name="recordId" type="Id" />  
+    <aura:attribute name="caseId" type="Id" default="5006C000001BIsvQAG"/>
+    <aura:attribute name="isCase" type="boolean" default="false"/>
+    <aura:attribute name="vogOptions" type="List" default="[{'label': 'ATT', 'value': 'ATT'},{'label': 'FIF', 'value': 'FIF'}]"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    
+    <!--Attributes for Lookup-->
+    <aura:attribute name="allProducts" type="Object"/>
+    <aura:attribute name="platformData" type="Object"/>
+    <aura:attribute name="platformDisable" type="Boolean" default="false"/>
+    <aura:attribute name="categoryData" type="Object"/>
+    <aura:attribute name="categoryDisable" type="Boolean" default="false"/>
+    <aura:attribute name="issueData" type="Object"/>
+    <aura:attribute name="issueDisable" type="Boolean" default="false"/>
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleBubbling}"/>
+    
+    <aura:registerevent name="ProductSnapShotAction" type="c:ProductSnapShotAction" /> 
+    
+    
+    <aura:registerevent name="CaseDetailEvent" type="c:CaseDetailEvent"/>
+    
+    <!--<aura:registerevent name="UpdateCaseObjectAppEvt" type="c:UpdateCaseObjectAppEvt"/> -->
+    <!--<aura:method name="getPetitionDetails" 
+                 action="{!c.getPetitionDetails}" 
+                 access="PUBLIC"
+                 description="call the get acc Note method" />
+    handlers
+    -->
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>   
+    <aura:handler name="change" value="{!v.simpleCase.product}" action="{!c.updateProduct}" />
+    
+    <!--TSM-2983-->
+    <aura:handler event="c:CaseDetailStatusChange" action="{!c.CaseDetailStatusChange}"/>
+    
+    <!-- <lightning:layout multipleRows="true">
+        <lightning:layoutItem flexibility="auto">
+            <lightning:layout>
+                <lightning:layoutItem flexibility="auto" class="detail-container">-->
+    <div aura:id="marginLargeDiv" class="slds-m-around_large">
+        <aura:if isTrue="{!v.isCase}"> 
+            <div class="slds-grid">
+                <div class="slds-size_10-of-12">
+                    <div class="slds-text-heading_small c-heading">
+                        Case Details: {!v.simpleCase.caseNumber}
+                    </div>
+                </div>
+                      <!--tsm 4188 to remove attachment menu item-->
+                           <!-- <div class="slds-size_2-of-12">
+                                <lightning:buttonMenu aura:id="menu" onselect="{! c.handleSelect }" alternativeText="Show menu" class="slds-align-right slds-float_right" iconSize="small" menuAlignment="right"> -->
+                                    <!--<lightning:menuItem value="Edit" label="Edit"  /> -->
+                                   <!-- <lightning:menuItem value="SensitiveAttachments" label="Mark Attachments as Sensitive" />
+                                </lightning:buttonMenu>
+                            </div>-->
+            </div>
+            <div class="slds-m-top_medium">
+                <div class="edit-field-label slds-text-body_small">
+                    Subject
+                </div>
+                <div>
+                    <lightning:input class="no-asterisk" required="true" messageWhenValueMissing=" " variant="label-hidden" name="subjectField" label="" value="{!v.simpleCase.subject}" maxlength="150" onchange="{! c.caseDetailUpdated }"/>
+                </div>
+            </div>
+            
+             <aura:if isTrue="{! and(v.simpleCase.currentChannel != 'Phone', v.simpleCase.currentChannel != 'Chat')}">     
+                <div class="slds-m-top_small">
+                    <div class="edit-field-label slds-text-body_small ">
+                        Description
+                    </div>
+                    <div class="slds-m-bottom_xx-small">
+                        <div class="slds-form-element__control">
+                            <textarea id="caseDescription" class="slds-textarea c-textarea_height" readonly="{!v.Editable}" onchange="{! c.caseDetailUpdated }">
+                                {!v.simpleCase.description}
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+            </aura:if>
+        </aura:if>
+        
+        <div class="slds-is-relative">
+            <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                    <aura:if isTrue="{! and( v.simpleCase.productName != null, v.simpleCase.currentChannel != 'Phone')}"> 
+                        <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.productName}" selectedURL="{!v.simpleCase.productUrl}" fieldName="Product" lookupData="{!v.allProducts}"/>
+                        <aura:set attribute="else">
+                            <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.productName}" fieldName="Product" lookupData="{!v.allProducts}"/>
+                        </aura:set>
+                    </aura:if> 
+                </div>
+            </div>   
+            
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                     <aura:if isTrue="{!and(v.simpleCase.platformGivenName != null,  v.simpleCase.currentChannel != 'Phone')}"> 
+                        <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.platformGivenName}" selectedURL="{!v.simpleCase.platformName}" fieldName="Platform" lookupData="{!v.platformData}" disableFlag="{!v.platformDisable}"/>
+                        <aura:set attribute="else">
+                            <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.platformGivenName}" fieldName="Platform" lookupData="{!v.platformData}" disableFlag="{!v.platformDisable}"/>
+                        </aura:set>
+                    </aura:if> 
+                </div>
+            </div>
+            
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                   <aura:if isTrue="{!and(v.simpleCase.productName != null,  v.simpleCase.currentChannel != 'Phone')}">
+                        <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.categoryName}" selectedURL="" fieldName="Category" lookupData="{!v.categoryData}" disableFlag="{!v.categoryDisable}"/>
+                        <aura:set attribute="else">
+                            <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.categoryName}" fieldName="Category" lookupData="{!v.categoryData}" disableFlag="{!v.categoryDisable}"/>
+                        </aura:set>
+                    </aura:if> 
+                </div>
+            </div>
+            
+            <div class="slds-m-top_small">
+                <div class="c-inline slds-m-bottom_xx-small slds-is-relative">
+                    <aura:if isTrue="{!and(v.simpleCase.productName != null,  v.simpleCase.currentChannel != 'Phone')}"> 
+                        <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.issueName}" selectedURL="" fieldName="Issue" lookupData="{!v.issueData}" disableFlag="{!v.issueDisable}"/>
+                        <aura:set attribute="else">
+                            <c:LookupTSM class="no-asterisk" required="true" messageWhenValueMissing=" " selectedName="{!v.simpleCase.issueName}" fieldName="Issue" lookupData="{!v.issueData}" disableFlag="{!v.issueDisable}"/>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+        
+       <!-- TSM 3309  <div class="{!v.simpleCase.currentChannel != 'Phone' ?'' : 'slds-m-top_small'}">
+            <div class="edit-field-label slds-text-body_small ">
+                VOG Entered by player
+            </div>
+            <div class="slds-m-bottom_xx-small slds-p-_large">
+                <lightning:combobox name="vogpicklist" label="" value="ATT" placeholder="Select..." options="{! v.vogOptions }" class="c-vogpicklist" readonly="{!v.Editable}"/>
+            </div>   
+        </div> TSM 3309 -->
+        
+       <!-- TSM 3309 <div class="slds-m-top_medium slds-grid c-vogborder">
+            <div class="slds-m-top_medium slds-m-bottom_medium slds-border-top">
+                <h1 class="slds-page-header__title slds-truncate slds-align-left slds-border-top vog-FontWeight">
+                    VoG for advisor
+                </h1>
+            </div>
+            <div class="slds-m-top_medium slds-m-bottom_medium slds-float_right slds-text-align_right c-vog_chevrondown">
+                <lightning:icon iconName="utility:chevrondown" size="small" /> 
+            </div>
+        </div> TSM 3309-->
+		<!--following lines added by Sunil -->
+		<c:Display_Guided_Survey_Flow caseId="{!v.caseId}" flowType='Dynamic'></c:Display_Guided_Survey_Flow>
+        <div class="slds-m-top_medium" style="position:relative">
+            <div class="slds-grid">
+                <div class="edit-field-label slds-align-left slds-size_2-of-3 slds-truncate">
+                    Attachments
+                </div>
+                <div class="slds-col slds-size_1-of-3 slds-text-align_right">
+                    
+                    <aura:if isTrue="{!v.simpleCase.isAttachementLocked}">
+                        <lightning:buttonIcon iconName="utility:lock" variant="bare" onclick="{! c.unlockAttachments }" size="medium" /> 
+                        <aura:set attribute="else">
+                            <lightning:buttonIcon iconName="utility:unlock" variant="bare" onclick="{! c.lockAttachments }" size="medium" /> 
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+        <div class="slds-m-top_medium thor-line-height" style="position:relative">
+            <lightning:spinner class="slds-hide" aura:id="lockSpinner" variant="brand" size="small"/>
+            <c:Attachments caseId="{!v.caseId}" lockStatus="{!v.simpleCase.isAttachementLocked}"/>
+        </div>
+        <!--TSM 3309 
+        <div class="slds-m-top_medium">
+            <div class="edit-field-label slds-text-body_small ">
+                Tags
+            </div>
+            <div class="c-inline slds-m-bottom_xx-small">
+                <c:Lookup objectAPIName="getAllCaseTagsForCase" 
+                          IconName="standard:account"
+                          listOfSearchRecords="{!v.tags}"
+                          selectedRecord="" 
+                          SearchKeyWord=""
+                          placeHolder="Search and add tags"
+                          required="true"
+                          eventType="category"
+                          dependentEVType="product"
+                          multipleSelect="true"
+                          listOfSelectedRecords="{!v.tagRecs}"
+                          aura:id="createCaseCategory"/>
+            </div> TSM 3309 -->
+            <!--lightning:icon iconName="utility:edit" size="x-small" /-->
+       <!--TSM 3309 </div> TSM 3309 -->        
+    </div>
+    <!--</lightning:layoutItem>                           
+            </lightning:layout>
+        </lightning:layoutItem>            
+    </lightning:layout>-->
+</aura:component>

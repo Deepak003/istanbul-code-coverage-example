@@ -1,0 +1,85 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId"
+                controller="CaseActivitiesAuraCtl">
+    <!-- input-attributes -->
+    <aura:attribute name="caseId" type="String" access="public" />    
+    <aura:attribute name="accountId" type="String" access="public" />
+    
+    <aura:attribute name="sortOrder" type="String" default="DESC" access="private"/>    
+    <aura:attribute name="caseUpdatesList" type="List" />
+    <aura:attribute name="caseUpdatesEmail" type="List" />
+    <aura:attribute name="caseUpdatesChat" type="List" />
+    <aura:attribute name="caseUpdatesNote" type="List"  />
+    <aura:attribute name="caseUpdatesAttachment" type="List" />
+    <aura:attribute name="isSpinner" type="Boolean" default="false" access="private" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.getCaseUpdates}"/>
+    <aura:handler event="c:Refresh" action="{!c.doRefresh}"/>    
+    <aura:handler name="change" value="{!v.caseUpdatesList}" action="{!c.onCaseUpdatesList}"/>
+    
+    <div class="case-activity-container">
+        <div class="slds-section slds-is-open" aura:id="currentCaseActivity">
+            <h3 class="slds-section__title case-activity-title" onclick="{!c.currentCaseSelected}">
+                <button aria-controls="expando-unique-id" 
+                        aria-expanded="false"
+                        class="slds-button slds-section__title-action" >                
+                    <c:SvgIcon
+                               svgPath="{!$Resource.TSM_LDS + '/icons/utility-sprite/svg/symbols.svg#switch'}" 
+                               category="action" 
+                               size="x-small" 
+                               name=""
+                               class="slds-section__title-action-icon slds-button__icon slds-button__icon_left"/>
+                    
+                    <span containerClass="slds-truncate" title="Current case activities">Current case activities</span>
+                </button>
+            </h3>
+            <div aria-hidden="true" class="slds-section__content" style="position : relative">                
+                <c:ComponentHeader targetComponent="cCaseUpdates,cCaseActivity"  />                
+                <aura:if isTrue="{! !empty(v.caseUpdatesList) }">
+                    <lightning:tabset>
+                        <lightning:tab label="ALL UPDATES">
+                            <c:CaseUpdates caseUpdatesList="{!v.caseUpdatesList}" />
+                        </lightning:tab>
+                        <lightning:tab label="EMAIL">
+                            <c:CaseUpdates caseUpdatesList="{!v.caseUpdatesEmail}" />
+                        </lightning:tab>
+                        <lightning:tab label="CHAT">
+                            <c:CaseUpdates caseUpdatesList="{!v.caseUpdatesChat}" />
+                        </lightning:tab>
+                        <lightning:tab label="NOTES">
+                            <c:CaseUpdates caseUpdatesList="{!v.caseUpdatesNote}" />
+                        </lightning:tab>
+                        <lightning:tab label="ATTACHMENTS">
+                            <c:CaseUpdates caseUpdatesList="{!v.caseUpdatesAttachment}" />
+                        </lightning:tab>
+                    </lightning:tabset>
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{! v.isSpinner == false }">
+                            <c:EmptyState message="There is no activity"></c:EmptyState>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+                <lightning:spinner variant="brand"  size="large" class="{!v.isSpinner ? 'slds-show' : 'slds-hide'}" />
+            </div>
+        </div>
+        <div class="slds-section" aura:id="otherCaseActivity">
+            <h3 class="slds-section__title case-activity-title" onclick="{!c.otherCaseSelected}">
+                <button aria-controls="expando-unique-id" 
+                        aria-expanded="false" 
+                        class="slds-button slds-section__title-action">                
+                    <c:SvgIcon
+                               svgPath="{!$Resource.TSM_LDS + '/icons/utility-sprite/svg/symbols.svg#switch'}" 
+                               category="action" 
+                               size="x-small" 
+                               name=""
+                               class="slds-section__title-action-icon slds-button__icon slds-button__icon_left"/>
+                    
+                    <span containerClass="slds-truncate" title="Current case activities">Other case activities</span>
+                </button>
+            </h3>
+            <div aria-hidden="true" class="slds-section__content">
+                <c:ComponentHeader show="['search', 'expand']" targetComponent="cCaseActivityTableExpand,cCaseHistory" />
+                <c:CaseHistoryTSM accountId="{! v.accountId }" caseId="{! v.caseId}"/>
+            </div>
+        </div>
+    </div>
+</aura:component>

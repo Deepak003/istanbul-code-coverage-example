@@ -1,0 +1,97 @@
+<aura:component controller="SelectJobroleAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:attribute name="roles" type="List" />  
+    <aura:attribute name="selectedOption" type="String"/> 
+    <aura:attribute name="currentJobRole" type="String"/>   
+    <aura:attribute name="permissionSet" type="Object"/>  
+    <aura:attribute name="isTSM" type="Boolean" default="true" />  
+    <aura:attribute name="isDialog" type="Boolean" default="true" />
+    <aura:attribute name="isQueue" type="Boolean" default="false" /> <!-- THOR Specific Changes -->
+    <aura:attribute name="queueOptions" type="List"/>
+    <aura:attribute name="selectedQueueOptions" type="List"/>
+    <aura:attribute name="queueNames" type="String" default="Empty Queue"/>
+    <aura:attribute name="advisorRoleSelect" type="String" default=""/>
+    <aura:attribute name="nMoreLabel" type="Integer"/>
+    <aura:attribute name="allPermsList" type="List"/>
+    <aura:attribute name="queueSelectionPermission" type="Boolean" default="false" />
+    <aura:attribute name="isManageQueue" type="Boolean" default="false"/>  
+    <aura:attribute name="isChangeRole" type="Boolean" default="false"/>
+   
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />    
+    <aura:registerEvent name="ThorPermissionsAppEvent" type="c:ThorPermissionsAppEvent"/>
+    
+    <lightning:utilityBarAPI aura:id="utilitybar" />  
+    <aura:if isTrue="{!v.isDialog}">        
+        <aura:if isTrue="{!v.isOpen}">
+            <div role="dialog" tabindex="-1" aria-labelledby="header99" class="slds-modal slds-fade-in-open ">
+                <div class="slds-modal__container">
+                    <div class="slds-modal__header">
+                    	<aura:if isTrue="{!v.isQueue == false}">
+                        	<h2 id="header99" class="slds-text-heading--medium">Select your role</h2>
+                        	<aura:set attribute="else"> <!-- THOR Specific Changes -->
+                        		<h2 id="header99" class="slds-text-heading--medium">Select your queue(s)</h2>
+                        	</aura:set>
+                        </aura:if>
+                    </div>
+                    <div class="slds-modal__content slds-p-around--medium">
+                        <aura:if isTrue="{!v.isQueue == false}">
+                            <aura:iteration items="{!v.roles}" var="item">
+                                <aura:if isTrue="{!item.JobRole__c == v.currentJobRole}"> 
+                                    <!-- handlers-->
+                                    <lightning:input type="radio" name="select" value="{!item.JobRole__c}" label="{!item.JobRole__r.Name}" onchange="{!c.handleRadioClick}" checked="true"/>
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{!item.JobRole__c != null}">
+                                            <lightning:input type="radio" name="select" value="{!item.JobRole__c}" label="{!item.JobRole__r.Name}" onchange="{!c.handleRadioClick}" />
+                                        </aura:if>     
+                                    </aura:set>
+                                </aura:if> 
+                            </aura:iteration>
+                            <aura:set attribute="else"> <!-- THOR Specific Changes -->
+                                <lightning:checkboxGroup name="userQueues" aura:id="userQueues"
+                                     label="Select One or More Queues to Pull Cases"
+                                     onchange="{! c.queueSelected}"
+                                     options="{!v.queueOptions }"
+                                     value="{!v.selectedQueueOptions}" />
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                    <div class="slds-modal__footer">
+                        <aura:if isTrue="{!v.isQueue == false}">
+                            <!-- lightning:button aura:id="cancelQueuButton" variant="neutral" class="slds-button " label="Cancel" onclick="{!c.closeModel}" disabled="false"/-->
+                            <aura:if isTrue="{!v.currentJobRole != undefined }">
+                                <lightning:button aura:id="selectButton" variant="brand" class="slds-button slds-button--brand" label="Select" onclick="{!c.selectRole}" />
+                                <aura:set attribute="else">
+                                    <lightning:button aura:id="selectButton" variant="brand" class="slds-button slds-button--brand" label="Select" onclick="{!c.selectRole}" disabled="true" />
+                                </aura:set>
+                            </aura:if>
+                            <aura:set attribute="else">
+                                <!-- THOR Specific Changes -->
+                                <div class="slds-grid">
+                                    <div class="slds-col slds-text-align_left">
+                                        <lightning:button aura:id="changeRoleButton" variant="neutral" class="slds-button" label="Change Role" onclick="{!c.changeRole}" disabled="false" />
+                                    </div>
+                                    <div class="slds-col slds-text-align_right">
+                                        <!--lightning:button aura:id="cancelQueuButton" variant="neutral" class="slds-button" label="Cancel" onclick="{!c.closeModel}" disabled="false" /-->
+                                        <lightning:button aura:id="selectQueuButton" variant="brand" class="slds-button slds-button--brand" label="Save" onclick="{!c.selectQueue}" disabled="{!v.selectedQueueOptions.length ? false : true}" />
+                                    </div>
+                                </div>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop--open"></div>
+        </aura:if>        
+        <aura:set attribute="else">
+            <aura:iteration items="{!v.roles}" var="item">
+                <aura:if isTrue="{!item.roleId == !v.currentRole}">    
+                    <lightning:input type="radio" name="select" value="{!item.roleId}" label="{!item.roleName}" onchange="{!c.handleRadioClick}" checked="true"/>
+                    <aura:set attribute="else">
+                        <lightning:input type="radio" name="select" value="{!item.roleId}" label="{!item.roleName}" onchange="{!c.handleRadioClick}" />
+                    </aura:set>
+                </aura:if> 
+            </aura:iteration>
+        </aura:set>
+    </aura:if>    
+</aura:component>

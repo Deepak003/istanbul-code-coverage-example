@@ -1,0 +1,73 @@
+<aura:component >
+	<!-- Attributes -->
+    <aura:attribute name="header" type="string" default=""/>
+    <aura:attribute name="content" type="string" default=""/>
+    <aura:attribute name="footer" type="string" default=""/>
+    <aura:attribute name="isPopUp" type="boolean" default="false" />
+    <aura:attribute name="isContentArray" type="boolean" default="false" />
+    
+    <aura:if isTrue="{!v.isPopUp}">
+        <div role="dialog" tabindex="-1" aria-labelledby="header99" class="slds-modal slds-fade-in-open ">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <lightning:button variant="normal" class="slds-button slds-button--icon-inverse slds-modal__close uiButton--modal-closeBtn uiButton" 
+                                      label="X" onclick="{!c.closePopUp}"  />
+                    
+                    <h2 id="header99" class="slds-text-heading--medium">{!v.header}</h2>                                            
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <!-- Check if the Content is an array-->
+                    <aura:if isTrue="{!v.isContentArray}">
+                    	<aura:iteration items="{!v.content}" var="row" indexVar="i">
+                            <aura:if isTrue="{!row.messageBy == 'you'}">   
+                                <div class="slds-grid slds-grid_align-center" aura:id="msgs">
+                                    <div class="slds-col violationCheck slds-m-left_x-large"></div>
+                                    <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-7">                        
+                                        <div class="petitioner-chat-log">
+                                            <ui:outputText value="Customer"/>
+                                            <div class="slds-p-around_x-small petitioner-msg slds-m-bottom_small" aura:id="msg">
+                                                <div class="date-user slds-p-bottom_small">
+                                                    <ui:outputDateTime value="{!row.messageTime}" format="MMM/d/Y hh:mm"/>                                                    
+                                                </div>
+                                                <div class="msg"><span>{!row.text}</span></div>
+                                            </div>                            
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-7">                
+                                    </div>
+                                </div>
+                            </aura:if>
+                            <aura:if isTrue="{!row.messageBy != 'you'}"> 
+                                <div class="slds-grid slds-grid_align-center" aura:id="msgs">
+                                    <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-7">
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-7">
+                                        <div class="target-chat-log">
+                                            <ui:outputText value="Advisor"/>
+                                            <div class="target-msg slds-p-around_x-small slds-m-bottom_small" aura:id="msg">
+                                                <div class="date-user slds-p-bottom_small">
+                                                    <span><b>{!row.messageBy}</b></span>
+                                                    <ui:outputDateTime value="{!row.messageTime}" format="MMM/d/Y hh:mm"/>
+                                                </div>
+                                                <div class="msg"><span>{!row.text}</span></div>
+                                            </div>                            
+                                        </div>                        
+                                    </div>                                    
+                                </div>
+                            </aura:if>
+                        </aura:iteration>
+                        <aura:set attribute="else">
+                        	<div><aura:unescapedHtml value="{!v.content}" /></div>
+                        </aura:set>
+                    </aura:if>                    
+                </div>
+                <aura:if isTrue="{!v.footer !=''}">
+                    <div class="slds-modal__footer">
+                        <div>{!v.footer}</div>
+                    </div>
+                </aura:if>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop--open"></div>
+    </aura:if>
+</aura:component>

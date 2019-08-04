@@ -1,0 +1,20 @@
+.THIS .combopadding {
+    z-index: 10 !important;
+    max-height: 260px;
+}
+.THIS .fontG{
+    color: #706e6b;
+    text-transform: capitalize;
+}
+.THIS.otherGameCSS{
+    overflow-y: scroll;
+    height: 260px;
+    word-spacing: 5px;
+}
+.THIS .stats-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+.THIS .stats-no-bold {
+    font-weight: normal;
+}

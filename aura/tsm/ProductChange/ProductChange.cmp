@@ -1,0 +1,158 @@
+<aura:component  controller="ProductAuraController" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">   
+    <aura:attribute name="openProductChange" type="boolean"/>
+    <aura:attribute name="selectedProduct" type="String"/>
+    <aura:attribute name="currentSelection" type="String"/>
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="products" type="String"/>
+    <aura:attribute name="allProducts" type="List"/>
+    <aura:attribute name="searchString" type="String"/>
+    <aura:attribute name="userProducts" type="List"/>
+    <aura:attribute name="initialLoad" type="boolean" default="true"/>
+    <aura:attribute name="selectionFlag" type="String" default="All Products"/>
+    <aura:attribute name="keyPressTimer" type="Integer" default="0" />
+    <aura:attribute name="displayError" type="boolean" default="false" />
+    <aura:attribute name="displayCustomerError" type="boolean" default="false" />
+    <aura:attribute name="displayInitialCustomerError" type="boolean" default="false" />
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="searchCodes" type="boolean"/>
+    
+    <aura:attribute name="featuredProduct" type="Object" />
+    
+    <aura:attribute name="selectComboValue" type="List"
+                    default="[{'label': 'All Products', 'value': 'All Products'},{'label': 'Owned Products', 'value': 'Owned Products'}]" /> 
+    
+    <aura:registerevent name="productSnapshotAction" type="c:ProductSnapshotAction"/>
+    
+    <!-- TSM-3250 Adding product to TSMAccountWrapper -->
+    <aura:attribute name="isAccount" type="boolean" default="false" /> 
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <div class="demo-only" style="height: 640px;">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                  <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                    <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeProductChange}" alternativeText="Approved" />
+                  <span class="slds-assistive-text">Close</span>
+                  </button>
+                  <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Product</h2>
+                </header>
+                <div class="slds-modal__content slds-p-right_x-large slds-p-left_x-large setting-height">
+                    <lightning:layout class="slds-m-bottom--large">
+                        <lightning:layoutItem size="7" class="slds-m-right--medium">
+                                <lightning:input
+                                                 aura:id="product-search"
+                                                 name="productSearch"
+                                                 type="search"
+                                                 value="{!v.searchString}"
+                                                 onchange ="{! c.productSearchKeyUp }"
+                                                 />
+                        </lightning:layoutItem> 
+                        
+                        <lightning:layoutItem size="4"> 
+                            <lightning:combobox name="selectComboValue" value="All Products" placeholder=""
+                                                options="{!v.selectComboValue}" onchange="{!c.changeFilterValue}"/>   
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                    
+                    <lightning:layout>
+                        <lightning:layoutItem size="8">
+                            <aura:if isTrue="{!v.selectionFlag  == 'All Products'}"> 
+                                <aura:if isTrue="{!v.initialLoad  == true}"> 
+                            		<div class="font-bold slds-m-bottom--medium">Top Products</div>
+                                </aura:if>   
+                            <aura:set attribute="else">
+                                <div class="font-bold slds-m-bottom--medium">Products owned by the player</div>
+                            </aura:set>  
+                            </aura:if>    
+                        </lightning:layoutItem> 
+                    </lightning:layout>
+  
+                    <aura:if isTrue="{!v.selectionFlag  == 'All Products'}"> 
+                        <lightning:layout class="slds-m-bottom--small">
+                             <div class="slds-grid slds-wrap">
+                                 <aura:iteration items="{!v.allProducts}" var="item" indexVar="idx">
+                                  <div class="slds-m-bottom--small slds-m-right--xx-small">
+                                    <div class="slds-visual-picker slds-visual-picker_small">
+      									<input type="radio" id="{!item.urlName}" name="product-change" value="{!item.name}" onchange="{!c.toggleProductChange}"/>
+      										<label for="{!item.urlName}">
+                                                <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+                                          			<lightning:avatar class="product-image" src="{!'https://eaassets-a.akamaihd.net/eahelp/images/box-art/x2/'+item.urlName+'.jpg'}" initials="EA"  alternativeText="{!item.name}"/>
+                                                </span>    
+                                                <span class="slds-icon_container slds-visual-picker__text-check">
+													<lightning:icon class="display-none" iconName="utility:check" size="xx-small" />
+        										</span> 
+                                        	</label>
+                                      </div>
+                                    </div>
+                                 </aura:iteration>  
+                                 
+                                 <aura:if isTrue="{!v.displayError == true}"> 
+                                     <div class="slds-m-top--x-large" align="center" aura:id="noResultsBlock">
+                                        <c:EmptyState message="{!'No Results for \''+v.searchString + '\''}"></c:EmptyState>
+                                    </div>
+                                </aura:if>  
+                             </div>
+                        </lightning:layout>
+                        
+                        <aura:if isTrue="{!v.initialLoad  == true}"> 
+                         <div class="slds-m-bottom--large edit-field-label center-align">To view other products, please use search</div>
+                        </aura:if> 
+                            <aura:set attribute="else">
+                             <lightning:layout class="slds-m-bottom--small">
+                                 <div class="slds-grid slds-wrap">
+                                  <aura:iteration items="{!v.userProducts}" var="item" indexVar="idx">
+                                      <div class="slds-m-bottom--small slds-m-right--xx-small">
+                                        <div class="slds-visual-picker slds-visual-picker_small">
+                                            <input type="radio" id="{!item.name}" name="product-change" value="{!item.mdmProjectName}" onchange="{!c.toggleProductChange}"/>
+                                                <label for="{!item.name}">
+                                                    <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+                                                        <lightning:avatar class="product-image" src="{!'https://eaassets-a.akamaihd.net/eahelp/images/box-art/x2/'+item.name+'.jpg'}" initials="EA"  alternativeText="{!item.name}"/>
+                                                    </span>    
+                                                    <span class="slds-icon_container slds-visual-picker__text-check">
+                                                        <lightning:icon class="display-none" iconName="utility:check" size="xx-small" />
+                                                    </span> 
+                                                </label>
+                                          </div>
+                                        </div>
+                                    </aura:iteration>   
+                                 </div>
+                                 
+                                <aura:if isTrue="{!v.displayCustomerError == true}"> 
+                                     <div class="slds-m-top--x-large" align="center" aura:id="noResultsBlock">
+                                        <c:EmptyState>
+                                            <aura:set attribute="message">
+                                                <div>The player doesn't have {!v.searchString}.</div>
+                                                <div class="slds-text-body_regular slds-p-top_medium">To view other EA products, search within All Products above.</div>
+                                            </aura:set>
+                                        </c:EmptyState>
+                                    </div>
+                                </aura:if> 
+                                 
+                                <aura:if isTrue="{!v.displayInitialCustomerError == true}"> 
+                                     <div class="slds-m-top--x-large" align="center" aura:id="noResultsBlock">
+                                        <c:EmptyState message="{!'No Results for Customer product'}"></c:EmptyState>
+                                    </div>
+                                </aura:if>
+                             </lightning:layout>    
+                        </aura:set>
+                    </aura:if>
+
+                    <lightning:layout>
+                        <lightning:layoutItem size="12">
+                            <aura:if isTrue="{!v.selectionFlag  == 'Owned Products'}"> 
+                            	<div class="slds-p-bottom_x-large">Not seeing a game that the player claimed to own? <lightning:button variant="base" label="Search code" title="Search code" onclick="{! c.handleSearchCode }"/> globally to see if a code has been consumed by another account</div>  
+                            </aura:if>    
+                        </lightning:layoutItem> 
+                    </lightning:layout>
+
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button aura:id="cancelButton" label="Cancel" onclick="{!c.closeProductChange}" />
+                    <lightning:button aura:id="selectProductButton" variant="brand" label="Select" onclick="{!c.selectProductChange}" disabled="true"/> 
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

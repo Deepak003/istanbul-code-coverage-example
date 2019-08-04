@@ -1,0 +1,202 @@
+<aura:component controller="ProductAuraController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="openProductChange" type="boolean" />
+    <aura:attribute name="accountId" type="String"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="nucleusId" type="Id"/> 
+    <aura:attribute name="email" type="Id"/>
+    <aura:attribute name="isAccountObject" type="boolean"/>
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="allProducts" type="Object"/>
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="selectedPlatform" type="Object" />
+    <aura:attribute name="selectedCategory" type="Object" />
+    <aura:attribute name="selectedPersonaId" type="String" />
+    <aura:attribute name="featuredProduct" type="Object" />
+    <aura:attribute name="gameStatsData" type="Object" />
+    <aura:attribute name="EmptyState1" type="boolean" />
+    <aura:attribute name="productSnapShotData" type="Object" />
+    <aura:attribute name="gameMode" type="String" />
+    <aura:attribute name="productName" type="String"/>
+    <aura:attribute name="prodName" type="String"/>
+    <aura:attribute name="inventoryUpdated" type="Boolean"/>
+    <aura:attribute name="tabId" type="String" default="one"/>
+    <aura:attribute name="inventoryStats" type="List" default="" description="Formatted Row Data"/>
+    <aura:attribute name="selectedPersona" type="Object" />
+    <aura:attribute name="searchCodes" type="boolean" default="false"/>
+    <aura:attribute name="consumeCodes" type="boolean" default="false"/>
+    <aura:attribute name="codeSearchData" type="Object"/>
+    <aura:attribute name="updateEntitlement" type="Boolean" default="true"/>
+    
+    <!--TSM 2867-->
+    <aura:attribute name="isNotOrigin" type="Boolean" default="true"/>
+    
+    <!-- TSM 2244 Refactoring -->
+    <aura:attribute name="isMobileProductAttached" type="Boolean" default="false" />
+    <aura:attribute name="isMobileGame" type="Boolean" default="false" />
+    <aura:attribute name="isMobileGameError" type="Boolean" default="false" />
+    <aura:attribute name="mobileProductSnapShotData" type="Object"/>
+    <aura:attribute name="rootIdentity" type="Object" />   
+    <aura:attribute name="customerOwnedMobileProduct" type="Object"/>
+    <aura:attribute name="hdProductSnapShotData" type="Object"/>
+    <aura:attribute name="openSnapshotView" type="Boolean" default="false" />
+    
+    <!-- TSM 2244 --> 
+    <aura:handler name="addMobileIDEvt" event="c:addMobileIDCmpEvt" action="{!c.handleAddMobileEvt}" />
+    <aura:handler name="showMobileIDEvt" event="c:showMobileConfigCmpEvt" action="{!c.handleShowMobileEvt}" /> <!-- TSM 2244 -->
+    
+    <!-- Config UI values -->
+    <aura:attribute name="configUIData" type="Object" />
+    <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>
+    <aura:attribute name="isHistoryExist" type="boolean" default="false"/>
+    <aura:attribute name="isCurrentInventoryExist" type="boolean" default="false"/>
+    <aura:attribute name="isAdditionalInfoExist" type="boolean" default="false"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />
+    <aura:attribute name="simpleCase" type="CaseDetailAuraVO" default="" />
+    
+    <!--TSM 3022-->
+    <aura:attribute name="isBanned" type="Boolean" default="false"/>
+    <aura:attribute name="franchiseBanData" type="Object" />
+    <aura:attribute name="franchiseBanDatasubSet" type="Object"/> 
+    
+    <!-- Modified as part of TSM - 1622 to stop propogation to other tabs -->
+    <aura:handler includeFacets="true" phase="bubble" event="c:NavigateToCurrentHistoryEvent" action="{!c.navigateTab}"/>
+    
+    <!-- Refresh handlers -->
+    <aura:handler name="onResetClubLimit" event="c:ClubsTrackerEvt" action="{!c.reloadGameStats}"/>
+    <aura:handler name="reloadData" event="c:ClubsTrackerEvt" action="{!c.reloadClubs}"/>
+    <aura:handler event="c:RefreshProductTabEvent" action="{!c.getInventoryStats}"/>
+    
+    <aura:handler event="c:ProductSnapShotAction" action="{!c.onChangePersona}"/>
+    
+    <aura:attribute name="isLoading" type="Boolean" default="true" access="public"/>
+    
+    <!-- Entitlement related -->    
+    <aura:attribute name="openEntitlementModal" type="Boolean" default="false" access="private" description="This will show/hide Grant Entitlement Modal"/>
+    <aura:attribute name="hasEntitlement" type="Boolean" default="true" access="private" description="This will help to show Grant New Entitlement" />
+    <!-- <aura:handler name="change" value="{!v.selectedProduct}" action="{!c.defineEntitlement}" /> --> 
+    
+    <!-- Selected Date from category TSM -1622 --> 
+    <aura:attribute name="currentInventoryObject" type="Object" access="public"/>   
+    <!-- Selected Date from category TSM-2109 --> 
+    <aura:handler name="grantResetEvent" event="c:GrantComponentEvent" action="{!c.reloadCurrency}"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    <aura:attribute name="isProductMakingLoaded" type="boolean" default="false"/>
+    <aura:attribute name="hideAccountData" type="boolean" default="false"/>
+    <aura:handler name="change" value="{!v.hideAccountData}" action="{!c.onChangeHiddenData}" />
+    
+    <!-- Generic permission variables - TSM-2910, TSM-2911, TSM-2912 -->
+    <aura:attribute name="genericConfigurationData" type="Object" default="{}"/>
+    
+    <!-- Refactoring the error display part of product tab -->
+    <aura:attribute name="isHistoryAvailable" type="boolean" default="false"/>
+    <aura:attribute name="hasConfigData" type="boolean" default="false"/>
+    
+    
+    <aura:attribute name="errorMessage" type="Object"/>
+    <aura:attribute name="isError" type="boolean" default="false"/>
+
+    <!-- TSM-3948 - Adding for cancel button in mobile product snapshot -->
+    <aura:attribute name="isAddId" type="Boolean" />
+
+    <!-- TSM-4025 - Tracking club name change -->
+    <aura:attribute name="isClubNameChange" type="Boolean" default="false" />
+
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.getProductInformation}"/>
+    
+    <aura:handler name="change" value="{!v.selectedProduct}" action="{!c.onChangeProduct}" />
+    <aura:handler name="change" value="{!v.selectedPersonaId}" action="{!c.onChangePersonaId}" />
+
+    <div class="slds-is-relative overview-tab">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        <lightning:layout verticalAlign="space" class="slds-m-bottom--large slds-gutters">
+            <lightning:layoutItem flexibility="auto" size="12">
+                <aura:if isTrue="{! and(v.productSnapShotData != null , v.isMobileProductAttached)}">
+                    <c:ProductSnapshot selectedPersonaId="{!v.selectedPersonaId}" isAddId="{!v.isAddId}" isMobileProductAttached="{!v.isMobileProductAttached}" productMaskingData="{!v.productMaskingData}" configUIData="{!v.configUIData}" allProducts="{!v.allProducts}" selectedPersona="{!v.selectedPersonaId}" featuredProduct="{!v.featuredProduct}" 
+                                       product="{!v.selectedProduct}" platform="{!v.selectedPlatform}" 
+                                       franchiseBanData="{!v.franchiseBanData}" accountId="{!v.accountId}"
+                                       
+                                       category="{!v.selectedCategory}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}"
+                                       productSnapShotData="{!v.productSnapShotData}" 
+                                       customerProduct="{!v.customerProduct}"  productName="{!v.productName}" prodName="{!v.prodName}" email="{!v.email}" genericConfigurationData="{!v.genericConfigurationData}" />
+                </aura:if>    
+                
+                <aura:if isTrue="{! and(v.selectedProduct.isMobile__c, not(v.isMobileProductAttached))}">
+                    <c:MobileProductSnapShot isAddId="{!v.isAddId}" isMobileProductAttached="{!v.isMobileProductAttached}" accountId="{!v.accountId}" product="{!v.selectedProduct}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}" email="{!v.email}" 
+                                             featuredProduct="{!v.featuredProduct}" openProductChange="{!v.openProductChange}" customerProduct="{!v.customerProduct}" allProducts="{!v.allProducts}"  searchCodes="{!v.searchCodes}"/>                                                   
+                </aura:if>
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <lightning:layout verticalAlign="space" class="slds-gutters slds-m-top--xx-large">
+            <lightning:layoutItem flexibility="auto" size="12">                
+                <aura:if isTrue="{!v.isError}">
+                    <c:EmptyState> 
+                        <aura:set attribute="message">
+                            <div>{!v.errorMessage.header}</div>
+                            <div style="font-size: 13px;">
+                                <div class="slds-p-top_x-small" style="width: 60%; margin: auto;">
+                                    {!v.errorMessage.body}
+                                </div>
+                                <div class="slds-p-top_x-small">
+                                    <aura:if isTrue="{! not(v.errorMessage.isOwned) }"> 
+                                        You can <a onclick="{! c.openEntitlementModal }">Grant New Entitlement</a> or
+                                    </aura:if>
+                                    <a onclick="{! c.openChangeProductModal }">Change product</a>
+                                </div>
+                            </div>
+                        </aura:set>  
+                    </c:EmptyState>
+                    <aura:set attribute="else">
+                        <lightning:tabset variant="scoped" selectedTabId="{!v.tabId}"> 
+                            <aura:if isTrue="{!v.isHistoryExist}">   
+                                <lightning:tab label="History" id="one">
+                                    <aura:if isTrue="{!v.gameStatsData != null}">
+                                        <c:History productMaskingData = "{!v.productMaskingData.GrantItemInformation}" currentInventoryObject="{!v.currentInventoryObject}" configUIData="{!v.configUIData}" gameMode="{!v.gameMode}" selectedPersona="{!v.selectedPersona}" selectedProduct="{!v.selectedProduct}" selectedPlatform ="{!v.selectedPlatform}" nucleusId="{!v.nucleusId}" inventoryStats="{!v.inventoryStats}" caseId="{!v.caseId}" accountId="{!v.accountId}" />
+                                    </aura:if>
+                                </lightning:tab>
+                            </aura:if>
+                            <aura:if isTrue="{!v.isCurrentInventoryExist}"> 
+                                <lightning:tab label="Current Inventory" id="two">
+                                    <c:CurrentInventory genericConfigurationData="{!v.genericConfigurationData}" productMaskingData="{!v.productMaskingData.CurrentInventory}" configUIData="{!v.configUIData}" inventoryUpdated="{!v.inventoryUpdated}" items="{!v.inventoryStats}" selectedPersona="{!v.selectedPersona}" selectedProduct="{!v.selectedProduct}" selectedPlatform ="{!v.selectedPlatform}" nucleusId="{!v.nucleusId}" inventoryStats="{!v.inventoryStats}" caseId="{!v.caseId}"/>
+                                </lightning:tab>
+                            </aura:if>
+                            <lightning:tab label="Entitlements" id="three">
+                                <c:EntitlementsTab accountMaskingList="{!v.productMaskingData.Entitlements}" selectedProduct="{!v.selectedProduct}" allProducts="{!v.allProducts}" 
+                                                   updateEntitlement= "{!v.updateEntitlement}" nucleusId="{!v.nucleusId}" caseId="{!v.caseId}"  email="{!v.email}"/>
+                            </lightning:tab>
+                            <aura:if isTrue="{!v.isAdditionalInfoExist}"> 
+                                <lightning:tab label="Additional Info" id="four">
+                                    <aura:if isTrue="{!v.gameStatsData !=undefined}">
+                                        <c:AdditionalInfo productMaskingData="{!v.productMaskingData.AdditionalInfo}" configUIData="{!v.configUIData}" gameStatsData = "{!v.gameStatsData}" allProducts="{!v.allProducts}" product="{!v.selectedProduct}" platform="{!v.selectedPlatform}"  category="{!v.selectedCategory}" nucleusId="{!v.nucleusId}"  customerProduct="{!v.customerProduct}" selectedPersonaIdforgame="{!v.selectedPersona}" caseId="{!v.caseId}" accountId="{!v.accountId}"/>
+                                    </aura:if> 
+                                </lightning:tab>
+                            </aura:if> 
+                        </lightning:tabset>
+                    </aura:set>
+                </aura:if>
+            </lightning:layoutItem>
+        </lightning:layout>          
+        <!-- end: TSM-2909 -->
+        
+        <!-- TSM 2244 -->
+        <aura:if isTrue="{!v.openProductChange}">
+            <c:ProductChange featuredProduct="{!v.featuredProduct}" openProductChange="{!v.openProductChange}" 
+                             selectedProduct="{!v.selectedProduct}" customerProduct="{!v.customerProduct}" 
+                             products="{!v.allProducts}" caseId="{!v.caseId}" searchCodes="{!v.searchCodes}" />
+        </aura:if>
+        <!-- TSM 2244 -->
+        <aura:if isTrue="{!v.openEntitlementModal}">
+            <c:GrantEntitlementModal isOpen="{!v.openEntitlementModal}" selectedProduct="{#v.selectedProduct}" products="{!v.allProducts}" variant="new" nucleusId="{!v.nucleusId}"  caseId="{!v.caseId}" accountId="{!v.accountId}" email="{!v.email}" />
+        </aura:if>
+        
+        <aura:if isTrue="{!v.searchCodes}">
+            <c:CodeSearch searchCodes="{!v.searchCodes}" codeSearchData="{!v.codeSearchData}" consumeCodes="{!v.consumeCodes}" nucleusId="{!v.nucleusId}" selectedProduct="{!v.productName}"/>
+        </aura:if> 
+        
+        <aura:if isTrue="{!v.consumeCodes}">
+            <c:CodeConsume consumeCodes="{!v.consumeCodes}" codeSearchData="{!v.codeSearchData}" nucleusId="{!v.nucleusId}" selectedProduct="{!v.productName}"/>
+        </aura:if>
+    </div>
+</aura:component>

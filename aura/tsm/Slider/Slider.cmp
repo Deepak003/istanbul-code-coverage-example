@@ -1,0 +1,26 @@
+<aura:component controller="FraudAdminToolController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global">
+<aura:handler name = "init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    <aura:registerEvent name="sliderChangeEvent" type="c:SliderEvent"/>
+   <!--aura:registerEvent name="riskTypeChangeEvent" type="c:RiskTypeEvent"/-->
+    <aura:attribute name="minSliderValue" type="Integer"/>
+     <aura:attribute name="maxSliderValue" type="Integer"/>
+    <aura:attribute name ="records" type="list"></aura:attribute>
+    <aura:attribute name ="maxValue" type="integer"></aura:attribute>
+    <aura:attribute name ="minValue" type="integer"></aura:attribute>
+    <aura:registerEvent name="riskCriteriaEvent" type="c:RiskCriteriaChangeEvent"/>
+    <aura:handler name="change" value="{!v.maxValue}" action="{!c.changeRiskTypeForSliderHandler}"/>
+    <aura:handler name="change" value="{!v.minValue}" action="{!c.changeRiskTypeForSliderHandler}"/>
+
+    
+    <aura:attribute name="step" type="String" default="1"/>    
+    <ltng:require styles="{!$Resource.nouislider + '/noUiSlider-12.1.0/distribute/nouislider.css'}" 
+                  scripts="{!$Resource.nouislider + '/noUiSlider-12.1.0/distribute/nouislider.js'}"
+                  />
+    <ltng:require scripts="{!$Resource.wnumb + '/wnumb-1.1.0/wNumb.js'}"
+     />
+     
+    <div>
+        <div aura:id="slider" class="slider"/>
+    </div>
+
+</aura:component>

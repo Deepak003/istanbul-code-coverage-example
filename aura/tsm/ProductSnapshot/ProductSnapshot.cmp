@@ -1,0 +1,399 @@
+<aura:component controller="ProductAuraController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">    
+    
+    <ltng:require scripts="{!$Resource.Util}" />
+    <aura:attribute name="personas" type="List" />
+    <aura:attribute name="productName" type="String"/>
+    <aura:attribute name="prodName" type="String"/>
+    <aura:attribute name="gameModes" type="object" />
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="selectedProduct" type="Map" access="public"/>
+    <aura:attribute name="platformStatus" type="Map" access="public"/>
+    <aura:attribute name="platformStatusDate" type="String" access="public"/>
+    <aura:attribute name="openProductChange" type="boolean" default="false"/>
+    <aura:attribute name="viewcodes" type="boolean" default="false"/>
+    <aura:attribute name="searchCodes" type="boolean" default="false"/>
+    <aura:attribute name="consumeCodes" type="boolean" default="false"/>
+    <aura:attribute name="codeSearchData" type="Object"/>
+    <aura:attribute name="discountsandpromos" type="boolean" default="false"/>
+    <aura:attribute name="changedProduct" type="String" default=""/>
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="platform" type="Object" />
+    <aura:attribute name="category" type="Object" />
+    <aura:attribute name="allProducts" type="String"/> 
+    <aura:attribute name="product" type="Object" />
+    <aura:attribute name="isGameMode" type="boolean" default="false"/>
+    <aura:attribute name="productSnapShotData" type="Object" />
+    <aura:attribute name="personaList" type="List" />
+    <aura:attribute name="defaultPersonaList" type="String" default="0"/>
+    <aura:attribute name="featuredProduct" type="Object" />
+    <aura:attribute name="clubList" type="Object" />
+    <aura:attribute name="isFIFA" type="boolean" default="false"/>
+    <aura:attribute name="gameModeComboValue" type="List" />  
+    
+    <aura:attribute name="selectedGameMode" type="String" access="public" default=""/>
+    <aura:attribute name="hasGrantAllContentPermission" type="boolean" default="false"/>
+    
+    
+    <!--3022-->
+    <aura:attribute name="showFrTooltip" type="Boolean" default="false"/>
+    <aura:attribute name="franchiseBanData" type="Object" />
+    <aura:attribute name="banCreatedDate" type="DateTime"/>
+    <aura:attribute name="banEndDate" type="DateTime"/>
+    <aura:attribute name="banReason" type="String"/>
+    <aura:attribute name="accountId" type="String"/> 
+    <aura:attribute name="selectedProductToBan" type="String"/>
+    <aura:attribute name="newSuspensionEndDate" type="DateTime"/>
+    <aura:attribute name="suspendFranchiseModal" type="Boolean" default="false"/>
+    <aura:attribute name="newBanReason" type="String"/>
+    <aura:attribute name="productList" type="List" default="[
+                                                                     {'label': 'FIFA 16', 'value': 'FIFA16'},
+                                                                     {'label': 'FIFA18', 'value': 'FIFA 18'},
+                                                                     {'label': 'FIFA19', 'value': 'FIFA 19'}
+                                                                     
+                                                                     
+                                                                      ]"/>
+    <aura:attribute name="banReasonList" type="List" default="[
+                                                                     {'label': 'BOT BAN', 'value': 'BOT_BAN'}
+                                                                     
+                                                                     
+                                                                     
+                                                                     ]"/>
+    <aura:attribute name="dateCreated" type="DateTime" />
+    <aura:attribute name="dateEnd" type="DateTime"/>
+    <aura:attribute name="franchiseBanDatasubSet" type="Object"/>
+    <aura:attribute name="isBannedFull" type="Boolean" default="false"/>
+    <aura:attribute name="openSpinner" type="Boolean" default="false"/>
+    <aura:attribute name="FrProductName" type="String" />
+    <aura:attribute name="displayTooltipFull" type="Boolean" default="false"/>
+    
+    <aura:attribute name="isBanned" type="Boolean" default="false"/>
+    <aura:attribute name="isCurrentOpen" type="List"/>
+    <aura:attribute name="displayTooltip" type="Boolean" default="false"/>
+    <aura:attribute name="showFranchise" type="Boolean" default="false"/>
+    <aura:attribute name="disableSuspend" type="Boolean" default="true"/>
+    <!--tsm3022 ends-->
+    
+    
+    <!-- TSM-2570 -->
+    <aura:attribute name="grantDisable" type="boolean" default="false"/>
+
+    <aura:registerevent name="ProductSnapShotAction" type="c:ProductSnapShotAction" /> 
+    
+    <!-- <aura:registerEvent name="cmpEvent" type="c:ProductSnapshotPersona"/> -->
+    <!-- <aura:registerEvent name="cmpEvent2" type="c:ProductSnapshotMode"/> -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.productSnapShotData}" action="{!c.onChangeOfPersona}"/>
+    <aura:handler name="change" value="{!v.product}" action="{!c.prodNameReplace}"/>
+
+    <aura:attribute name="inGameEntitlement" type="boolean" default="false"/>
+    <aura:attribute name="email" type="String" access="public" description="Player Email ID" />
+
+    <!-- Config UI Values -->
+    <aura:attribute name="configUIData" type="Object" />
+    <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>
+    <aura:attribute name="isModesExist" type="boolean" default="false"/>
+    
+    <!-- For grant Items flow -->
+    <aura:attribute name="viewGrantItems" type="boolean" default="false"/> 
+    <aura:attribute name="selectedPersona" type="Map" />
+    <aura:attribute name="inventoryUpdated" type="Boolean"/>
+    <aura:attribute name="currencyList" 
+                    type="List" 
+                    default="" 
+                    description="Formatted Row Data"/>
+    <aura:attribute name="openGrantInfoDefault" type="boolean" default="true"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <!-- Generic permission variables - TSM-2910, TSM-2911, TSM-2912 -->
+    <aura:attribute name="genericConfigurationData" type="Object" default="{}"/>
+    <!-- TSM-3023 -->
+    <aura:handler event="c:GameStatusAllRefresh" action="{!c.handleGameStatusRefresh}"/>
+    
+    <!--tsm 3022 handler when product is changed -->
+     <aura:handler name="change" value="{!v.product}" action="{!c.changeFranchiseBanData}"/>
+    
+    <aura:attribute name="rootIdentityList" type="Object" />
+    
+    <aura:attribute name="mobilePersonaList" type="Object" />
+    <aura:attribute name="mobilePersonaEntitiesData" type="Object" />
+    
+    <aura:attribute name="mobileSubEntityList" type="Object" />
+    <aura:attribute name="mobileSubEntityData" type="Object" />
+    
+    <aura:attribute name="entityList" type="Object" />
+    
+    <aura:attribute name="isMobilePersonaError" type="boolean" default="false"/>
+    <aura:attribute name="isMobileProductAttached" type="Boolean" default="false" />
+    <aura:attribute name="isAddId" type="Boolean" />
+
+    <aura:attribute name="selectedPersonaId" type="Object" />
+
+    <div class="slds-is-relative">
+
+        <lightning:layout>       
+            <lightning:layoutItem size="12">
+                <!-- Title -->
+                <lightning:layout class="bottom-spacing-medium">
+                    <lightning:layoutItem size="10">
+                        <div class="prodCSS">{!v.prodName}</div>                        
+                    </lightning:layoutItem>  
+                    
+                    <lightning:layoutItem size="2" class="action-container">
+                        <lightning:buttonMenu iconSize="x-small" menuAlignment="right"
+                                              onselect="{! c.handleActionMenuSelect }">
+                                              <aura:if isTrue="{!v.productName!='origin'}">
+                            <lightning:menuItem label="View Codes" value="view-codes" disabled="{! not(v.productMaskingData.ProductSnapshot.ViewCodes)}" />
+                            <lightning:menuItem label="Search Codes" value="search-codes" />
+                            </aura:if>
+                            <lightning:menuItem label="Grant Discounts and Promos" value="grant-discounts-and-promos" disabled="{! not(v.productMaskingData.GrantEntitlement.GrantDiscountsPromos)}"/>
+                            <aura:if isTrue="{!v.productName!='origin'}">
+                            <lightning:menuItem label="Grant In-Game Entitlement" value="grant-in-game-entitlement" disabled="{! not(v.productMaskingData.GrantEntitlement.GrantIngameEntitlement)}"/>
+                           <aura:if isTrue="{!v.hasGrantAllContentPermission}">
+                                <lightning:menuItem label="Grant Items, Packs, Currency" value="grant-Item-information" disabled="{!v.grantDisable == true ? true : not(v.productMaskingData.GrantItemInformation.GrantItemsPacksCurrency) }"/>
+                            </aura:if>
+                                <!--3022-->
+                                <aura:if isTrue="{!v.showFranchise}">
+                               <lightning:menuItem label="Suspend Franchise" value="suspend-franchise" /></aura:if>
+                             </aura:if>
+                            <lightning:menuItem label="Change Product" value="change-product" />
+                        </lightning:buttonMenu>
+                    </lightning:layoutItem>                
+                </lightning:layout>
+                
+                <!-- Body -->
+                <lightning:layout>
+                    <lightning:layoutItem size="12" class="">                                                                      
+                        <lightning:avatar class="product-image"  src="{!'https://eaassets-a.akamaihd.net/eahelp/images/box-art/x2/'+v.product.Url_Name__c+'.jpg'}" initials="EA"  alternativeText="Player games"/>
+                           <lightning:layout >                            
+                            <lightning:layoutItem size="6" class="slds-p-xx_small slds-p-left_large">
+                                <!-- First combo box entity or persona -->
+                                <aura:if isTrue="{!v.product.Name != 'origin'}">
+                                    <aura:if isTrue="{! not(v.product.isMobile__c)}">
+                                        <lightning:combobox name="selectComboValue" label="Persona" class="" value="{!v.defaultPersonaList}" placeholder=""
+                                                            options="{!v.personaList}" onchange="{!c.onChangePersonaDropDown}"/>
+                                        <aura:set attribute="else">
+                                            <lightning:combobox name="selectComboValue" label="Root Identity" class="" value="0" placeholder=""
+                                                                options="{!v.rootIdentityList}" onchange="{!c.onChangeRootIdentity}"/>
+                                        </aura:set>
+                                    </aura:if>
+                                </aura:if>
+                            </lightning:layoutItem>
+                            
+                            <lightning:layoutItem size="6" class="slds-p-left_small slds-p-xx_small" >
+                                <!-- Game mode for HD games -->
+                                <aura:if isTrue="{! and(v.isGameMode, not(v.product.isMobile__c))}">                                    
+                                    <lightning:combobox aura:id="gameModeCombo" label="Game Mode" class="gamemodecombo" value="{!v.selectedGameMode}" placeholder=""
+                                                        options="{!v.gameModeComboValue}" onchange="{!c.onChangeGameMode}"/>  
+                                    
+                                </aura:if> 
+                                
+                                <!-- Persona List for Mobile games -->
+                                <aura:if isTrue="{! and(v.product.isMobile__c, not(v.isMobilePersonaError))}">
+                                    <lightning:combobox name="selectComboValue" label="Persona" class="" value="0" placeholder=""
+                                                        options="{!v.mobilePersonaList}" onchange="{!c.onChangeMobilePersona}"/>
+                                </aura:if>
+                            </lightning:layoutItem> 
+                        </lightning:layout> 
+                        
+                        <lightning:layout>
+                            <lightning:layoutItem size="6" class="slds-p-xx_small slds-p-left_large">
+                                <!-- Sub Entity List for Mobile games -->
+                                <aura:if isTrue="{! and(v.product.isMobile__c, not(v.isMobilePersonaError))}">       
+                                    <lightning:combobox name="selectComboValue" label="Sub Entity" class="" value="" placeholder=""
+                                                        options="{!v.mobileSubEntityList}" onchange="{!c.onChangeMobileSubEntity}"/>                                                                                                 
+                                </aura:if>
+                            </lightning:layoutItem>
+                            
+                            <!-- Add new identity for Mobile games -->                            
+                            <lightning:layoutItem size="6" class="slds-p-left_small slds-p-xx_small">
+                                <aura:if isTrue="{!v.product.isMobile__c}"> 
+                                    <lightning:button aura:id="yesButton" iconName="utility:add"  class="addBtn" label="New ID" onclick="{!c.addMobileID}" />
+                                </aura:if>
+                            </lightning:layoutItem>                          
+                        </lightning:layout> 
+                        
+                    <!-- Platform status for non Mobile games -->
+                    <aura:if isTrue="{! and(v.productName!='origin', not(v.product.isMobile__c))}">                     
+                       <lightning:layout multipleRows="true" class="top-spacing-medium  slds-p-left_large">
+                            <lightning:layoutItem size="12" class="header fontSize1">Platform Status</lightning:layoutItem>
+                           <aura:if isTrue="{!and(v.platformStatus != '' , v.defaultPersonaList != 'None')}">
+                               <lightning:layoutItem size="12" class="fontSize2">
+                                   <div style="float: left;">{!v.platformStatus.platform} </div>
+                                   <div class="{! join(' ',
+                                               'platform-status',
+                                               v.platformStatus.status
+                                               )}"> - {!v.platformStatus.status}</div>
+                               </lightning:layoutItem>
+                               <lightning:layoutItem size="12" class="header fontSize1">Last Updated {!v.platformStatusDate}</lightning:layoutItem>                            
+                               <aura:set attribute="else">
+                                   <lightning:layoutItem size="12">
+                                        <div>No Data</div>
+                                   </lightning:layoutItem>
+                               </aura:set>
+                           </aura:if>
+                           <!-- TSM-2022/23 STARTS -->
+                           <div class="slds-grid no-left-padd-slds-col">
+                                <!--suspended franchise starts 3022-->
+                                <aura:if isTrue="{!v.isBanned}">
+                                    <div class="slds-col">
+                                        <div class="allign-center" onclick="{!c.toggleDialogue}" data-value="1">
+                                           <span class="slds-badge badgecolor .slds-badge_inverse">FRANCHISE SUSPENDED ({!v.product.Name})</span>
+                                        </div> 
+                                    </div>
+                                </aura:if >
+                                <aura:if isTrue="{!v.isBannedFull}">
+                                    <div class="slds-col">
+                                        <div class="allign-center" onclick="{!c.toggleDialogueFull}" data-value="1">
+                                           <span class="slds-badge badgecolor .slds-badge_inverse">FRANCHISE SUSPENDED (FULL)</span>
+                                        </div>   
+                                    </div>
+                                </aura:if >
+                                <div class="slds-col">
+                                    <!-- TSM-3023 STARTS -->
+                                    <c:GameStatusAll aura:id="gameStatusAllCmp" showStatus="true" caseId="{!v.caseId}" nucleusId="{!v.nucleusId}" />
+                                    <!-- TSM-3023 ENDS -->
+                                </div>
+                           </div>                           
+                           <!-- TSM-2022/23 ENDS -->
+                        </lightning:layout>
+                        </aura:if>
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </lightning:layoutItem>            
+        </lightning:layout>
+        
+        <!--tsm 3022 tooltip-->
+    <aura:if isTrue="{!v.displayTooltip}">
+    <c:Popover classes="slds-is-absolute slds-nubbin_top-left slds-m-top_medium">
+        <aura:set attribute="state" value="{!v.displayTooltip}"/>
+        <aura:set attribute="hideCloseBtn" value="true"/>
+        <aura:set attribute="content">
+     <div class="slds-grid slds-grid_vertical">
+                    <aura:if isTrue="">
+                        <div class="slds-col ">
+                           Franchise level suspension is applied to {!v.product.Name} only.
+                        </div>
+                        </aura:if>
+                    <aura:if isTrue="">
+                        <div class="slds-col ">
+                           Franchise level suspension is applied to {!v.product.Name} only.
+                        </div>
+                        </aura:if>
+         
+                        <div class="slds-col ">                                
+                            <span class="label-tooltip"><b>Created :</b></span><c:FormattedDateTime value="{!v.banCreatedDate}" /> 
+                        </div>
+                        <div class="slds-col ">                                
+                            <span class="label-tooltip"><b>Ends :</b></span> <c:FormattedDateTime value="{!v.banEndDate}" />                                  
+                        </div>
+                        <div class="slds-col ">
+                            <span class="label-tooltip"><b>Reason :</b> </span>{!v.banReason}
+                        </div>
+                    </div>
+        </aura:set>
+        </c:Popover>
+    </aura:if>
+     <!--for full ban-->
+        <aura:if isTrue="{!v.displayTooltipFull}">
+            <c:Popover classes="slds-is-absolute slds-nubbin_top-left slds-m-top_medium">
+            <aura:set attribute="state" value="{!v.displayTooltipFull}"/>
+            <aura:set attribute="hideCloseBtn" value="true"/>
+            <aura:set attribute="content">
+         <div class="slds-grid slds-grid_vertical">
+                        
+                        
+                            <div class="slds-col ">
+                               Franchise level suspension is applied to all FIFA products.
+                             </div>
+                            
+                            <div class="slds-col ">                                
+                                <span class="label-tooltip"><b>Created :</b></span><c:FormattedDateTime value="{!v.banCreatedDate}" /> 
+                            </div>
+                            <div class="slds-col ">                                
+                                <span class="label-tooltip"><b>Ends :</b></span> <c:FormattedDateTime value="{!v.banEndDate}" />                                  
+                            </div>
+                            <div class="slds-col ">
+                                <span class="label-tooltip"><b>Reason :</b> </span>{!v.banReason}
+                            </div>
+                        </div>
+            </aura:set>
+            </c:Popover>
+        </aura:if>
+        
+        <!--display modal to suspend a franchise-->
+        <aura:if isTrue="{!v.suspendFranchiseModal}">
+         <div class="suspendFranchise">
+        <c:ParentModal isModalOpen="{!v.suspendFranchiseModal}">  
+            <aura:set attribute="class" value="slds-modal_small" />
+            <aura:set attribute="outerClass" value="modal-container" />
+            <aura:set attribute="content">
+                
+                <div class="slds-grid slds-grid_vertical">
+                    <div class="slds-col ">
+                        <span> <span class="slds-media__body"> Franchise <br/>FIFA</span>
+                                                </span>
+                    </div>
+                    <div class="slds-col "><!--TODO ban category-->
+                        <span>  <lightning:combobox name="Product" aura:id="suspendFr" label="Product" value="" placeholder="Select Product" options="{! v.productList }"  onchange="{!c.handleProductNameChange}"/>
+                                               </span>
+                    </div>
+                    <div class="slds-col "><!--TODO ban category-->
+                        <span>  <lightning:input type="datetime-local" aura:id="suspendFr" name="input2"  label="Set suspension end Date/time" value="" timezone="GMT" onchange="{!c.handleDateChange}"/>
+                                               </span>
+                    </div>
+                    <div class="slds-col "><!--TODO ban category-->
+                        <span>  <lightning:combobox name="Reason" aura:id="suspendFr" label="Reason" value="" placeholder="Select Reason" options="{! v.banReasonList }"  onchange="{!c.handleBanReasonChange}"/>
+                                               </span>
+                    </div>
+                    
+                </div>
+                
+                
+                
+            </aura:set>
+            <aura:set attribute="title">
+                <p>Suspend Franchise</p>
+            </aura:set>
+            <aura:set attribute="clickClose" value="false"/>
+            <aura:set attribute="escapeClose" value="false"/>
+             <aura:set attribute="showSpinner" value="{!v.openSpinner}"/>
+            <aura:set attribute="success" value="Suspend"/>
+            <aura:set attribute="cancel" value="Cancel"/>
+            <aura:set attribute="onSuccess" value="{!c.suspendFranchise}"/>
+            <aura:set attribute="onCancel" value="{!c.closesuspendFranchiseModal}"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.disableSuspend}"/>
+        </c:ParentModal>
+         </div>
+        </aura:if>
+        
+       <aura:if isTrue="{! and(v.openProductChange, v.customerProduct != null)}">
+            <c:ProductChange featuredProduct="{!v.featuredProduct}" openProductChange="{!v.openProductChange}" 
+                             selectedProduct="{!v.product}" customerProduct="{!v.customerProduct}" 
+                             products="{!v.allProducts}" caseId="{!v.caseId}" searchCodes="{!v.searchCodes}" />
+        </aura:if>
+        <aura:if isTrue="{!v.viewcodes}">
+           <c:viewcodes viewcodes="{!v.viewcodes}" nucleusId="{!v.nucleusId}" selectedProduct="{!v.product.Name}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.searchCodes}">
+           <c:CodeSearch searchCodes="{!v.searchCodes}" codeSearchData="{!v.codeSearchData}" consumeCodes="{!v.consumeCodes}" nucleusId="{!v.nucleusId}" selectedProduct="{!v.product.Name}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.consumeCodes}">
+           <c:CodeConsume consumeCodes="{!v.consumeCodes}" codeSearchData="{!v.codeSearchData}" nucleusId="{!v.nucleusId}" selectedProduct="{!v.product.Name}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.discountsandpromos}">
+            <c:GrantEntitlementModal isOpen="{!v.discountsandpromos}" selectedProduct="{#v.product}" products="{!v.allProducts}" variant="discounts-promos" title="Grant Discounts and Promos" nucleusId="{!v.nucleusId}" email="{!v.email}" caseId="{!v.caseId}"  accountId="{!v.accountId}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.inGameEntitlement}">
+            <c:GrantEntitlementModal isOpen="{!v.inGameEntitlement}"  selectedProduct="{#v.product}" products="{!v.allProducts}" title="Grant In-Game Entitlement" nucleusId="{!v.nucleusId}" email="{!v.email}" caseId="{!v.caseId}"  accountId="{!v.accountId}" />
+        </aura:if>
+        
+        <aura:if isTrue="{!v.viewGrantItems}">
+            <c:GrantFlowContainer product="{!v.product}" caseId="{!v.caseId}" selectedProduct="{!v.product.Url_Name__c}" nucleusId="{!v.nucleusId}" selectedPersona="{!v.selectedPersona}"  configUIData="{!v.configUIData}"
+                                  openGrantFlow="{!v.viewGrantItems}" openGrantContent="{!v.openGrantInfoDefault}" genericConfigurationData="{!v.genericConfigurationData}"/>
+        </aura:if>
+        
+    </div>
+</aura:component>

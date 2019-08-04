@@ -1,0 +1,58 @@
+<aura:component>
+    <aura:attribute name="searchTerm" type="String" default="" access="private" description="Search Term String" />
+    <aura:attribute name="timer" type="Integer" access="private"/>
+    
+    <aura:registerEvent name="showFilter" type="c:HistoryFilterEvt" />
+    <aura:registerEvent name="onChangeSearchTerm" type="c:HistoryHeaderEvt" />    
+
+    <!-- History Grant flow -->
+    <aura:attribute name="globalSelectionArray" type="List" default="[]"/>
+    <aura:handler name="change" value="{!v.globalSelectionArray}" action="{!c.toggleGrantButton}"/>
+    <aura:attribute name="openHistoryGrant" type="boolean" />
+    <aura:attribute name="isMultiGrant" type="boolean" default="false"/>
+    <aura:attribute name="hasGrantPermission" type="Boolean" access="private" default="false" description="Show or Hide Grant Button" />
+
+    <!-- TSM - 1622 -->
+    <aura:attribute name="failedFilterData" type="Object"/>
+    <aura:attribute name="filterDataCount" type="Object"/>
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="productMaskingData" type="Map" />
+    
+    <aura:method name="setSearchTerm" action="{!c.setSearchTerm}" description="Method to set searchTerm"> 
+        <aura:attribute name="term" type="String" />
+    </aura:method>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <div class="slds-grid slds-p-bottom_medium">
+        <div>
+            <lightning:button label="{!v.filterDataCount}" title="Filters" onclick="{! c.handleFilterClick }"/>
+        </div>
+        <div class="slds-col slds-size_6-of-12">
+            <lightning:input type="search"                        
+                             placeholder="Search for Content, Action, Status"
+                             onchange="{! c.onChangeSearchTerm }"
+                             variant="label-hidden"
+                             value="{! v.searchTerm }"/>            
+        </div>
+        <aura:if isTrue="{!v.hasGrantPermission}">
+            <div class="slds-col_bump-left">
+                <lightning:button aura:id="history-grant-button" variant="brand" label="Grant" title="Grant" onclick="{! c.handleGrantClick }" disabled="true" />
+            </div>
+        </aura:if>
+    </div>
+    
+    <!-- TSM - 1622 -->
+    <aura:if isTrue="{!v.failedFilterData.length > 0}">
+        <lightning:accordion allowMultipleSectionsOpen="true" >
+            <lightning:accordionSection class="header-text" name="Error Load" label="Load result">
+                <aura:set attribute="body">
+                    <aura:iteration items="{!v.failedFilterData}" var="item" indexVar="idx">                        
+                        <div class="error-text slds-m-left_large">{!item.ErrorMessage}</div>
+                    </aura:iteration>
+                </aura:set>
+            </lightning:accordionSection>
+        </lightning:accordion>
+    </aura:if>
+    
+</aura:component>

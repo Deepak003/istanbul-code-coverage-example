@@ -1,0 +1,12 @@
+<aura:component >
+	<aura:attribute name="headerText" type="string" default="Reported Content"/>
+    <aura:attribute name="headerSummary" type="string" default=""/>
+    <!-- aura:handler event="c:RoleQueueAppEvt" action="{!c.roleQueueAppEvtSubs}" /-->
+    
+    <div class="header">
+    	{!v.headerText}
+    </div>
+    <div class="summary">
+    	{!v.headerSummary}
+    </div>
+</aura:component>

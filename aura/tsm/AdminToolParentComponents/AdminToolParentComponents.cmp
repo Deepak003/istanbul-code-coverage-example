@@ -1,0 +1,121 @@
+<aura:component controller="FraudAdminToolController" implements="flexipage:availableForAllPageTypes">
+    <aura:attribute name="isValidUser" type="String" default="false"/>
+    
+    <aura:handler event="force:refreshView" action="{!c.isRefreshed}" />
+    <aura:attribute name="userEmail" type="String"/>
+    <aura:attribute name="isRendred" type="boolean" default="false"/>
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:handler name="riskTypeChangeEvent" event="c:RiskTypeEvent" action="{!c.changeRiskTypeHandler}"/>
+    <aura:handler name="sliderChangeEvent" event="c:SliderEvent" action="{!c.changeSliderHandler}"/>
+    <aura:attribute name="isDisabled" type="boolean" default="true"/>
+    <aura:handler name="riskCriteriaEvent" event="c:RiskCriteriaChangeEvent" action="{!c.onChangeRisk}"/>
+    <aura:handler name="checkDifferenceEvent" event="c:submitEvent" action="{!c.checkDifference}"/>
+    <aura:handler name="runTestEvent" event="c:TestRunEvent" action="{!c.callRunTest}"/>
+    <aura:handler name="init" value="this" action="{!c.doInit}"/>
+    <aura:handler name="localeEvent" event="c:localeEvent" action="{!c.onChangeLocale}"/>
+    <aura:handler name="cmpEvent" event="c:submitClickedEVT" action="{!c.saveFMICriteria}"/>
+    <aura:handler name="resetEvent" event="c:CancelEvent" action="{!c.resetChanges}"/>
+    <aura:handler event="c:PreviousHistoryDetails" action="{!c.handlePreviousHistoryDetails}"/>
+    <aura:attribute name="oldRiskTypeOBJ" type="Object"/>
+    <aura:attribute name="newRiskTypeOBJ" type="Object"/>
+    <aura:attribute name="testRunObject" type="Object"/>
+    <aura:attribute name="oldLRFCount" type="Integer"/>
+    <aura:attribute name="newLRFCount" type="Integer"/>
+    <aura:attribute name="oldHRFCount" type="Integer"/>
+    <aura:attribute name="newHRFCount" type="Integer"/>
+    <aura:attribute name ="maxValue" type="integer"></aura:attribute>
+    <aura:attribute name ="minValue" type="integer"></aura:attribute>
+    <aura:attribute name="oldRiskCriteriaOBJ" type="Object"/>
+    <aura:attribute name="newRiskCriteriaOBJ" type="Object"/>
+	<aura:attribute name="riskCriteriaDiffObj" type="Object"/>
+    <aura:attribute name="riskTypeDiffObj" type="Object"/>
+    <aura:attribute name="selectedLocale" type="String" />
+    <aura:attribute name="accountType" type="boolean" default="false"/>
+    <aura:attribute name="contactType" type="boolean" default="false"/>
+    <aura:attribute name="fifaType" type="boolean" default="false"/>
+    <aura:attribute name="locationType" type="boolean" default="false"/>
+    <aura:attribute name="masterType" type="boolean" default="false"/>
+    <aura:attribute name="normal" type="boolean" default="false"/>
+    <aura:attribute name="lrf" type="boolean" default="false"/>
+    <aura:attribute name="hrf" type="boolean" default="false"/>
+    <aura:attribute name="oldRiskCriteriaDiffOBJ" type="Object"/>
+    <aura:attribute name="newRiskCriteriaDiffOBJ" type="Object"/>
+    <aura:attribute name="oldRiskTypeDiffOBJ" type="Object"/>
+    <aura:attribute name="newRiskTypeDiffOBJ" type="Object"/>
+	<aura:attribute name="currentURL" type="String"/>
+
+    <div class="header-fixed-menu">
+        <div class="ui-container">
+           <div class="header-title">
+            <a href="{!v.currentURL}" class="header-item">
+                <img src="{!$Resource.FMIToolImage}" class="ui-mini-image"/>
+                &nbsp; VBR Admin</a>
+            <lightning:button class="item" title="Logout" label="Logout" onclick="{!c.logout}"/>
+           </div>
+        </div>
+    </div>
+    <aura:if isTrue="{!v.isValidUser == 'valid'}">
+        
+   <!--  h1 class="fmi-title">VBR Admin Tool</h1-->
+    <div class="slds-grid slds-wrap slds-m-around_small">
+    <lightning:layout  class="slds-size_1-of-1" >
+        <lightning:layoutItem class="slds-size_5-of-6">
+            <div style="font-size: 28px;
+                        font-weight: bold;
+                        margin-left: 4%;
+                        margin-top: 2%;
+                        ">VBR Admin Tool</div>
+        </lightning:layoutItem> 
+        <lightning:layoutItem class="slds-size_1-of-6 color-code">
+            <lightning:layout  class="slds-size_1-of-1" multipleRows="true">
+                <lightning:layoutItem class="slds-size_1-of-12"><span style="background: green;color:green;border: 1px black solid;">.....</span></lightning:layoutItem> 
+                <lightning:layoutItem class="slds-size_11-of-12">&nbsp;&nbsp;Normal</lightning:layoutItem>
+                <lightning:layoutItem class="slds-size_1-of-12" ><span style="background: yellow;color:yellow;border: 1px black solid;">.....</span></lightning:layoutItem> 
+                <lightning:layoutItem class="slds-size_11-of-12">&nbsp;&nbsp;Low Risk</lightning:layoutItem>
+                <lightning:layoutItem class="slds-size_1-of-12"><span style="background: red;color:red;border: 1px black solid;">.....</span></lightning:layoutItem> 
+                <lightning:layoutItem class="slds-size_11-of-12">&nbsp;&nbsp;High Risk</lightning:layoutItem>
+                
+            </lightning:layout>
+        </lightning:layoutItem> 
+    </lightning:layout>
+
+    </div>
+    <div class="slds-grid slds-wrap slds-m-around_small">
+        <lightning:card class="slds-size_1-of-1 range-slider" title="">
+            <c:Slider aura:id="Slider" maxValue="{!v.maxValue}" minValue="{!v.minValue}"/>
+        </lightning:card>
+        <lightning:card class="slds-size_1-of-2 slds-grid_vertical-stretch risk-criteria slds-scrollable" title="">
+            <c:RiskCriteriaComponent aura:id="RiskCriteriaComponent" oldRiskCriteriaOBJ = "{!v.oldRiskCriteriaOBJ}" newRiskCriteriaOBJ = "{!v.newRiskCriteriaOBJ}"/>
+        </lightning:card> 
+        <lightning:layout  class="slds-size_1-of-2" multipleRows="true">
+				<lightning:layoutItem class="slds-size_1-of-1">
+  					<c:LocaleComponent aura:id="LocaleComponent"/>
+                </lightning:layoutItem> 
+                <lightning:layoutItem class="slds-size_1-of-1">
+                    <lightning:card class="risk-type" title="">
+                        <c:RiskTypesComponent aura:id="RiskTypesComponent" oldRiskTypeOBJ = "{!v.oldRiskTypeOBJ}" newRiskTypeOBJ = "{!v.newRiskTypeOBJ}" />
+                    </lightning:card>
+                 </lightning:layoutItem> 
+        </lightning:layout>
+    </div>
+    <div>
+    <lightning:layout class="action-items" multipleRows="true">
+    	<lightning:layoutItem>
+        	<c:SubmitComponent aura:id="SubmitComponent" isOpen="{!v.isOpen}" riskCriteriaDiffObj="{!v.riskCriteriaDiffObj}" selectedLocale="{!v.selectedLocale}" accountType="{!v.accountType}" contactType="{!v.contactType}" fifaType="{!v.fifaType}" locationType="{!v.locationType}" masterType="{!v.masterType}" newRiskCriteriaDiffOBJ="{!v.newRiskCriteriaDiffOBJ}" oldRiskCriteriaDiffOBJ="{!v.oldRiskCriteriaDiffOBJ}" normal="{!v.normal}" lrf="{!v.lrf}" hrf="{!v.hrf}" oldRiskTypeDiffOBJ="{!v.oldRiskTypeDiffOBJ}" newRiskTypeDiffOBJ="{!v.newRiskTypeDiffOBJ}" isDisabled="{!v.isDisabled}"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem>
+			<c:RunTestComponent aura:id="RunTestComponent" testRunObject = "{!v.testRunObject}" isRendred = "{!v.isRendred}" oldLRFCount="{!v.oldLRFCount}" newLRFCount="{!v.newLRFCount}" oldHRFCount="{!v.oldHRFCount}" newHRFCount="{!v.newHRFCount}" isDisabled="{!v.isDisabled}"/>
+        </lightning:layoutItem>
+    	<lightning:layoutItem>
+          <c:ButtonsComponent aura:id="ButtonsComponent" isDisabled="{!v.isDisabled}"/>
+        </lightning:layoutItem>
+        <lightning:layoutItem>
+    		<c:HistoryComponent/>
+        </lightning:layoutItem>
+	</lightning:layout>
+    </div>
+    </aura:if>
+    <aura:if isTrue="{!v.isValidUser == 'notValid'}">
+        <c:UnauthrizationMessage/>
+    </aura:if>
+</aura:component>

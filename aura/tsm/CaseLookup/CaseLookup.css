@@ -1,0 +1,34 @@
+.THIS .leftPaddingClass {
+    padding-left: 2rem;
+}
+ 
+.THIS .pillSize{
+ width:100%;
+}
+.THIS.slds-form-element > ul::-webkit-scrollbar-track {    
+	background-color: #ffffff;
+}
+.THIS.slds-form-element > ul::-webkit-scrollbar
+{
+	width: 12px;
+    background-color: #ffffff;
+}
+
+.THIS.slds-form-element > ul::-webkit-scrollbar-thumb
+{
+	border-radius: 6px;
+    background-color: #e0dfdf;
+}
+.THIS .close-icon {
+    display: block;
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+    position: absolute;
+    right: .75rem;
+    top: 27%;
+    z-index: 99;
+}
+.THIS .close-icon .slds-icon-utility-close {
+    right: 0;
+}

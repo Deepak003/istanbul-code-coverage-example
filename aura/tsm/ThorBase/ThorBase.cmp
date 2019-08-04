@@ -1,0 +1,15 @@
+<aura:component 
+     implements="force:appHostable,flexipage:availableForAllPageTypes" abstract="true">
+    <ltng:require styles="{!$Resource.ThorCSS}" />
+    <ltng:require scripts="{!$Resource.ThorJS}" />
+    <aura:registerEvent 
+                        name="loading" 
+                        type="c:loading"/>
+    
+    <aura:registerEvent 
+                        name="doneloading" 
+                        type="c:doneloading"/>
+    
+    <div class="player-search"><c:PlayerSearch /></div>
+	{!v.body}
+</aura:component>

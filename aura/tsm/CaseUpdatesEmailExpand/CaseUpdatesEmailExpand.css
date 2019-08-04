@@ -1,0 +1,13 @@
+.THIS {
+}
+
+.THIS .case-email-title {
+    font-size : 12px;
+    color : #3E3E3C;
+    padding-bottom : t(spacingXxSmall)
+}
+
+.THIS .case-email-title.part-2,
+.THIS .case-email-title.part-3 {
+    padding-top : t(spacingMedium)
+}

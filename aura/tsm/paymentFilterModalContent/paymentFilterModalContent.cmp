@@ -1,0 +1,157 @@
+<aura:component controller="AccountBillingAuraCtl">
+    
+    <aura:attribute name="paymentOptionType" type="String" access="public"/>
+    <aura:attribute name="paymentTypes" type="List" access="public"/>
+    <aura:attribute name="lastName" type="String" access="public" default=""/>
+    <aura:attribute name="fourDigits" type="String" access="public" default=""/>
+    <aura:attribute name="creditCardType" type="String" access="public"/>
+    <aura:attribute name="creditCardTypes" type="List" access="public"/>
+    <aura:attribute name="billingAcctEmail" type="String" access="public"/>
+    <aura:attribute name="retailCardNumber" type="String" access="public" default=""/>
+    <aura:attribute name="nucleusId" type="String" access="public"/>
+    <aura:attribute name="uniqueId" type="String" access="public"/>
+    <aura:attribute name="paymentAccount" type="List" access="public"/>
+    <aura:attribute name="errorMsgText" type="String" access="public" default=""/>
+    
+    <aura:registerEvent name="enableSearchButton" type="c:EnableSearchButtonEvt"/>
+    <aura:registerEvent name="setPaymentOption" type="c:SetPaymentOption"/>
+    <aura:registerEvent name="differentAccountEvent" type="c:OpenDifferentAccountEvt"/>
+    <aura:handler event="c:SendPaymentOptionEvt" action="{!c.handlePaymentOptionEvt}"/>
+    <aura:handler name="change" value="{! v.retailCardNumber }" action="{! c.clearErrorMsg }"/>
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <lightning:overlayLibrary aura:id="overlayModal"/>
+    <lightning:workspaceAPI aura:id="workspace" />
+
+    <div class="modalContent">
+        
+        <lightning:combobox aura:id="paymentType" name="paymentType" label="Select Payment Option Type" value="{!v.paymentOptionType}" placeholder="Please select" options="{! v.paymentTypes }" onchange="{! c.handlePaymentTypeChange }"/>
+        
+        <!-- credit card payment type-->
+        <div  aura:id="creditCardBlock" class="slds-grid slds-gutters slds-hide slds-m-top_medium">
+            <div class="slds-col">
+                <lightning:input name="lastName" value="{! v.lastName }" label="Last Name" aura:id="lastName" onchange="{! c.fireValidation }"/>
+            </div>
+            <div class="slds-col">
+                <lightning:input name="fourDigits" value="{! v.fourDigits }" label="Last 4 Digits" aura:id="fourDigits" maxlength="4" onchange="{! c.fireValidation }"/>
+            </div>
+            <div class="slds-col">
+                <lightning:combobox aura:id="cardType" name="cardType" label="Credit Card Type" value="{!v.creditCardType}" placeholder="" options="{! v.creditCardTypes }" onchange="{! c.fireValidation }"/>
+            </div>    
+        </div>   
+        
+        <!--Billing account-->
+        <div aura:id="billingAcctBlock" class="slds-hide slds-m-top_medium" onkeyup="{! c.fireEnableSearchButton }">
+            <lightning:input type="email" name="billingAcctEmail" value="{!v.billingAcctEmail}" label="Email" aura:id="billingAcctEmail" placeholder="Email address associated with Billing Account"/>
+        </div>
+        
+        <!--Retail Card -->
+        <div aura:id="retailCardBlock" class="slds-hide slds-m-top_medium" onkeyup="{! c.fireEnableSearchButton }">
+            <lightning:input  name="retailCardNumber" value="{!v.retailCardNumber}" label="Retail Card Number" aura:id="retailCardNumber"/>
+            <p class="slds-m-top_x-small"><lightning:formattedText value="{!v.errorMsgText}" class="redColor" /></p>
+        </div>
+        
+        <!--Payment account results -->
+        <aura:if isTrue="{!not(empty(v.paymentAccount))}">
+            <aura:iteration items="{!v.paymentAccount}" var="payAcct" indexVar="idx">
+                <div class="{! join(' ',
+                                'slds-m-bottom_medium',
+                                if(payAcct.isExpired, 'disabled-card'),
+                                if(idx != v.paymentAccount.length - 1 , 'slds-border_bottom')
+                                )}">
+                    <c:PaymentAccountGrid paymentAccount="{!payAcct}" />
+                    
+                    <aura:if isTrue="{!v.paymentOptionType=='RetailCard'}">
+                        <!--
+                        <p class="slds-p-top_medium slds-p-bottom_medium">
+                            A matching payment option was found. However we don't have the information on which account this Retail card is associated with.
+                        </p>
+                        -->
+                        <div class="slds-p-top_medium">
+                            <aura:if isTrue="{! payAcct.cardStatus == 'INACTIVE'}">                            
+                                A matching payment option was found. However, we don’t have the information on this Retail Card.
+                                <aura:set attribute="else">
+                                        <aura:if isTrue="{! payAcct.cardStatus == 'REDEEMED'}">
+                                            <aura:if isTrue="{!payAcct.isSameAccount}">
+                                                This card has been redeemed in this wallet. Would you like to reverse it?
+                                                <aura:set attribute="else">
+                                                    This EA Retail Card was found associated with another account ({!payAcct.otherCardEmail}). 
+                                                    <!--<a onclick="{!c.openAccountWithSubtab}" data-index="{!idx}"> Open that account</a>-->                                                     
+                                                    <c:AccountAsSubTab nucleusId="{!payAcct.nucleusId}">
+                                                        <a>Open that account</a>
+                                                    </c:AccountAsSubTab>                                              
+                                                    in a new tab to view detailed information for the payment option.
+                                                </aura:set>
+                                            </aura:if>
+                                            <aura:set attribute="else">
+                                                A new card is found. Would you like to redeem this card?
+                                            </aura:set>
+                                        </aura:if>
+                                    </aura:set>                            
+                            </aura:if>
+                            <!--
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!payAcct.isSameAccount}">
+                                    <p class="slds-p-top_medium slds-p-bottom_medium">
+                                        A matching payment option was found associated with the current account ({!payAcct.otherCardEmail}).<a onclick="{!c.setPaymentOption}" data-paymentId="{!payAcct.accountId}">View Details</a></p>                                    
+                                    <aura:set attribute="else">
+                                        <p class="slds-p-top_medium slds-p-bottom_medium">
+                                            A matching payment option was found associated with another account ({!payAcct.otherCardEmail}).<a onclick="{!c.openDifferentAccountTab}" data-nucleusId="{!payAcct.nucleusId}" data-paymentId="{!payAcct.accountId}" data-emailAddress="{!payAcct.otherCardEmail}"> Open that account</a>
+                                            in a new tab to view detailed information for the payment option.</p>                                        
+                                    </aura:set>
+                                </aura:if>
+                            </aura:set>
+                            -->
+                        </div>
+
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{!payAcct.isSameAccount}">
+                                <p class="slds-p-top_medium slds-p-bottom_medium">
+                                    A matching payment option was found associated with the current account ({!payAcct.otherCardEmail}).<a onclick="{!c.setPaymentOption}" data-paymentId="{!payAcct.accountId}">View Details</a></p>                                    
+                                <aura:set attribute="else">
+                                    <p class="slds-p-top_medium slds-p-bottom_medium">
+                                        A matching payment option was found associated with another account ({!payAcct.nucleusId}).
+                                        <!--<a onclick="{!c.openDifferentAccountTab}" data-nucleusId="{!payAcct.nucleusId}" data-paymentId="{!payAcct.accountId}" data-emailAddress="{!payAcct.otherCardEmail}"> Open that account</a>
+                                        -->
+                                        <c:AccountAsSubTab nucleusId="{!payAcct.nucleusId}" paymentId="{!payAcct.accountId}" source="BillingTab">
+                                            <a>Open that account</a>
+                                        </c:AccountAsSubTab>
+                                         in a new tab to view detailed information for the payment option.                                           
+                                        </p>                                        
+                                </aura:set>
+                            </aura:if>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </aura:iteration>           
+        </aura:if>
+        <!--Message block-->
+        
+        
+        <!--No result found block-->
+        <div aura:id="noResultBlock" class="slds-hide">
+            <!--
+            <c:EmptyState message="No Result Found" />
+            <div align="center"><p><lightning:formattedText value="You could go back and search again" /></p></div>
+            -->
+            
+            <c:EmptyState>
+                 <aura:set attribute="message">
+                     <aura:if isTrue="{!v.paymentOptionType=='RetailCard'}">
+                         <div class="slds-text-heading_medium">No results found by this number</div>
+                         <div class="slds-text-body_regular" align="center"><a onclick="{!c.goBack}">Try again</a> with another search.</div>
+                         
+                         <aura:set attribute="else">
+                            <div class="slds-text-heading_medium">No Result Found</div>
+                            <div class="slds-text-body_regular" align="center"><lightning:formattedText value="You could go back and search again" /></div>
+                         </aura:set>
+                     </aura:if>
+                     
+                 </aura:set>
+            </c:EmptyState>
+        </div>
+        
+        <lightning:formattedText value="{!v.errorMsgText}" class="redColor" />
+    </div>
+    
+</aura:component>

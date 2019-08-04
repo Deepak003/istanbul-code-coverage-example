@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Product selection event to get platforms for the selected product">
+    <aura:attribute name="productObj" type="Object"/>
+    <aura:attribute name="clearObjFlag" type="Boolean"/>
+    <aura:attribute name="evType" type="String" />
+</aura:event>

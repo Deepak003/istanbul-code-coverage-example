@@ -1,0 +1,78 @@
+<aura:component   controller="QueueListAuraCtl" >
+    <!-- attributes -->
+    <aura:attribute name="data" type="List"/>   
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="ackMsg" type="Boolean" default="true" />
+    <aura:attribute name="queueComplete" type="Boolean" default="false" />
+    <aura:attribute name="selectedCase" type="Object" />
+    <aura:attribute name="roleOptions" type="List" default=""/>
+    <aura:attribute name="beforeRoleSelect" type="Boolean"/>
+    <aura:attribute name="queueSelectionPermission" type="Boolean"/>
+    <aura:attribute name="filterQueData" type="List"/>
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>    
+	<lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <!-- the container element determine the height of the data table -->
+    <div class="slds-is-relative slds-p-left_xx-large slds-p-right_large">
+        <aura:if isTrue="{!v.data.length}">
+            <ui:scrollerWrapper>
+               <c:DataGrid data="{!v.data}" cmpName="queuedList" pkField="Id" aura:id="datagrid">
+                    <c:DataGridColumn fieldName="Subject" label="Subject" type="title" class="slds-is-sortable"/>
+                    <c:DataGridColumn fieldName="Case_Category__r.Name" label="Category" class="slds-is-sortable"/>
+                    <c:DataGridColumn fieldName="Petition_Details__r.Target_Persona_Id__c" label="Target Persona"/>
+                   <!-- THOR 1398 start-->	
+                   <c:DataGridColumn fieldName="Petition_Details__r.Location__c" label="Location"/> 
+                   <!-- THOR 1398 end-->
+                   <c:DataGridColumn  fieldName="ProductLR__r.Name" label="Product" class="slds-is-sortable"/>
+                    <c:DataGridColumn fieldName="CreatedDate" label="Case Created" type="datetimefull" class="slds-is-sortable"/>
+                </c:DataGrid> 
+            </ui:scrollerWrapper>            			
+        </aura:if>
+		<aura:if isTrue="{!v.ackMsg}">
+            <div class="slds-is-absolute begin-message" aura:id="begin-message">
+                <div class="slds-text-align_center ">
+                    <div class="slds-text-align_center">
+                        <p class="slds-p-bottom_medium">
+                            <h3 class="slds-text-heading_medium">Take off with Thor</h3>
+                        </p>
+                        <p class="slds-p-bottom_medium">
+                            <span>
+                                Set your presence to "Available" to begin resolving cases!
+                            </span>
+                        </p>
+                        <!-- <p>
+                            <lightning:button variant="brand" 
+                                              class="slds-text-heading_small slds-p-top_medium slds-p-bottom_medium slds-p-left_xx-large slds-p-right_xx-large" 
+                                              label="Get Started" title="Get Started" 
+                                              onclick="{!c.handleMessageClick }" />
+                        </p> -->
+                    </div>
+                </div>
+            </div>
+		</aura:if>
+        <aura:if isTrue="{!v.queueComplete}">
+            <div class="slds-is-absolute begin-message" aura:id="begin-message">
+                <div class="slds-text-align_center ">
+                    <div class="slds-text-align_center">
+                        <p class="slds-p-bottom_medium">
+                            <h3 class="slds-text-heading_medium">You have completed all petitions in your queue!</h3>
+                        </p>
+                        <p class="slds-p-bottom_medium">
+                            <span>
+                                Click on the button below to get more petitions.  Once you are completed with a petition, 
+                                it will move to the completed tab above.
+                            </span>
+                        </p>
+                        <p>
+                            <lightning:button variant="brand" 
+                                              class="slds-text-heading_small slds-p-top_medium slds-p-bottom_medium slds-p-left_xx-large slds-p-right_xx-large" 
+                                              label="Get More" title="Get More" 
+                                              onclick="{!c.handleMessageClick }" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+		</aura:if>
+    </div>    
+</aura:component>

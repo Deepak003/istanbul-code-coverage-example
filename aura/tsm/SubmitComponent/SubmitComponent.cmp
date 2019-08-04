@@ -1,0 +1,386 @@
+<aura:component>
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:registerEvent name="cmpEvent" type="c:submitClickedEVT"/>
+    <aura:registerEvent name="checkDifferenceEvent" type="c:submitEvent"/>
+    <aura:attribute name="riskCriteriaDiffObj" type="Set" />
+    <aura:attribute name="riskTypeDiffObj" type="Object"/>
+    <aura:attribute name="selectedLocale" type="String" />
+    <aura:attribute name="accountType" type="boolean" default="false"/>
+    <aura:attribute name="contactType" type="boolean" default="false"/>
+    <aura:attribute name="fifaType" type="boolean" default="false"/>
+    <aura:attribute name="locationType" type="boolean" default="false"/>
+    <aura:attribute name="masterType" type="boolean" default="false"/>
+	<aura:attribute name="oldRiskCriteriaDiffOBJ" type="Object"/>
+    <aura:attribute name="newRiskCriteriaDiffOBJ" type="Object"/>
+	<aura:attribute name="oldRiskTypeDiffOBJ" type="Object"/>
+    <aura:attribute name="newRiskTypeDiffOBJ" type="Object"/>
+    <aura:attribute name="normal" type="boolean" default="false"/>
+    <aura:attribute name="lrf" type="boolean" default="false"/>
+    <aura:attribute name="hrf" type="boolean" default="false"/>
+    <aura:attribute name="isDisabled" type="boolean" default="false"/>
+    <div class="slds-m-around_xx-large action-button">
+        <div class="apply-action">
+        <lightning:button variant="brand"
+                          label="Apply"
+                          title="Apply"
+                          onclick="{! c.openModel }" disabled="{!v.isDisabled}"/></div>   
+        <aura:if isTrue="{!v.isOpen}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container submit-modal">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate"><b>You are making the following changes:</b></h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col slds-size_1-of-2 risk-criteria-submit">
+									<aura:if isTrue="{!v.accountType}">
+										<lightning:accordion  activeSectionName="AccountProperties">
+											<lightning:accordionSection name="AccountProperties" label="Account Properties">
+											<aura:iteration items="{!v.riskCriteriaDiffObj}" var="riskCriteria">
+												<aura:if isTrue="{!(riskCriteria ==  'birthdayRule')}">
+                                                    <div class="slds-size_1-of-1 rule-name rule-name">
+													<label>1 Jan Birthday  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.birthdayRule.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.birthdayRule.weight})
+                                                    
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'accountCreatedHours')}">
+                                                    <div class="slds-size_1-of-1 rule-name">
+													<label>Account created in the last &nbsp; </label><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.accountCreatedHours.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.accountCreatedHours.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.accountCreatedHours.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.accountCreatedHours.customAttributeValue})</aura:if> <label> &nbsp; hours &nbsp; </label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.accountCreatedHours.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.accountCreatedHours.weight !=  v.oldRiskCriteriaDiffOBJ.accountCreatedHours.weight)}">({!v.oldRiskCriteriaDiffOBJ.accountCreatedHours.weight})</aura:if>
+                                                    
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'zeroAccountValue')}">
+													<div class="slds-size_1-of-1 rule-name">
+                                                    <label>Zero Account Value &nbsp; </label>    </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.zeroAccountValue.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.zeroAccountValue.weight})
+                                                
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'noSessionData')}">
+                                                    <div class="slds-size_1-of-1 rule-name">
+													<label>No Session data related to case &nbsp; </label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.noSessionData.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.noSessionData.weight})
+                                                   
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'gibberishEmail')}">
+                                                    <div class="slds-size_1-of-1 rule-name">
+													<label>Gibberish Email &nbsp; </label>   </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.gibberishEmail.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.gibberishEmail.weight})
+                                                 
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'gibberishName')}">
+													<div class="slds-size_1-of-1 rule-name">
+                                                    <label>Gibberish Name &nbsp; </label>   </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.gibberishName.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.gibberishName.weight})
+                                                 
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'AllAccountProperties')}">
+                                                    <div class="slds-size_1-of-1 rule-name">
+													<label>All Account Properties Scored &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.allAccountPropertiesScored.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.allAccountPropertiesScored.weight})
+                                                    
+												</aura:if>
+												</aura:iteration>
+											</lightning:accordionSection>
+										</lightning:accordion>
+									</aura:if>
+									<aura:if isTrue="{!v.locationType}">
+										<lightning:accordion  activeSectionName="location">
+											<lightning:accordionSection name="location" label="Location">
+											<aura:iteration items="{!v.riskCriteriaDiffObj}" var="riskCriteria">
+												<aura:if isTrue="{!(riskCriteria ==  'changeInLocation')}">
+                                                    <div class="slds-size_1-of-1 rule-name">
+													<label>Change in Location &nbsp; </label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.changeInLocation.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.changeInLocation.weight})
+                                                   
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'unauthenticatedLocationMultiplier')}">
+                                                    <div class="slds-size_1-of-1 rule-name" style="margin-left: 18px; width: 78%;">
+                                                    <label>Unauthenticated Multiplier &nbsp; </label><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.customAttributeValue})</aura:if></div><label style="color:#dc143c; font-weight: bold;">&nbsp; {!v.newRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.weight !=  v.oldRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.weight)}">({!v.oldRiskCriteriaDiffOBJ.unauthenticatedLocationMultiplier.weight})</aura:if>
+                                                    
+												</aura:if>
+												</aura:iteration>
+											</lightning:accordionSection>
+										</lightning:accordion>
+									</aura:if>
+									<aura:if isTrue="{!v.contactType}">
+										<lightning:accordion  activeSectionName="Contact">
+											<lightning:accordionSection name="Contact" label="Contact Behaviour">
+											<aura:iteration items="{!v.riskCriteriaDiffObj}" var="riskCriteria">
+												<aura:if isTrue="{!(riskCriteria ==  'selfServiceRule')}">
+													<div class="slds-size_1-of-1 rule-name">
+													<label>Self-service in past &nbsp; </label><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.selfServiceRule.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.selfServiceRule.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.selfServiceRule.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.selfServiceRule.customAttributeValue})</aura:if> 	</div><label> &nbsp; days (per case) &nbsp; </label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.selfServiceRule.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.selfServiceRule.weight !=  v.oldRiskCriteriaDiffOBJ.selfServiceRule.weight)}">({!v.oldRiskCriteriaDiffOBJ.selfServiceRule.weight})</aura:if>
+												
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'numberOfContacts')}">
+													<div class="slds-size_1-of-1 rule-name">
+													<label>Contacting &nbsp; </label><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfContacts.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfContacts.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.numberOfContacts.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.numberOfContacts.customAttributeValue})</aura:if><label> &nbsp; times in &nbsp; </label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfMinutes.weight}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfMinutes.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfMinutes.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfMinutes.weight})</aura:if><label> &nbsp; hours &nbsp; </label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfContacts.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfContacts.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfContacts.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfContacts.weight})</aura:if>
+													
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'numberOfContactsDays')}">
+													<div class="slds-size_1-of-1 rule-name">
+													<label>Contacting &nbsp;</label><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfContactsDays.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfContactsDays.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.numberOfContactsDays.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.numberOfContactsDays.customAttributeValue})</aura:if><label>&nbsp; times in &nbsp;</label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfDays.weight}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfDays.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfDays.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfDays.weight})</aura:if> <label> &nbsp; days &nbsp;</label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfContactsDays.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfContactsDays.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfContactsDays.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfContactsDays.weight})</aura:if>
+													
+												</aura:if>
+                                                <aura:if isTrue="{!(riskCriteria ==  'numberOfContactsInWeeks')}">
+                                                    <div class="slds-size_1-of-1 rule-name">
+                                                        <label>Contacting &nbsp;</label><label style="color:red; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfContactsInWeeks.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfContactsInWeeks.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.numberOfContactsInWeeks.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.numberOfContactsInWeeks.customAttributeValue})</aura:if><label>&nbsp; times in &nbsp;</label> <label style="color:red; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfWeeks.weight}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfWeeks.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfWeeks.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfWeeks.weight})</aura:if> <label> &nbsp; weeks &nbsp;</label> </div><label style="color:red; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfContactsInWeeks.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfContactsInWeeks.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfContactsInWeeks.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfContactsInWeeks.weight})</aura:if>
+                                                    
+                                                </aura:if>
+
+												<aura:if isTrue="{!(riskCriteria ==  'tosDisputeRule')}">
+												<div class="slds-size_1-of-1 rule-name">
+													<label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.tosDisputeRule.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.tosDisputeRule.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.tosDisputeRule.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.tosDisputeRule.customAttributeValue})</aura:if><label>&nbsp; TOS Cases in &nbsp;</label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfTOSContactsDays.weight}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfTOSContactsDays.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfTOSContactsDays.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfTOSContactsDays.weight})</aura:if> <label>&nbsp; days &nbsp;</label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.tosDisputeRule.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.tosDisputeRule.weight !=  v.oldRiskCriteriaDiffOBJ.tosDisputeRule.weight)}">({!v.oldRiskCriteriaDiffOBJ.tosDisputeRule.weight})</aura:if>
+													
+												</aura:if>
+                                                
+                                                <aura:if isTrue="{!(riskCriteria ==  'paymentFailureRule')}">
+												<div class="slds-size_1-of-1 rule-name">
+													<label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.paymentFailureRule.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.paymentFailureRule.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.paymentFailureRule.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.paymentFailureRule.customAttributeValue})</aura:if><label>&nbsp;Payment failures (per account) in &nbsp;</label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.numberOfDaysFailure.weight}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.numberOfDaysFailure.weight !=  v.oldRiskCriteriaDiffOBJ.numberOfDaysFailure.weight)}">({!v.oldRiskCriteriaDiffOBJ.numberOfDaysFailure.weight})</aura:if>	<label>&nbsp; days &nbsp;</label> </div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.paymentFailureRule.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.paymentFailureRule.weight !=  v.oldRiskCriteriaDiffOBJ.paymentFailureRule.weight)}">({!v.oldRiskCriteriaDiffOBJ.paymentFailureRule.weight})</aura:if>	
+												</aura:if>
+                                                
+												<aura:if isTrue="{!(riskCriteria ==  'fraudCaseCount')}">
+												<div class="slds-size_1-of-1 rule-name">
+													<label>Past high fraud cases (per case &nbsp;</label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.fraudCaseCount.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.fraudCaseCount.weight})
+													
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'customerFlag')}">
+													<div class="slds-size_1-of-1 rule-name">
+													<label>Fraud Flag selected &nbsp;</label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.customerFlag.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.customerFlag.weight})
+													
+												</aura:if>
+												<aura:if isTrue="{!(riskCriteria ==  'vogPhishing')}">
+													<div class="slds-size_1-of-1 rule-name">
+													<label>VOG phishing cases (per case) &nbsp;</label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.vogPhishing.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.vogPhishing.weight})
+													
+												</aura:if>												
+                                                <aura:if isTrue="{!(riskCriteria ==  'allContactBehaviorScored')}">
+													<div class="slds-size_1-of-1 rule-name">
+													<label>All Contact Behavior Scored &nbsp;</label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.allContactBehaviorScored.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.allContactBehaviorScored.weight})
+													
+												</aura:if>
+												</aura:iteration>
+											</lightning:accordionSection>
+										</lightning:accordion>
+									</aura:if>
+									<aura:if isTrue="{!v.fifaType}">
+										<lightning:accordion  activeSectionName="Fifa">
+											<lightning:accordionSection name="Fifa" label="Fifa Rules">
+												<aura:iteration items="{!v.riskCriteriaDiffObj}" var="riskCriteria">
+													<aura:if isTrue="{!(riskCriteria ==  'winLossRatio')}">
+														<div class="slds-size_1-of-1 rule-name">
+														<label>W/L Record of 0:10  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.winLossRatio.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.winLossRatio.weight})
+														
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'clubDeletion')}">
+														<div class="slds-size_1-of-1 rule-name">
+														<label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.clubDeletion.customAttributeValue}&nbsp;</label>
+														<aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.clubDeletion.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.clubDeletion.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.clubDeletion.customAttributeValue})</aura:if><label>&nbsp; + FUT Club Deletions  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.clubDeletion.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.clubDeletion.weight !=  v.oldRiskCriteriaDiffOBJ.clubDeletion.weight)}">({!v.oldRiskCriteriaDiffOBJ.clubDeletion.weight})</aura:if>
+														
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'winLossAndClubDeletion')}">
+														<div class="slds-size_1-of-1 rule-name"  style= "width: 83%">
+														<label>W/L + Club Deletions &nbsp; </label><label style="color:#dc143c; font-weight: bold;"><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.winLossAndClubDeletion.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.winLossAndClubDeletion.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.winLossAndClubDeletion.customAttributeValue})</aura:if>&nbsp;</label>({!v.oldRiskCriteriaDiffOBJ.winLossAndClubDeletion.customAttributeValue})</div><label style="color:#dc143c; font-weight: bold;">&nbsp; {!v.newRiskCriteriaDiffOBJ.winLossAndClubDeletion.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.winLossAndClubDeletion.weight !=  v.oldRiskCriteriaDiffOBJ.winLossAndClubDeletion.weight)}">({!v.oldRiskCriteriaDiffOBJ.winLossAndClubDeletion.weight})</aura:if>
+														
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'multiplePersonasCriteria')}">
+														<div class="slds-size_1-of-1 rule-name">
+														<label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.multiplePersonasCriteria.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.multiplePersonasCriteria.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.multiplePersonasCriteria.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.multiplePersonasCriteria.customAttributeValue})</aura:if><label>&nbsp; + Personas  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.multiplePersonasCriteria.weight}&nbsp;</label> 
+														<aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.multiplePersonasCriteria.weight !=  v.oldRiskCriteriaDiffOBJ.multiplePersonasCriteria.weight)}">({!v.oldRiskCriteriaDiffOBJ.multiplePersonasCriteria.weight})</aura:if>
+														
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'multipleGrantCriteria')}">
+													<div class="slds-size_1-of-1 rule-name">
+														<label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.multipleGrantCriteria.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.multipleGrantCriteria.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.multipleGrantCriteria.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.multipleGrantCriteria.customAttributeValue})</aura:if><label>&nbsp; + Grants  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.multipleGrantCriteria.weight}&nbsp;</label> <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.multipleGrantCriteria.weight !=  v.oldRiskCriteriaDiffOBJ.multipleGrantCriteria.weight)}">({!v.oldRiskCriteriaDiffOBJ.multipleGrantCriteria.weight})</aura:if>
+													
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'franchiseBanCriteria')}">
+													<div class="slds-size_1-of-1 rule-name">
+														<label>Active FIFA Ban  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.franchiseBanCriteria.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.franchiseBanCriteria.weight})
+														
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'allFIFAScored')}">
+													<div class="slds-size_1-of-1 rule-name">
+														<label>All FIFA Scored  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.allFIFAScored.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.allFIFAScored.weight})
+														
+													</aura:if>
+												</aura:iteration>
+											</lightning:accordionSection>
+										</lightning:accordion>
+									</aura:if>
+									<aura:if isTrue="{!v.masterType}">
+										<lightning:accordion  activeSectionName="Master">
+											<lightning:accordionSection name="Master" label="Master Rules">
+												<aura:iteration items="{!v.riskCriteriaDiffObj}" var="riskCriteria">
+													<aura:if isTrue="{!(riskCriteria ==  'completeSet')}">
+													<div class="slds-size_1-of-1 rule-name">
+														<label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.completeSet.customAttributeValue}&nbsp;</label>
+                                                        <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.completeSet.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.completeSet.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.completeSet.customAttributeValue})</aura:if>
+                                                        <label>&nbsp; or more complete set  &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.completeSet.weight}&nbsp;</label> 
+                                                        <aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.completeSet.weight !=  v.oldRiskCriteriaDiffOBJ.completeSet.weight)}">({!v.oldRiskCriteriaDiffOBJ.completeSet.weight})</aura:if>
+                                                        	
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'customerValue')}">
+													<div class="slds-size_1-of-1 rule-name">
+														<label>Customer Value - Platinum   &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.customerValue.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.customerValue.weight})
+														
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'coolDown')}">
+													<div class="slds-size_1-of-1 rule-name">
+														<label>Cool Down for &nbsp; </label><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.coolDown.customAttributeValue}&nbsp;</label><aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.coolDown.customAttributeValue !=  v.oldRiskCriteriaDiffOBJ.coolDown.customAttributeValue)}">({!v.oldRiskCriteriaDiffOBJ.coolDown.customAttributeValue})</aura:if> 
+														<label> &nbsp; days &nbsp; </label></div> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.coolDown.weight}&nbsp;</label> 
+														<aura:if isTrue="{!(v.newRiskCriteriaDiffOBJ.coolDown.weight !=  v.oldRiskCriteriaDiffOBJ.coolDown.weight)}">({!v.oldRiskCriteriaDiffOBJ.coolDown.weight})</aura:if>
+													
+													</aura:if>
+													<aura:if isTrue="{!(riskCriteria ==  'autoFraudFlag')}">
+														<div class="slds-size_1-of-1 rule-name">
+														<label>Turn on the Fraud Flag after number of Fraud Cases   &nbsp; </label></div><label style="color:#dc143c; font-weight: bold;">{!v.newRiskCriteriaDiffOBJ.autoFraudFlag.weight}&nbsp;</label> ({!v.oldRiskCriteriaDiffOBJ.autoFraudFlag.weight})
+														
+													</aura:if>
+												</aura:iteration>
+											</lightning:accordionSection>
+										</lightning:accordion>
+									</aura:if>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2 risk-type-submit">
+                                <p class="locale">Locale: {!v.selectedLocale}</p>
+								<!--<hr style="border: 2px solid;" class="slds-col slds-size_1-of-2"/>-->
+								<aura:if isTrue="{!v.normal}">
+								<div class="slds-size_1-of-1 label-name">
+                                    <div class="config-values">
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.NORMAL.active ==  v.oldRiskTypeDiffOBJ.NORMAL.active)}">
+											<label> Normal ({!v.newRiskTypeDiffOBJ.NORMAL.active})</label>
+										<aura:set attribute="else">
+											<label> Normal </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.NORMAL.active})</label> ({!v.oldRiskTypeDiffOBJ.NORMAL.active})
+										</aura:set><br></br>
+										</aura:if>
+                                        <aura:if isTrue="{!(v.newRiskTypeDiffOBJ.NORMAL.minValue ==  v.oldRiskTypeDiffOBJ.NORMAL.minValue)}">
+											<label>&nbsp;&nbsp;&nbsp;{!v.newRiskTypeDiffOBJ.NORMAL.minValue} -&nbsp;</label>
+										<aura:set attribute="else">
+											<label style="color:#dc143c; font-weight: bold;"> &nbsp;&nbsp;&nbsp;{!v.newRiskTypeDiffOBJ.NORMAL.minValue} </label> <label>({!v.oldRiskTypeDiffOBJ.NORMAL.minValue}) - &nbsp; </label>
+										</aura:set>
+										</aura:if>
+									
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.NORMAL.maxValue ==  v.oldRiskTypeDiffOBJ.NORMAL.maxValue)}">
+											<label>{!v.newRiskTypeDiffOBJ.NORMAL.maxValue}</label>
+										<aura:set attribute="else">
+											<label style="color:#dc143c; font-weight: bold;"> {!v.newRiskTypeDiffOBJ.NORMAL.maxValue} </label> <label>({!v.oldRiskTypeDiffOBJ.NORMAL.maxValue}) </label>
+										</aura:set>
+										</aura:if>
+                                    </div>
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.NORMAL.authActive !=  v.oldRiskTypeDiffOBJ.NORMAL.authActive)}">
+											<label> Authenticated : </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.NORMAL.authActive})</label> ({!v.oldRiskTypeDiffOBJ.NORMAL.authActive})
+										</aura:if>
+										<br/>
+										
+									
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.NORMAL.unauthActive !=  v.oldRiskTypeDiffOBJ.NORMAL.unauthActive)}">
+											<label> Unauthenticated : </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.NORMAL.unauthActive})</label> ({!v.oldRiskTypeDiffOBJ.NORMAL.unauthActive})
+										</aura:if>
+										<br/>
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.NORMAL.showCriteriaRuleInOmega ==  v.oldRiskTypeDiffOBJ.NORMAL.showCriteriaRuleInOmega)}">
+											<div class="show-score"><label> Show score details in case notes </label> <label>({!v.newRiskTypeDiffOBJ.NORMAL.showCriteriaRuleInOmega})</label>
+										<aura:set attribute="else">
+											
+                                                <label> Show score details in case notes </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.NORMAL.showCriteriaRuleInOmega})</label> ({!v.oldRiskTypeDiffOBJ.NORMAL.showCriteriaRuleInOmega})
+                                           </aura:set> </div>
+										</aura:if>
+                                    <br></br>
+								</div>
+								</aura:if>
+								<aura:if isTrue="{!v.lrf}">
+								<div class="slds-size_1-of-1 label-name">
+                                    <div class="config-values">
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.LRF.active ==  v.oldRiskTypeDiffOBJ.LRF.active)}">
+											<label> Low Risk ({!v.newRiskTypeDiffOBJ.LRF.active})</label>
+										<aura:set attribute="else">
+											<label> Low Risk </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.LRF.active})</label> ({!v.oldRiskTypeDiffOBJ.LRF.active})
+										</aura:set>
+										</aura:if><br></br>
+                                        <aura:if isTrue="{!(v.newRiskTypeDiffOBJ.LRF.minValue ==  v.oldRiskTypeDiffOBJ.LRF.minValue)}">
+											<label>&nbsp;&nbsp;&nbsp;{!v.newRiskTypeDiffOBJ.LRF.minValue} -&nbsp;</label>
+										<aura:set attribute="else">
+											<label style="color:#dc143c; font-weight: bold;"> &nbsp;&nbsp;&nbsp;{!v.newRiskTypeDiffOBJ.LRF.minValue} </label> <label>({!v.oldRiskTypeDiffOBJ.LRF.minValue}) - &nbsp; </label>
+										</aura:set>
+										</aura:if>
+									
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.LRF.maxValue ==  v.oldRiskTypeDiffOBJ.LRF.maxValue)}">
+											<label>{!v.newRiskTypeDiffOBJ.LRF.maxValue}</label>
+										<aura:set attribute="else">
+											<label style="color:#dc143c; font-weight: bold;"> {!v.newRiskTypeDiffOBJ.LRF.maxValue} </label> <label>({!v.oldRiskTypeDiffOBJ.LRF.maxValue}) </label>
+										</aura:set>
+										</aura:if>
+                                    </div>
+                                    <div class="show-score">
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.LRF.authActive !=  v.oldRiskTypeDiffOBJ.LRF.authActive)}">
+											<label> Authenticated : </label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskTypeDiffOBJ.LRF.authActive}</label> ({!v.oldRiskTypeDiffOBJ.LRF.authActive})
+										</aura:if>
+										<br/>
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.LRF.unauthActive !=  v.oldRiskTypeDiffOBJ.LRF.unauthActive)}">
+											<label> Unauthenticated : </label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskTypeDiffOBJ.LRF.unauthActive}</label> ({!v.oldRiskTypeDiffOBJ.LRF.unauthActive})
+										</aura:if>
+										<br/>
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.LRF.showCriteriaRuleInOmega ==  v.oldRiskTypeDiffOBJ.LRF.showCriteriaRuleInOmega)}">
+											<label> Show score details in case notes </label> <label>({!v.newRiskTypeDiffOBJ.LRF.showCriteriaRuleInOmega})</label>
+										<aura:set attribute="else">
+											
+                                                <label> Show score details in case notes </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.LRF.showCriteriaRuleInOmega})</label> ({!v.oldRiskTypeDiffOBJ.LRF.showCriteriaRuleInOmega})
+                                            </aura:set>
+										</aura:if>
+									<br></br>
+                                        </div>
+								</div>
+								</aura:if>
+								<aura:if isTrue="{!v.hrf}">
+								<div class="slds-size_1-of-1 label-name">
+                                    <div class="config-values">
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.HRF.active ==  v.oldRiskTypeDiffOBJ.HRF.active)}">
+											<label> High Risk ({!v.newRiskTypeDiffOBJ.HRF.active})</label>
+										<aura:set attribute="else">
+											<label> High Risk </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.HRF.active})</label> ({!v.oldRiskTypeDiffOBJ.HRF.active})
+										</aura:set>
+										</aura:if><br></br>
+                                        <aura:if isTrue="{!(v.newRiskTypeDiffOBJ.HRF.minValue ==  v.oldRiskTypeDiffOBJ.HRF.minValue)}">
+											<label>&nbsp;&nbsp;&nbsp;{!v.newRiskTypeDiffOBJ.HRF.minValue} -&nbsp;</label>
+										<aura:set attribute="else">
+											<label style="color:#dc143c; font-weight: bold;"> &nbsp;&nbsp;&nbsp;{!v.newRiskTypeDiffOBJ.HRF.minValue} </label> <label>({!v.oldRiskTypeDiffOBJ.HRF.minValue}) - &nbsp; </label>
+										</aura:set>
+										</aura:if>
+									
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.HRF.maxValue ==  v.oldRiskTypeDiffOBJ.HRF.maxValue)}">
+											<label>{!v.newRiskTypeDiffOBJ.HRF.maxValue}</label>
+										<aura:set attribute="else">
+											<label style="color:#dc143c; font-weight: bold;"> {!v.newRiskTypeDiffOBJ.HRF.maxValue} </label> <label>({!v.oldRiskTypeDiffOBJ.HRF.maxValue}) </label>
+										</aura:set>
+										</aura:if>
+                                    </div>
+                                    <div class="show-score">
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.HRF.authActive !=  v.oldRiskTypeDiffOBJ.HRF.authActive)}">
+											<label> Authenticated : </label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskTypeDiffOBJ.HRF.authActive}</label> ({!v.oldRiskTypeDiffOBJ.HRF.authActive})
+										</aura:if>
+										<br/>		
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.HRF.unauthActive !=  v.oldRiskTypeDiffOBJ.HRF.unauthActive)}">
+											<label> Unauthenticated : </label> <label style="color:#dc143c; font-weight: bold;">{!v.newRiskTypeDiffOBJ.HRF.unauthActive}</label> ({!v.oldRiskTypeDiffOBJ.HRF.unauthActive})
+										</aura:if>
+										<br/>
+										<aura:if isTrue="{!(v.newRiskTypeDiffOBJ.HRF.showCriteriaRuleInOmega ==  v.oldRiskTypeDiffOBJ.HRF.showCriteriaRuleInOmega)}">
+											<label> Show score details in case notes </label> <label>({!v.newRiskTypeDiffOBJ.HRF.showCriteriaRuleInOmega})</label>
+										<aura:set attribute="else">
+                                            
+											<label> Show score details in case notes </label> <label style="color:#dc143c; font-weight: bold;">({!v.newRiskTypeDiffOBJ.HRF.showCriteriaRuleInOmega})</label> ({!v.oldRiskTypeDiffOBJ.HRF.showCriteriaRuleInOmega})
+										
+                                            </aura:set>
+										</aura:if>
+									<br></br></div>
+								</div>
+								</aura:if>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="brand" 
+                                          label="Confirm"
+                                          title="Confirm"
+                                          onclick="{! c.submitClicked }"/>
+                        <lightning:button variant="neutral" 
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModel }"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+</aura:component>

@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION" description="Tab View click app event" >
+    <aura:attribute name="tabFlag" type="String" default="Queued"/>
+</aura:event>

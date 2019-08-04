@@ -1,0 +1,15 @@
+<aura:component 
+     implements="force:appHostable,flexipage:availableForAllPageTypes" abstract="true">
+    <ltng:require styles="{!$Resource.TSM}" />
+    <aura:registerEvent 
+                        name="loading" 
+                        type="c:loading"/>
+    
+    <aura:registerEvent 
+                        name="doneloading" 
+                        type="c:doneloading"/>
+    
+    <div><c:GlobalSearch /></div>
+	{!v.body}
+	<c:JobRoleSelection />
+</aura:component>

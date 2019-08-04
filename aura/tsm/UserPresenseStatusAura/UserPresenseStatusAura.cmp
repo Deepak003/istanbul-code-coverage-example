@@ -1,0 +1,10 @@
+<aura:component controller="AdvisorEventAuraController"
+                implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />   
+    <aura:attribute name="oldStatus" type="String" default=""/>
+    
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <aura:handler event="lightning:omniChannelStatusChanged" action="{! c.onStatusChanged }"/>
+	<aura:handler event="lightning:omniChannelLogout" action="{! c.onLogout }"/>
+</aura:component>

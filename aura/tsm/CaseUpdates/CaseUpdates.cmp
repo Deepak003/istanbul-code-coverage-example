@@ -1,0 +1,101 @@
+<aura:component>
+    <!-- input-attributes -->
+    <!--<aura:attribute name="category" type="String"/>-->
+    <!--<aura:attribute name="caseId" type="String" default=""/>-->
+    <aura:attribute name="caseUpdatesList" type="List"/>
+    
+    <!-- cmp-attributes -->
+    <aura:attribute name="sortOrder" type="String" default="DESC" access="private"/>
+    <!-- <aura:attribute name="pageNo" type="Integer" default="1" access="private"/> -->
+    
+    <!-- handlers-->
+    <!--<aura:handler name="init" value="{!this}" action="{!c.getCaseUpdates}"/>-->
+    <aura:handler name="change" value="{!v.sortOrder}" action="{!c.onSortOrderChange}"/>
+    <!-- <aura:handler name="change" value="{!v.pageNo}" action="{!c.onPageNoChange}"/> -->
+    
+    <aura:handler event="c:Filter" action="{!c.handleFilterChange}"/>
+    <aura:handler event="c:Expand" action="{!c.toggleStateAll}"/>
+    <!--<aura:handler event="c:Refresh" action="{!c.doRefresh}"/>-->
+    
+    <!-- <c:infiniteScrolling height="200px" pageNo="{! v.pageNo }"> -->
+    <div class="case-updates">
+        <aura:if isTrue="{! !empty(v.caseUpdatesList) }">
+            <aura:iteration items="{!v.caseUpdatesList}" var="row" indexVar="idx">
+                <div class="slds-media case-update">                    
+                    <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small" data-index="{!idx}" onclick="{!c.toggleState}">
+                        <span class="slds-avatar slds-avatar_small">
+                            <lightning:buttonIcon variant="bare" iconName="{!row.expanded?'utility:down':'utility:right'}" />
+                        </span>
+                    </div>
+                    <div class="slds-media__body case-update-header">
+                        <div class="slds-grid slds-grid_align-spread slds-size_12-of-12 pointer" data-index="{!idx}" onclick="{!c.toggleState}">
+                            <div class="slds-grid slds-size_9-of-12 slds-no-space">
+                                <p class="slds-m-horizontal_xx-small title">
+                                    {!row.title}
+                                </p>
+                            </div>                            
+                            <div class="slds-timeline__actions slds-timeline__actions_inline relative-time slds-size_3-of-12">
+                                <p class="slds-timeline__date">
+                                    <lightning:relativeDateTime value="{!row.date}" title="{!row.date}"/>
+                                </p>
+                            </div>
+                        </div>                        
+                        <p class="slds-m-horizontal_xx-small pointer" data-index="{!idx}" onclick="{!c.toggleState}">
+                            <span class="update-type-icon icon-container">
+                                <aura:if  isTrue="{!row.type == 'EMAIL'}">                                              
+                                    <lightning:icon iconName="utility:email"/> 
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'NOTE'}">                                               
+                                    <lightning:icon iconName="utility:check"/> 
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'CHAT'}">
+                                    <lightning:icon iconName="utility:comments"/>  
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'ATTACHMENT'}">
+                                    <lightning:icon iconName="utility:attach"/>   
+                                </aura:if>
+                                <aura:if  isTrue="{!or(row.type == 'CASE_CREATE', row.type == 'CASE_RESUME')}">
+                                    <lightning:icon iconName="utility:case"/>
+                                </aura:if>
+                            </span>
+                            <span class="description">
+                                {!row.description}
+                            </span>
+                        </p>
+                        
+                        <aura:if isTrue="{!row.expanded}">
+                            <div class="case-update-expanded-section">                            
+                                <aura:if  isTrue="{!row.type == 'EMAIL'}">
+                                    <c:CaseUpdatesEmailExpand email='{!row}' />
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'NOTE'}">                                               
+                                    <c:CaseUpdatesNotesExpand notes='{!row.notes}' actions='{!row.actions}' />
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'CHAT'}">
+                                    <c:CaseUpdatesChatExpand chat='{!row}' />
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'ATTACHMENT'}">
+                                    <c:CaseUpdatesAttachmentExpand attachments='{!row.attachments}' />
+                                </aura:if>
+                                
+                                <aura:if  isTrue="{!row.type == 'CASE_CREATE'}">                                            
+                                    Case was created <lightning:relativeDateTime value="{!row.date}"/>.
+                                </aura:if>
+                                <aura:if  isTrue="{!row.type == 'CASE_RESUME'}">     
+                                    <div class="title">Subject</div>                                       
+                                    <div>{! row.subject }</div>
+                                    <c:CaseUpdatesAttachmentExpand attachments='{!row.attachments}' />
+                                </aura:if>                            
+                            </div>
+                        </aura:if>
+                    </div>
+                </div>
+            </aura:iteration>
+            <aura:set attribute="else">
+                <c:EmptyState message="There is no activity"></c:EmptyState>
+            </aura:set>
+        </aura:if>
+    </div>
+    <!-- </c:infiniteScrolling> -->
+    
+</aura:component>

@@ -1,0 +1,45 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" controller="FraudCoolDownAuraController">    
+    <aura:attribute name="isOpen" type="Boolean" default="false"/>
+    <aura:attribute name="nucleusId" type="Id"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="accountId" type="String" />
+    <aura:attribute name="fraudState" type="String" default="N/A"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" />
+	<aura:attribute name="fraudStateCss" type="String" default="NA"/>
+	
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <div>
+         <div class="slds-text-heading_small slds-m-top_medium slds-m-bottom_medium"><strong>Fraud State <span class="{!v.fraudStateCss}" >{!v.fraudState} </span></strong>
+             
+        </div>        
+        <div class="slds-p-bottom_medium">
+           	<aura:if isTrue="{!and(v.fraudState != 'LOW', v.fraudState != 'N/A')}">
+            	<lightning:button class="newSearchBtnWidth" variant="neutral" label="Activate Cooldown"  onclick="{!c.activateCooldownClick}"/>
+        	</aura:if>
+        </div>
+    </div>
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="true" title="Activate Cooldown">       
+            <aura:set attribute="class" value="modal-small"/>      
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <div class="modalbody">
+                    <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                    <div>
+                        <p class="slds-p-bottom_large">Activating cool down for this account will initiate a cool down timer for the fraud state. </p>
+                        
+                        <p> Are you sure you want to activate the cool down?</p>
+                    </div> 
+                </div>
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="cancel" value="Cancel"/>  
+            <aura:set attribute="success" value="Activate"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.activateClick}"/>
+        </c:ParentModal>
+    </aura:if>	
+</aura:component>

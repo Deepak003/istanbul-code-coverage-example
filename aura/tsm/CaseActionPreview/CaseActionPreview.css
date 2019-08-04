@@ -1,0 +1,20 @@
+.THIS.petition-actions .petition-actions-header-main .slds-media__figure .slds-icon_container {
+    background-color: rgb(118, 128, 136);
+    width: 24px;
+    height: 24px;
+}
+.THIS .petition-actions-header {
+    font-weight:500;
+    font-size: 1.25rem;
+}
+.THIS.petition-actions .petition-actions-header-main .slds-icon_container .slds-icon-text-default {
+    /*fill: rgb(255, 255, 255);*/
+    padding: 2px;
+    width: 22px;
+    height: 24px;
+}
+.THIS .disableButton
+{
+    opacity: 0.5;
+    pointer-events: none;
+}

@@ -1,0 +1,20 @@
+<aura:component >
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:attribute name="items" type="List" />
+    <aura:attribute name="element" type="String" />
+    <aura:attribute name="condition" type="Boolean" />
+    <aura:attribute name="srcTarget" type="String" />
+    
+    <aura:if isTrue="{!v.condition}">
+        <iframe src="{!v.srcTarget}">                            	
+        </iframe>
+        <aura:set attribute="else">
+        	<video controls="controls">
+                <source src="{!v.simpleCase.Petition_Details__r.View_Url__c}" type="video/mp4" />
+                <source src="{!v.simpleCase.Petition_Details__r.View_Url__c}" type="video/ogg" />
+                <source src="{!v.simpleCase.Petition_Details__r.View_Url__c}" type="video/webm" />
+                Your browser does not support the video tag.                                
+            </video>
+        </aura:set>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,115 @@
+<aura:component  controller="CaseInfoAuraController" extends="c:Base" implements="flexipage:availableForAllPageTypes,force:hasRecordId,lightning:isUrlAddressable" access="global">
+    <aura:attribute name="recordId" type="Id"/>
+	<aura:attribute name="accountSFId" type="String" />
+    <aura:attribute name="isAccountObject" type="boolean" default="True"/>
+    <aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="billingOptionId" type="Map"/>
+    <aura:attribute name="selectedTabId" type="String" default="one"/>
+    <aura:attribute name="archivedCaseId" type="String"/>  
+    <aura:attribute name="isDataLoading" type="boolean" default="true"/>
+    
+    <!-- TSM 2577 Attributes needed for Account Summary -->
+    <aura:attribute name="accountSummary" type="Object"/> 
+    <aura:attribute name="accountSnapDetails" type="Object"/>
+    <aura:attribute name="isShielded" type="Object"/>
+    <aura:attribute name="loginHistoryData" type="Map" default="{}"/>
+    <aura:attribute name="caseObj" type="Object" default="[]"/> <!-- TSM 1912 -->
+    <aura:attribute name="caseId" type="String" default=""/>
+    
+    <!-- Integrating the product tab -->
+    <aura:attribute name="openProductChange" type="boolean" default="false"/>
+    <aura:attribute name="allProducts" type="String"/>
+    <aura:attribute name="email" type="Id" default=""/>
+    <aura:attribute name="selectedProduct" type="Object" />
+    <aura:attribute name="selectedPlatform" type="Object" />
+    <aura:attribute name="selectedCategory" type="Object" />
+    
+    <!-- TSM-2521 -->
+    <aura:attribute name="selectedActiveCase" type="String" /> 
+    <aura:attribute name="actionDisable" type="Object" default="default"/> 
+    <aura:handler name="change" value="{!v.selectedActiveCase}" action="{!c.onCaseChange}" />
+
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <ltng:require styles="{! $Resource.TSMArabic }" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="onSaveAccount" event="c:RefreshAccount" action="{!c.doInit}"/>
+    
+    <!-- Adding selected tab for account tab TSM-3378 -->
+    <aura:attribute name="selectedTab" type="String" default="one"/>
+
+    <!-- TSM-3386 Email case link case-->
+    <aura:attribute name="isCaseLinkedDisable" type="Boolean" default="true"/>
+
+    <!-- Attributes required for product tab to load -->
+    <aura:attribute name="customerProduct" type="String"/>
+    <aura:attribute name="featuredProduct" type="Object" />
+
+    <aura:handler name="viewAllEvent" event="c:ViewAccountEvent" action="{!c.handleOpenCase}"/>
+    <aura:handler name="viewAccountEvent" event="c:ViewAccountEvent" action="{!c.handleOpenAccount}"/>
+    <aura:handler name="sessionsOpenEvent" event="c:ViewAccountEvent" action="{!c.handleOpenSession}"/>
+     <aura:handler name="onVerification" event="c:AccountSecurityEvt" action="{!c.onAov}"/>
+	 
+	 <aura:handler name="RefreshPersona" event="c:RefreshPersona" action="{!c.refreshAccountSummary}"/>
+     
+    <lightning:layout multipleRows="true" class="slds-gutters">
+        <lightning:layoutItem flexibility="auto" size="8">     
+            <lightning:tabset variant="scoped" selectedTabId="{! v.selectedTabId}" >
+                <lightning:tab label="ACCOUNT" id="one" class="">                   
+                    <div class="slds-is-relative account-wrapper-scroll">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isDataLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <aura:if isTrue="{! not(v.nucleusId) }">
+                            <c:AccountNonNuclesView accountId="{!v.recordId}" /> 
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!v.accountSnapDetails !=undefined}"> 
+                                    <c:AccountSummary notAccountWrapperTabFlag="false" isCaseLinkedDisable="{!v.isCaseLinkedDisable}" accountSummary="{!v.accountSummary}" accountSnapDetails="{!v.accountSnapDetails}" accountId="{! v.recordId}" isShielded="{!v.isShielded}" nucleusId="{!v.nucleusId}" caseId="{! v.caseId}" caseObj="{!v.caseObj}" loginHistoryData="{!v.loginHistoryData}"/>                             
+                                    <c:AccountTab isCaseLinkedDisable="{!v.isCaseLinkedDisable}" billingOptionId="{!v.billingOptionId}" accountSummary="{!v.accountSummary}"  selectedTab="{!v.selectedTab}" caseObj="{!v.caseObj}" accountId="{! v.recordId}"   email="{!v.email}" nucleusId="{! v.nucleusId}" caseId="{! v.caseId}" isAccountObject="{! v.isAccountObject}" hideAccountData="{!v.actionDisable == 'default' ? 'default' : v.accountSnapDetails.isAovVerified }" />
+                                </aura:if>
+                            </aura:set>
+                        </aura:if>
+                    </div>
+                </lightning:tab>
+                
+                <lightning:tab label="PRODUCT" id="two"> 
+                    <div class="slds-is-relative account-wrapper-scroll">
+                        <lightning:spinner variant="brand" size="small" class="{! v.isDataLoading ? 'slds-show' : 'slds-hide' }"/>
+                        <aura:if isTrue="{!v.featuredProduct != undefined}">
+                            <aura:if isTrue="{!v.selectedProduct == undefined}">
+                                <c:EmptyState>
+                                    <aura:set attribute="message">
+                                        <div> No Product Selected </div>
+                                        <div class="slds-p-around_small slds-text-body_regular"> Please select a product first to view product data </div>
+                                        <div class="slds-p-around_small slds-text-body_regular"> <lightning:button label="Select a product" title="Select a product" onclick="{! c.openProductSelectDialog }"/> </div>
+                                    </aura:set>
+                                </c:EmptyState>                     
+                                <aura:set attribute="else">
+                                    <!-- Passing nucleusId and recordId for the component since the component is querying with nucleus id for Account notes and recordId in place of case Id for Account basic Info--> 
+                                    <c:ProductTab featuredProduct="{!v.featuredProduct}"  customerProduct="{!v.customerProduct}" accountId="{! v.recordId}" caseId="{!v.caseId}" email="{!v.email}" nucleusId="{!v.nucleusId}" allProducts="{!v.allProducts}" selectedProduct="{!v.selectedProduct}"  selectedPlatform="{!v.selectedPlatform}"  selectedCategory="{!v.selectedCategory}" hideAccountData="{!v.actionDisable == 'default' ? 'default' : v.accountSnapDetails.isAovVerified }" /> 
+                                </aura:set>
+                            </aura:if>
+                        </aura:if>
+                    </div>
+                </lightning:tab>
+                
+                <aura:if isTrue="{! and(v.recordId, v.nucleusId)}">
+                    <lightning:tab label="CASES" id="three">
+                        <c:CaseTab accountId="{! v.recordId}" nucleusId="{!v.nucleusId}" archivedCaseId="{! v.archivedCaseId}" />
+                    </lightning:tab>                
+                </aura:if>
+            </lightning:tabset> 
+        </lightning:layoutItem>        
+        <lightning:layoutItem flexibility="auto" size="4" class="knowledge-wrapper-scroll">
+            <aura:if isTrue="{!v.nucleusId !=undefined}">
+                <c:CreateCase selectedWorkingCase="{!v.selectedActiveCase}" accountId="{!v.recordId}" nucleusId="{!v.nucleusId}" />
+            </aura:if>
+        </lightning:layoutItem>
+    </lightning:layout>   
+    
+    <aura:if isTrue="{!v.openProductChange}">
+        <c:ProductChange featuredProduct="{!v.featuredProduct}" openProductChange="{!v.openProductChange}" 
+                         selectedProduct="{!v.selectedProduct}" customerProduct="{!v.customerProduct}" 
+                         products="{!v.allProducts}" caseId="{!v.caseId}" isAccount="true"/>
+    </aura:if> 
+    
+</aura:component>

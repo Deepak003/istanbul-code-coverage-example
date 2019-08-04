@@ -1,0 +1,12 @@
+.THIS {
+}
+.THIS .headerCSS{
+    font-weight: normal;
+}
+.THIS .slds-dropdown-trigger .slds-dropdown {
+    max-height: 90px;
+    overflow-y: scroll;
+}
+.THIS .slds-modal__content {
+    height: 18rem;
+}

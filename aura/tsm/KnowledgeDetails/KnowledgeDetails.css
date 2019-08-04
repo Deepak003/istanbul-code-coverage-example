@@ -1,0 +1,90 @@
+.THIS .font-bold{
+    font-weight:bold;
+}
+.THIS .float-right{
+    float:right;
+}
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS .center-align{
+    text-align: center;
+}
+.THIS .display-none{
+    display:none;
+}
+.THIS .display-none svg{
+    fill:#FFFFFF;
+}
+.THIS input[type='radio']:checked ~ label .display-none{
+    display:block;
+}
+.THIS .remove-padding{
+    padding:0;
+}
+.THIS .setting-height{
+    min-height:30%;
+    max-height:60%;    
+}
+.THIS .cEmptyState.empty-list{
+    left: 1rem;
+    position: relative;
+    margin:0;
+}
+.THIS .cEmptyState.empty-list img{
+    width: 70%;
+}
+.THIS .product-image{
+    width: 104px;
+    height: 143.6px;
+    float: left;
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS h2 span{
+    font-weight:bold;
+    font-size: 0.75rem;
+}
+.THIS p{
+    font-size: 0.625rem;
+}
+.THIS .body-text-small{
+    font-size: 0.625rem;
+}
+.THIS .card-details:hover{
+    border-color: #1589ee !important;
+    cursor:pointer;
+}
+.THIS .scope-internal{
+    color : white;
+    background-color : #4bca81;
+}
+.THIS .scope-external{
+    color : white;
+    background-color : #0070d2;
+}
+.THIS .text-center{
+    text-align: center;
+}
+.THIS .cEmptyState.empty-list img{
+    width: 50%;
+}
+.THIS .card-height{
+    min-height: 150px;
+    max-height: 150px;
+    border: 1px solid rgb(221, 219, 218) !important;
+    border-radius: 0.25rem !important;
+}
+.THIS .custom-margin{
+    margin-right: 150px;
+    margin-left:150px;
+}
+.THIS .subject-wrap{
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

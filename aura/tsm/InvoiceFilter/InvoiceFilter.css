@@ -1,0 +1,11 @@
+.THIS.slds-popover {
+    width: 90%;
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 5%;
+   	/*min-height: 220px;*/
+}
+
+.THIS .text-bold {
+    font-weight: bold;
+}

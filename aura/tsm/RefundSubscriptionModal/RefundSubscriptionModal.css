@@ -1,0 +1,26 @@
+.THIS .line-items-table td {
+    height: 50px;
+}
+
+.THIS .tax-row {
+    line-height: 40px;    
+}
+
+.THIS .tax-row > .border {
+    border-top: 1px solid #cacaca;
+}
+
+.THIS .col-position {
+    position: absolute;
+    top: 10px;
+}
+
+.THIS .blue {
+    color: blue;
+}
+
+.THIS .no-border-bottom {
+    border-bottom: none;
+}
+.THIS {
+}

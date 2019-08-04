@@ -1,0 +1,18 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global" >
+    <aura:attribute name="accountId" type="String" default="2254723519"/>
+    <aura:attribute name="accountSummary" type="sObject" />
+	<lightning:tabset aura:id="ptabs" selectedTabId="overview">
+        <lightning:tab label="Overview" class="overview" id="overview" aura:id="overview">
+            <c:AccountSummary nucleusId="{!v.accountId}"/>
+        </lightning:tab>
+        <lightning:tab label="Account" class="accountTab" id="accountTab" aura:id="accountTab">
+            TBD
+        </lightning:tab> 
+        <lightning:tab label="Product" class="productTab" id="productTab" aura:id="productTab">
+            TBD
+        </lightning:tab> 
+        <lightning:tab label="Cases" class="casesTab" id="casesTab" aura:id="casesTab">
+            TBD
+        </lightning:tab> 
+    </lightning:tabset>
+</aura:component>

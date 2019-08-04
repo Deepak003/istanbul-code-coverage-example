@@ -1,0 +1,118 @@
+<aura:component controller="QueueListAuraCtl">
+    <!-- attributes -->
+    <aura:attribute name="resourceURL" type="string" default="/resource/1319235891000/Help_Center_Fav_Icon" />
+    <aura:attribute name="productName" type="string" default="Fifa Mobile" />
+    <aura:attribute name="userName" type="string" default="Test User" />
+    <aura:attribute name="dateUploaded" type="string" default="1470174029742" />
+    <aura:attribute name="contentType" type="string" default="UGContent" />
+    <aura:attribute name="contentDataType" type="string" default="" />
+    <aura:attribute name="contentData" type="string" default="" />
+    <aura:attribute name="lstcontentData" type="list"/>
+    <aura:attribute name="lstcontentMsg" type="list"/>
+    <aura:attribute name="UGContent" type="Object"/>
+    <aura:attribute name="roleOptions" type="List"/>
+    <aura:attribute name="queueOptions" type="List"/>
+    <aura:attribute name="roleQueueObj" type="Object"/>
+    <aura:attribute name="roleQueueFlag" type="Boolean" default="true"/>
+    <aura:attribute name="noRoleDefined" type="String" />
+    <aura:attribute name="queueSelectionPermission" type="Boolean" default="false"/>
+    <aura:attribute name="imageBaseData" type="String" />
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    
+    <aura:handler name="change" value="{!v.UGContent}" action="{!c.contentObjChanges}"/>
+    <!-- aura:handler event="c:RoleQueueAppEvt" action="{!c.roleQueueAppEvtSubs}" / -->
+    <!-- Register event -->
+    <aura:registerEvent name="violationSelectComEvt" type="c:ViolationSelectEvt"/>
+    <!-- aura:registerEvent name="RoleQueueAppEvt" type="c:RoleQueueAppEvt"/-->    
+    
+    <aura:if isTrue="{!v.contentType == 'UGContent'}">
+        <aura:if isTrue="{!v.contentDataType == 'image' || v.contentDataType=='Graphic'}" >
+            <div class="ugc-container slds-align_absolute-center">
+                <img src="{!v.imageBaseData}"  alt="Image"/>
+            </div>
+            <br/><br/>
+            <table class="slds-table slds-table_cell-buffer slds-table_header-hidden slds-table_bordered slds-table_striped">
+               <tbody>
+                <aura:iteration items="{!v.contentData}" var="item" indexVar="i"> 
+                    <tr class="slds-hint-parent">
+                      <th >
+                          <div class="slds-truncate" title="Cloudhub"><b>{!item.key}</b></div>
+                      </th>
+                      <td >
+                        <aura:if isTrue="{!item.key != 'clickHereToViewThumbs' }" >
+                        	<div class="slds-truncate" title="Cloudhub">{!item.value}</div>
+                        </aura:if>
+                        
+                        <aura:if isTrue="{!item.key == 'clickHereToViewThumbs' }" >
+                            <div class="slds-truncate" title="Cloudhub"><a href="{!item.value}"  target="_blank" tabindex="-1">Click here to view the reported content's additional thumbnails</a></div>
+                        </aura:if>
+                      </td>
+                        
+                        
+                        
+                    </tr>
+                </aura:iteration>
+              </tbody>
+			</table>
+            
+            
+               
+        </aura:if>
+        <aura:if isTrue="{!v.contentDataType=='Video'}"> 
+            <div class="ugc-container slds-align_absolute-center" onclick="{!c.handleShowModal}" data-model="{!v.simpleCase.Petition_Details__r.View_Url__c}"> 
+                <c:auraIfWithContains items="{!v.simpleCase.Petition_Details__r.View_Url__c}" 
+                                      element="Youtube" 
+                                      srcTarget="{!v.simpleCase.Petition_Details__r.View_Url__c}">
+                </c:auraIfWithContains> 
+            </div>                           
+        </aura:if>
+        <aura:if isTrue="{!v.contentDataType=='Text'}">                
+            <div class="chat-log-container slds-p-around--large"> 
+                
+                <!--<aura:unescapedHtml value="{!v.contentData}"/> -->
+                <aura:iteration items="{!v.lstcontentData}" var="item" indexVar="i">
+                     <aura:if isTrue="{!item.petitioner}">   
+                        <div class="slds-grid slds-grid_align-center" aura:id="msgs">
+                            <div class="slds-col violationCheck slds-m-left_x-large">
+                                <ui:inputCheckbox name="{!i}" aura:id="violationChk" class="slds-p-right_medium violationchk" label="" click="{!c.violationCheckboxClicked}"/>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-7">                        
+                                <div class="petitioner-chat-log">
+                                    <ui:outputText value="PETITIONER"/>
+                                    <div class="slds-p-around_medium petitioner-msg slds-m-bottom_small" aura:id="msg">
+                                        <!--div class="date-user">
+                                            <lightning:formattedDateTime value="{!item}" year="numeric" month="numeric" day="numeric" />
+                                            <span>{!item}</span>
+                                        </div-->
+                                        <div class="msg"><span>{!item.petitioner}</span></div>
+                                    </div>                            
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-7">                
+                            </div>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{!item.target}"> 
+                        <div class="slds-grid slds-grid_align-center" aura:id="msgs">
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-7">
+                            </div>
+                            <div class="slds-col slds-size_1-of-1 slds-large-size_5-of-7">
+                                <div class="target-chat-log">
+                                    <ui:outputText value="TARGET"/>
+                                    <div class="target-msg slds-p-around_medium slds-m-bottom_small" aura:id="msg">
+                                        <!--div class="date-user">
+                                            <lightning:formattedDateTime value="{!item}" year="numeric" month="numeric" day="numeric" />
+                                            <span>{!item}</span>
+                                        </div-->
+                                        <div class="msg"><span>{!item.target}</span></div>
+                                    </div>                            
+                                </div>                        
+                            </div>
+                            <div class="slds-col violationCheck slds-m-left_x-large"><ui:inputCheckbox name="{!i}" aura:id="violationChk" class="slds-p-right_medium violationchk" label="" click="{!c.violationCheckboxClicked}"/></div>
+                        </div>
+                    </aura:if>
+                </aura:iteration>
+            </div>        
+        </aura:if>        
+    </aura:if>
+</aura:component>

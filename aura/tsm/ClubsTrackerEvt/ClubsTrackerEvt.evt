@@ -1,0 +1,3 @@
+<aura:event type="COMPONENT" description="This will be fired from ClubsTracker component" >
+    <aura:attribute name="type" type="String"/>
+</aura:event>

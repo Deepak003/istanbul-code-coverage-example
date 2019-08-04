@@ -1,0 +1,34 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId" access="global" controller="CaseInfoAuraController">
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="currentCase" type="Case"/>
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/> 
+    <lightning:workspaceAPI aura:id="workspace"/>
+
+    <div class="c-container"> 
+        <lightning:layout class="slds-m-bottom--large">
+            <lightning:layoutItem size="8" >
+                   <div class="slds-text-heading_small c-heading">Case Details: {!v.currentCase.CaseNumber}</div> 
+            </lightning:layoutItem>
+            <lightning:layoutItem size="4" >
+            </lightning:layoutItem>
+         </lightning:layout>
+        
+        <lightning:layout>
+            <lightning:layoutItem size="12" >
+                 <div class="edit-field-label slds-text-body_small">Subject</div> 
+            </lightning:layoutItem>    
+        </lightning:layout>  
+        
+        <lightning:layout class="slds-m-bottom--small">
+            <lightning:layoutItem size="12" >
+                 <div class="slds-text-body_medium">{!v.currentCase.Subject}</div> 
+            </lightning:layoutItem>    
+        </lightning:layout>   
+        
+        <lightning:layout>
+            <lightning:layoutItem size="12" >
+                 <div class="edit-field-label slds-text-body_small">Chat</div> 
+            </lightning:layoutItem>    
+        </lightning:layout>  
+    </div>
+</aura:component>

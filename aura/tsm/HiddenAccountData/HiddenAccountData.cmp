@@ -1,0 +1,37 @@
+<aura:component>
+    <aura:attribute name="variant" type="Integer" default="2"/>
+    
+    <aura:attribute name="nucleusId" type="String" access="global"/>
+    <aura:attribute name="caseId" type="String" access="global"/>
+    
+    <aura:attribute name="openAOVFlow" type="Boolean" access="global"/>
+    
+    <aura:if isTrue="{! v.variant == 1 }"> 
+        <div class="design-1">
+            <lightning:icon class="slds-icon_container--circle badge-red" iconName="utility:warning" alternativeText="AOV" size="small"/>
+            <div class="font-bold slds-text-heading_medium slds-p-top_medium">Account Verification Required</div>
+            <div class="font-bold sub-title slds-text-body_small slds-p-top_small">This information is hidden because account has not been verified, please verify the account first to be able to view this information</div>
+            <div class="slds-p-top_large">
+                <lightning:button variant="brand" class="verify-account" label="Verify Account" title="Verify Account" onclick="{! c.handleClick }" />
+            </div>            
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{! v.variant == 2 }">
+        <div class="design-2 slds-grid slds-gutters slds-p-around_medium">
+            <div class="slds-size_3-of-4">
+                <div class="slds-float_left slds-p-right_medium">
+                    <lightning:icon class="slds-icon_container--circle badge-red" iconName="utility:warning" alternativeText="AOV" size="small"/>
+                </div>                
+                <div class="slds-text-body_small font-bold">Account change information is hidden because account has not been verified, please verify the account first to be able to view this information</div>
+            </div>            
+            <div class="slds-col_bump-left">
+                <lightning:button variant="brand" class="verify-account" label="Verify Account" title="Verify Account" onclick="{! c.handleClick }" />
+            </div>
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{! v.openAOVFlow }">
+    	<c:AccountSecurity caseId="{!v.caseId}" nucleusId="{!v.nucleusId}" showIcon="false" isOpen="{! v.openAOVFlow }" variant="modal"/>
+    </aura:if>    
+</aura:component>

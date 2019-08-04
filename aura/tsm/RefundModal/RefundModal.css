@@ -1,0 +1,16 @@
+.THIS .text-bold {
+    font-weight : t(fontWeightBold); 
+}
+.THIS .field-label {
+    color: #706e6b; /*this color is not available in slds*/
+}
+.THIS .close-icon lightning-primitive-icon svg{
+    background-color: t(colorBackgroundAlt);
+}
+.THIS .extraHeight{
+    min-height:170px;
+}
+
+.THIS .slds-modal__content{
+    overflow: initial;
+ }

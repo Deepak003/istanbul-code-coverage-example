@@ -1,0 +1,99 @@
+<aura:component controller="CaseSummaryAuraController">
+    <aura:attribute name="data" type="Object" access="public" />    
+    <aura:attribute name="interactions" type="List" access="public" />
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="true" />
+    <aura:attribute name="isOmega" type="Boolean" access="private" />
+    <aura:attribute name="isPhoneTranscriptAvailable" type="Boolean" access="private" />
+    <aura:attribute name="isChatTranscriptAvailable" type="Boolean" access="private" />
+    <aura:attribute name="isEmailTranscriptAvailable" type="Boolean" access="private" />
+    <aura:attribute name="isNoteAvailable" type="Boolean" access="private" />
+    <aura:attribute name="accountId" type="String" access="public" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }" />
+    
+    <lightning:workspaceAPI aura:id="workspace" />
+    
+    <div class="slds-is-relative slds-p-left_medium">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner variant="brand" size="small" />
+            <aura:set attribute="else">
+                <aura:if isTrue="{! empty(v.interactions) }">
+                    <c:EmptyState>
+                        <aura:set attribute="message">
+                            <b>No Interaction found</b>
+                        </aura:set>
+                    </c:EmptyState>
+                    <aura:set attribute="else">
+                        <lightning:layout class="slds-m-top_medium">
+                            <lightning:layoutItem size="11">
+                                <aura:if isTrue="{!v.isNoteAvailable}" >
+                                    <lightning:button class="slds-m-right_x-small" label="Case Notes" title="Case Notes" onclick="{!c.openNotes}" />
+                                </aura:if>
+                                <aura:if isTrue="{!v.isPhoneTranscriptAvailable}" >
+                                    <lightning:button class="slds-m-right_x-small" label="View Phone" title="View Phone" onclick="{!c.openPhoneTranscript}" />
+                                </aura:if>
+                                <aura:if isTrue="{!v.isChatTranscriptAvailable}" >
+                                    <lightning:button class="slds-m-right_x-small" label="View Chat" title="View Chat" onclick="{!c.openChatTranscript}" />
+                                </aura:if>
+                                <aura:if isTrue="{!v.isEmailTranscriptAvailable}" >
+                                    <lightning:button class="slds-m-right_x-small" label="View Email" title="View Email" onclick="{!c.openEmailTranscript}" />
+                                </aura:if>
+                                <aura:if isTrue="{!!v.isOmega}" >
+                                    <lightning:buttonIcon iconName="utility:expand_all" variant="border-filled" alternativeText="Expand All" onclick="{! c.toggleStateAll }" />
+                                </aura:if>    
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="1">
+                                <aura:if isTrue="{!v.isOmega}" >
+                                    <lightning:badge label="Ω" alternativeText="Omega"/>
+                                </aura:if>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        <aura:iteration items="{!v.interactions}" var="row" indexVar="idx">
+                            <div class="slds-media slds-p-top_small slds-p-bottom_small slds-border_bottom slds-p-bottom_small">                    
+                                <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small" data-index="{!idx}" onclick="{!c.toggleState}">
+                                    <span class="slds-avatar slds-avatar_small">
+                                        <lightning:buttonIcon variant="bare" iconName="{!row.expanded?'utility:down':'utility:right'}" />
+                                    </span>
+                                </div>
+                                <div class="slds-media__body case-update-header">
+                                    <div class="slds-grid slds-grid_align-spread slds-size_12-of-12 pointer" data-index="{!idx}" onclick="{!c.toggleState}">
+                                        <div class="slds-grid slds-size_9-of-12 slds-no-space">
+                                            <p class="slds-m-horizontal_xx-small title">
+                                                {!row.title}
+                                            </p>
+                                        </div>                            
+                                        <div class="slds-timeline__actions slds-timeline__actions_inline relative-time slds-size_3-of-12">
+                                            <p class="slds-timeline__date">
+                                                <lightning:relativeDateTime value="{!row.createdDate}" title="{!row.createdDate}"/>
+                                            </p>
+                                        </div>
+                                    </div>                        
+                                    <p class="slds-m-horizontal_xx-small pointer" data-index="{!idx}" onclick="{!c.toggleState}">
+                                        <span class="update-type-icon slds-p-right_x-small">
+                                            <aura:if  isTrue="{!row.channel == 'Email'}">                                              
+                                                <lightning:icon iconName="utility:email"/> 
+                                            </aura:if>                            
+                                            <aura:if isTrue="{!row.channel == 'Chat'}">
+                                                <lightning:icon iconName="utility:comments"/>  
+                                            </aura:if>
+                                            <aura:if isTrue="{!row.channel == 'Phone'}">
+                                                <lightning:icon iconName="utility:call"/>  
+                                            </aura:if>
+                                        </span>
+                                        <span class="description">
+                                            {!row.description}
+                                        </span>
+                                    </p>
+                                    
+                                    <aura:if isTrue="{!row.expanded}">
+                                        <c:CaseInteractionExpand data="{!v.data}" interaction='{!row}' interactionIndex='{!idx}' interactions="{!v.interactions}"  />
+                                    </aura:if>
+                                </div>
+                            </div>
+                        </aura:iteration>
+                    </aura:set>
+                </aura:if>
+            </aura:set>
+        </aura:if>
+    </div>    
+</aura:component>

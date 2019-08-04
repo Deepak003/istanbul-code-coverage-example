@@ -1,0 +1,39 @@
+<aura:component controller="HistoryFilterController">
+    <aura:attribute name="modalData" type="Object" access="public" description="Modal specific data exchange from parent" />
+    <aura:attribute name="parentRow" type="Map" access="public" description="History Row Data from parent" />
+    <aura:attribute name="selectedProduct" type="Map" access="public" description="Selected Product from ProductSnapshort" />
+    <aura:attribute name="selectedPersona" type="Map" access="public" description="Selected Persona from ProductSnapshort"/>
+    <aura:attribute name="caseId" type="Id" access="public"  />
+    <aura:attribute name="accountId" type="String" access="public" />
+    <aura:attribute name="nucleusId" type="Id" access="public" />
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="false" />
+    <aura:attribute name="modeType" type="String" access="private" default="true" />
+    
+    <ltng:require scripts="{!$Resource.Util}"/>
+    
+    <div class="slds-is-relative">
+        <section role="dialog" class="slds-modal slds-fade-in-open modal-small">
+            <div class="slds-modal__container" aura:id="dialog">
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close"
+                                          onclick="{! c.closeModal }"
+                                          alternativeText="close"
+                                          variant="bare-inverse"
+                                          class="slds-modal__close"/>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">
+                        Reset Draft
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_large slds-is-relative">
+                    <div class="slds-text-align_center">You are about to reset this draft sequence back to the beginning. This will remove any prior data of this draft from the players draft progression</div>
+                    <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>                    
+                </div>
+                <footer class="slds-modal__footer slds-modal__footer_directional">
+                    <button class="slds-button slds-button_neutral" onclick="{! c.closeModal }">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick="{! c.handleReset }">Reset Draft</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+</aura:component>

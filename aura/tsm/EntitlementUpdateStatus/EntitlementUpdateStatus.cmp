@@ -1,0 +1,41 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" 
+                access="global" controller="EntitlementAuraController"> 
+    <aura:attribute name="createOptions" type="List" default="[{'label': 'A Folder', 'value': 'Folder'},
+                                                              {'label': 'A Link', 'value': 'Link'}]"/>
+    <aura:attribute name="isOpen" type="Boolean"/>
+    <aura:attribute name="selEntitlement" type="List" />
+    <aura:attribute name="entStatus" type="List" />
+    <aura:attribute name="entReason" type="List" />
+    <aura:attribute name="selStatus" type="String" default=''/>
+    <aura:attribute name="selReason" type="String"  default=''/>
+    <aura:attribute name="isSuccessDisable" type="Boolean" default="true" />
+    
+    <aura:attribute name="nucleusId" type="Id"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="accountId" type="String"/>
+    <aura:handler name="init" value="{! this }" action="{!c.doInit}"/>
+    <aura:registerEvent name="closeBookMarkModal" type="c:CloseBookMarkModalEvent"/>
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="true" title="Update Status">       
+            <aura:set attribute="class" value=""/>      
+            <aura:set attribute="content">
+                <div class="slds-m-bottom_medium"></div>
+                <!-- Add Bookmark details data block-->
+                <div class="modalbody" aura:id="updateDataBlock">
+                    <div>
+                        <lightning:combobox aura:id="status" placeholder="Select status"  label="Status" options="{!v.entStatus}" onchange="{!c.getStatus}"/>
+                        <br/>
+                        <lightning:combobox aura:id="reason" placeholder="Select reason"  label="Select Reason" options="{!v.entReason}" onchange="{!c.getReason}"/>
+                    </div> 
+                </div>
+                <div class="slds-m-bottom_xx-large"></div>
+            </aura:set>
+            <aura:set attribute="cancel" value="Cancel"/>  
+            <aura:set attribute="success" value="Update"/>
+            <aura:set attribute="isSuccessDisable" value="{!v.isSuccessDisable}"/>
+            <aura:set attribute="onClose" value="{!c.closeModal}"/>
+            <aura:set attribute="onCancel" value="{!c.closeModal}"/>
+            <aura:set attribute="onSuccess" value="{!c.successModal}"/>
+        </c:ParentModal>
+    </aura:if>  
+</aura:component>

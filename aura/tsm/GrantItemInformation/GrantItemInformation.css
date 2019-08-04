@@ -1,0 +1,44 @@
+.THIS .allign-center{
+    text-align: center;
+}
+.THIS .setting-height{
+    min-height:60%;
+    max-height:60%;    
+}
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+.THIS .data-grid .slds-dropdown-trigger{
+    display:none;
+}
+.THIS .grid-div{
+    height: 400px;
+}
+.THIS .cart-background {
+    background-color: #fafaf9;
+}
+.THIS .edit-field-label {
+    color: #706e6b;
+}
+.THIS .pill-close-icon{
+    cursor : pointer;
+}
+.THIS .font-normal{
+    font-weight: normal;
+}
+.THIS tr th lightning-primitive-header-factory div span.slds-checkbox{
+    display: none;
+}
+.THIS .warning-text{
+    color:red;
+}
+.THIS .warning-border input{
+      border-color:red;    
+}
+
+.THIS .slds-backdrop.slds-backdrop_open {
+    z-index: 90;
+}
+.THIS .slds-modal__container{
+   margin-top: 4%;
+} 

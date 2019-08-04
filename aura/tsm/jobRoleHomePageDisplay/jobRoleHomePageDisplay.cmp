@@ -1,0 +1,34 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+	<!-- TSM 1068 -->
+    <aura:attribute name="isChangeJobRole" type="boolean" default="false" />
+    <aura:attribute name="roleName" type="String" />
+    <aura:attribute name="tabsInfo" type="Object" />
+    <aura:attribute name="focusedTabId" type="String" />
+    
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <lightning:utilityBarAPI aura:id="utilitybar" />
+    <lightning:workspaceAPI aura:id="workspace" />
+    <!-- aura:handler event="c:jobroleAppEvt" action="{!c.onRoleChange}" / -->   <!-- TSM 1068 Remove handler as it moved to TSMMainJobrole -->
+    
+    <aura:if isTrue="{!v.isChangeJobRole}">
+        <c:ParentModal isModalOpen="{!v.isChangeJobRole}">
+            <aura:set attribute="class" value=" " />
+            <aura:set attribute="outerClass" value="modal-container" />
+            <aura:set attribute="title" value="Change Job Role" />
+            <aura:set attribute="content">
+                <lightning:layout class="slds-m-top_x-small slds-m-bottom_large">
+                    <div> 
+						After you change job role, all open tabs will be closed. <br/>
+						Are you sure you want to change job role?
+					</div>
+                </lightning:layout>
+            </aura:set>
+            <aura:set attribute="showSpinner" value="{!v.isLoading}"/>
+            <aura:set attribute="isDirectionalFooter" value="false"/>
+            <aura:set attribute="success" value="Yes"/>
+            <aura:set attribute="cancel" value="Cancel"/>
+            <aura:set attribute="onSuccess" value="{!c.closeAllTabs}"/>
+            <aura:set attribute="onCancel" value="{!c.closeChangeJobRole}"/>
+        </c:ParentModal>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,142 @@
+<aura:component controller="FeedbackAuraController" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global"> 
+    <!-- Local variables -->     
+    <aura:attribute name="feedbackList" type="List" default="[]"/>
+    <aura:attribute name="searchFeedback" type="List" default="[]"/>
+    <aura:attribute name="currentFeedbackBody" type="Map"/>   
+    <aura:attribute name="selectedFeedback" type="Map"/> 
+    <aura:attribute name="isSubmit" type="Boolean" default="true"/>
+    <aura:attribute name="isExist" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="onExist" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="isNew" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="isDuplicated" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="textCount" type="Integer" default="0" access="public"/>
+    <aura:attribute name="newFeedbackDescription" type="String" default=""/>
+    <aura:attribute name="currentSelectedId" type="String" default=""/>
+    <aura:attribute name="utilityIcon" type="String" default="utility:add"/>
+    <aura:attribute name="isVotableDisable" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="acceptedFormat" type="List" default="[mht,jpg,txt,png,gif,bmp,pdf,docx,doc,rtf,dat,jpeg,log,zip,wav,rar,eml,dmp,tif,sr0,tiff,odt,xls,xps,ini,avi,wps,evt,msg,spx,mdmp,evtx,wmv,mp4,xlsx,pptx,3gp,ico,mov,url,mp3,dib,webarchive,ppt,gz,csv,sims3pack,7z,package,psd,hsh,lnk,psp,pict,flv,xcf,wer,fnd,pps,shs,nfs11save,plist,data,mpg,cab,reg,pspimage,odg,mdi,cfg,inf,pcap,mui,dot,fwdhalfb,con,sims3,sims2pack,txt1,swf,masseffectsave,sav,chm,tmp,wma]"/>
+    <aura:attribute name="fileList" type="List" default="[]"/>
+    
+    <!-- Feedback combobox attributes -->
+    <aura:attribute name="selectedType" type="String" default=""/>
+    <aura:attribute name="feedbackOptions" type="List" />
+    
+    <!-- List of variables used for search -->
+    <aura:attribute name="titleString" type="String" default=""/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="keyPressTimer" type="Integer" default="0" />
+    <aura:attribute name="blockSearch" type="Boolean" default="false" access="public"/>
+	<aura:attribute name="showTitle" type="Boolean" default="false"/>
+    
+    <!-- Handle event --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>    
+    <aura:handler name="change" value="{!v.newFeedbackDescription}" action="{!c.onDescriptionChange}" />
+    
+    <!-- Utility bvar API --> 
+    <lightning:utilityBarAPI aura:id="utilitybar" />
+    
+    <!-- Feedback component --> 
+    <div class="slds-p-horizontal_medium">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/> 
+        <!-- Header part --> 
+        <div>
+            <div class="{! v.onExist == false ? 'slds-show' : 'slds-hide' }">
+                <!-- Feedback type --> 
+                <div class="slds-p-bottom_small slds-p-top_small">
+                    <lightning:combobox name="feedbackType" label="Type" value="{!v.selectedType}" placeholder="Select a type" options="{! v.feedbackOptions }" onchange ="{! c.searchFeedback }"/>
+                </div>
+                <!-- Feedback title Search --> 
+				<aura:if isTrue="{!v.showTitle}">
+                <div class="slds-p-bottom_medium">
+                    <lightning:input
+                                     aura:id="feedback-title"
+                                     name="feedbackSearch"
+                                     label="Title"
+                                     value="{!v.titleString}"
+                                     onchange ="{! c.searchFeedback }"
+                                     />
+                </div>
+				</aura:if>
+            </div>
+            <!-- Body of Feedback List -->
+            <div class="{! and (v.isDuplicated == true, v.onExist == false) ? 'slds-show' : 'slds-hide' }">   
+                <div class="slds-p-bottom_small">Does feedback on this already exist?</div> 
+                <ul role="listbox" class="slds-listbox slds-listbox_vertical slds-is-relative setting-scroll">
+                    <!-- Looping through articles --> 
+                    <aura:iteration items="{!v.searchFeedback}" var="eachFeedback" indexVar="idx">
+                        <li role="presentation" class="slds-listbox__item slds-p-bottom_x-small">
+                            <div data-value="{!eachFeedback.id}" onclick="{!c.openFeedbackDetails}"><a>{!eachFeedback.title}</a></div>
+                        </li>
+                    </aura:iteration>
+                </ul>   
+            </div>
+            
+            <!-- Body of New Feedback -->
+            <div class="{! v.isNew ? 'slds-show' : 'slds-hide' }">
+                <div class="slds-grid slds-m-bottom_xx-small">
+                    <div class="slds-size_1-of-2 slds-text-body_small">Description</div>
+                    <div class="slds-size_1-of-2 slds-text-body_small">
+                        <p class="slds-float_right">{!v.textCount}/200</p>
+                    </div>
+                </div>
+                <lightning:textarea name="feedbackDescription" value="{!v.newFeedbackDescription}" maxlength="200"/>
+                <div class="slds-p-top_small attachment-height slds-text-body_small">Attachments (Under 5MB each)
+                    <ul class="slds-listbox slds-listbox_vertical slds-m-top_x-small" style="width: 300px; height: 50px; overflow: auto">
+                        <!-- Looping through attachments --> 
+                        <aura:iteration items="{!v.fileList}" var="eachFile" indexVar="idx">
+                            <li>
+                                <div class="slds-grid slds-wrap">
+                                    <div class="file-attach slds-text-body_regular slds-size_3-of-4 slds-truncate"> {!eachFile.name} </div>
+                                    <div class="slds-size_1-of-4" data-value="{!eachFile.recordId}" onclick="{!c.deleteAttachedRecord}"> <lightning:icon class="slds-text-body_regular slds-float_right file-pointer" iconName="utility:delete" title="Clear" size="x-small"/> </div>
+                                </div>
+                            </li>
+                        </aura:iteration>
+                        
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Body of existing Feedback -->
+            <div class="{! v.onExist ? 'slds-show' : 'slds-hide' }">   
+                <!-- Header for exist -->
+                <div onclick="{!c.onBack}" class="slds-p-top_medium slds-p-bottom_small">
+                    <a>Go back</a>
+                </div> 
+                <!-- Subject foir exist -->
+                <div class="slds-p-bottom_small slds-text-heading_small title-style">
+                    {!v.selectedFeedback.title}
+                </div> 
+                <!-- Description for existing -->
+                <div class="slds-p-bottom_small feedback-description"> 
+                    <p class="slds-p-bottom_x-small slds-text-title">Description </p>
+                    <div class="slds-text-body_regular">
+                        {!v.selectedFeedback.body}
+                    </div> 
+                </div> 
+                <div class="slds-p-bottom_small commment-style">
+                    {!v.selectedFeedback.comments.length} comments &nbsp; {!v.selectedFeedback.votes/10} Upvotes
+                </div> 
+            </div>
+        </div>
+        <!-- Footer of Feedback List -->
+        <div class="slds-grid slds-wrap slds-p-bottom_x-small slds-p-horizontal_medium setting-bottom">
+            <lightning:button class="{!v.isExist  ? 'slds-show slds-size_12-of-12' : 'slds-hide slds-size_12-of-12' }" label="No, make new feedback" title="New Feedback" onclick="{! c.handleNewFeedbackClick }"/>
+            
+            <!-- Action buttons/input for new feedback -->          
+            <lightning:input class="{! join(' ',
+                                    'slds-size_12-of-12 slds-m-bottom_x-small align-center',                        
+                                    v.isNew ? 'slds-show' : 'slds-hide'
+                                    )}" type="file" multiple="true" accept="{!v.acceptedFormat}" onchange="{! c.handleUploadFileClick }"/>            
+            <lightning:button class="{! v.isNew ? 'slds-show slds-m-bottom_x-small slds-size_12-of-12' : 'slds-hide slds-m-bottom_x-small slds-size_12-of-12' }" label="Submit Feedback" variant="brand" title="Submit Feedback" onclick="{! c.handleSubmitFeedbackClick }" disabled="{!v.isSubmit}"/>
+            
+            <lightning:button class="{! join(' ',
+                                    'slds-size_12-of-12 margin-nullify',                        
+                                    v.isNew ? 'slds-show' : 'slds-hide'
+                                    )}" label="Cancel" title="Cancel" onclick="{! c.handleCancelClick }" />
+            
+            <!-- Action button for existing feedback -->
+            <lightning:button class="{! v.onExist ? 'slds-show slds-m-bottom_x-small slds-size_12-of-12 margin-nullify' : 'slds-hide slds-m-bottom_x-small slds-size_12-of-12 margin-nullify' }" variant="brand" iconName="{!v.utilityIcon}" label="Upvote" title="Upvote" onclick="{! c.handleUpVoteClick }" disabled="{!v.isVotableDisable}"/>
+            <lightning:button class="{! v.onExist ? 'slds-show slds-size_12-of-12 margin-nullify' : 'slds-hide slds-size_12-of-12 margin-nullify' }" label="Go to Feedback Hub" title="Go to Feedback Hub" />
+        </div>
+    </div>
+</aura:component>

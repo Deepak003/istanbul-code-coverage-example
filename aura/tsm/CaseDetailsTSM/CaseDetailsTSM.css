@@ -1,0 +1,88 @@
+.THIS .detail-container{
+    border-right: 1px solid;
+    border-color: #e3e5ed;
+}
+.THIS .edit-field {
+    border-bottom: 1px solid rgb(221,219,218);
+    color: #565452;
+    font-weight:500;
+}
+.THIS .edit-field-label {
+    color: #706E6B;
+}
+.THIS .case-id-container {
+    display: inline-block;
+    width: 50%;
+}
+.THIS .content-type-container {
+    display: inline-block;
+    width: 40%;
+}
+.THIS .edit-field .slds-icon_container {
+    float: right;
+    cursor: pointer;
+}
+.THIS .c-inline {
+    display: inline-block;
+    width: 100%;
+}
+.THIS .c-icon-container {
+    display: inline-block;
+    vertical-align: bottom;
+    width: 10%;
+}
+.THIS .strike-container {
+    background-color: #f3f2f2;
+}
+.THIS .active-indicator {
+    background-color: #7ED321;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .suspended-indicator {
+    background-color: #D0021B;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+}
+.THIS .thor-line-height {
+    line-height: 0.45rem;
+}
+.THIS .thor-line-height ul {
+    line-height: 1rem;
+}
+.THIS .c-textarea_height{
+    height:150px;
+}
+.THIS .c-vogpicklist{
+    line-height: 1rem;
+    width: 100%;
+    margin-top: -9px;
+}
+.THIS .c-vogborder{
+    position:relative;
+    border-top:2px solid lightgrey;
+    border-bottom:2px solid lightgrey;
+}
+.THIS .c-vog_chevrondown{
+    position:absolute;
+    right:40px;
+}
+.THIS .c-lock{
+    position:absolute;
+    right:40px;
+}
+.THIS .c-heading{
+    font-weight:bold;
+    font-size:16px !important;
+    line-height:25px;
+}
+.THIS .vog-FontWeight{
+    font-weight:400 !important;
+}
+.THIS .no-asterisk abbr[title='required'] {
+    display: none;
+}

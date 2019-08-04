@@ -1,0 +1,183 @@
+<aura:component controller="CaseSummaryAuraController">
+    <aura:attribute name="caseId" type="String" access="public" />    
+    <aura:attribute name="accountId" type="String" access="public" />
+    <aura:attribute name="nucleusId" type="String" access="public" /> 
+    <aura:attribute name="isVisible" type="Boolean" access="public" />
+    <aura:attribute name="archivedCaseId" type="String" access="public" />
+    
+    <aura:attribute name="options" type="List" access="private" 
+                    default="[
+                             {'label': 'All Statuses', 'value': 'ALL'},
+                             {'label': 'Closed', 'value': 'Closed'},
+                             {'label': 'Escalate', 'value': 'Escalate'},                             
+                             {'label': 'New', 'value': 'New'},
+                             {'label': 'Resolved', 'value': 'Resolved'},
+                             {'label': 'Transfer', 'value': 'Transfer'},
+                             {'label': 'Updated by Customer', 'value': 'Updated by Customer'},
+                             {'label': 'Waiting on Customer', 'value': 'Waiting on Customer'},
+                             ]" />
+    
+    
+    <aura:attribute name="selectedFilter" type="String" access="private" />
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="true" />
+    <aura:attribute name="isLoadingCases" type="Boolean" access="private" default="true" />
+    <aura:attribute name="searchTerm" type="String" access="private" default="" />
+    <aura:attribute name="timer" type="Integer" access="private" />
+    <aura:attribute name="cases" type="List" access="private" />
+    <aura:attribute name="tableRows" type="List" access="private" />
+    <aura:attribute name="pageNo" type="Integer" default="1" access="private" />
+    <aura:attribute name="pageSize" type="Integer" default="20" access="private" />
+    <aura:attribute name="isDescending" type="Boolean" default="true" access="private" />    
+    <aura:attribute name="isArchivedPulled" type="Boolean" default="false" access="private" />
+    <aura:attribute name="isNonArchivedPulled" type="Boolean" default="false" access="private" />
+    
+    <!--<aura:handler name="init" value="{! this }" action="{! c.doInit }" />-->
+    <ltng:require scripts="{! $Resource.Util }" afterScriptsLoaded="{! c.doInit }"/>    
+    <aura:handler name="change" value="{! v.pageNo }" action="{! c.onChangePage }"/>
+    <aura:handler name="change" value="{! v.searchTerm }" action="{! c.onChangeSearchTerm }" />
+    <aura:handler name="change" value="{! v.cases }" action="{! c.onLoadCase }" />
+    <aura:handler name="change" value="{! v.selectedFilter }" action="{! c.refreshCaseList }" />
+    <aura:handler name="change" value="{! v.isDescending }" action="{! c.refreshCaseList }" />
+    <aura:handler name="change" value="{! v.isArchivedPulled }" action="{! c.onChangeSource }" />
+    <aura:handler name="change" value="{! v.isNonArchivedPulled }" action="{! c.onChangeSource }" />
+    
+    <!-- Content -->
+    <div class="slds-is-relative main">        
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner variant="brand" size="small" />
+            <aura:set attribute="else">       
+                <!-- Header -->
+                <lightning:layout multipleRows="false" class="slds-p-bottom_medium">
+                    <lightning:layoutItem size="5">
+                        <lightning:input type="search" class="search-input" placeholder="Search by Case ID, Subject" variant="label-hidden" value="{! v.searchTerm }" />
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="4" alignmentBump="left">
+                        <lightning:layout multipleRows="false">
+                            <lightning:layoutItem size="10">
+                                <lightning:combobox name="progress" label="Status" variant="label-hidden" value="{!v.selectedFilter}" options="{! v.options }" />
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="2">
+                                <lightning:layout multipleRows="false">
+                                    <lightning:layoutItem size="12" class="slds-p-left_small" alignmentBump="left">
+                                        <lightning:buttonIcon iconName="utility:refresh" variant="border-filled" alternativeText="Refresh" onclick="{! c.doRefresh }"/>
+                                    </lightning:layoutItem>
+                                </lightning:layout>                             
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </lightning:layoutItem>
+                </lightning:layout>
+                
+                <!-- Table Header -->
+                <table class="slds-table slds-table_bordered table-1">
+                    <thead>
+                        <tr class="tsm-table-heading">
+                            <th class="slds-size_1-of-5">
+                                <div class="slds-truncate tsm-table-heading_label">
+                                    <span></span><span class="slds-p-left_large">Case Id</span>
+                                </div>
+                            </th>
+                            <th class="slds-size_2-of-5">
+                                <div class="slds-truncate tsm-table-heading_label">Subject</div>
+                            </th>
+                            <th class="slds-size_1-of-5">
+                                <div class="slds-truncate tsm-table-heading_label">
+                                    Date
+                                    <lightning:icon class="pointer" onclick="{!c.sortByDate}" iconName="{! if(v.isDescending,'utility:arrowdown','utility:arrowup') }" size="xx-small" alternativeText="Sort by"/>                                  
+                                </div>                          
+                            </th>
+                            <th class="slds-size_1-of-5">
+                                <div class="slds-truncate tsm-table-heading_label">Status</div>
+                            </th>                            
+                        </tr>
+                    </thead>
+                </table>
+                <div class="slds-is-relative child">
+                    <aura:if isTrue="{! empty(v.tableRows) }">
+                        <aura:if isTrue="{! v.isLoadingCases }">
+                            <lightning:spinner variant="brand" size="small" />
+                            <aura:set attribute="else">
+                                <c:EmptyState>
+                                    <aura:set attribute="message">
+                                        <b>No result found</b>
+                                    </aura:set>
+                                </c:EmptyState>
+                            </aura:set>
+                        </aura:if>
+                        <aura:set attribute="else">
+                            <c:InfiniteScrolling height="{! v.caseId ? '' : '50vh'}" pageNo="{! v.pageNo }">
+                                <!-- Table Body -->
+                                <table class="table-2 slds-table slds-no-row-hover">
+                                    <tbody>
+                                        <aura:iteration items="{! v.tableRows }" var="row" indexVar="idx">
+                                            <tr data-index="{!idx}" aura:id="case-row" onclick="{!c.expandClick}" class="{! join(' ', 'slds-border_bottom', if(row.caseId == v.caseId, 'current-case')) }">
+                                                <td class="slds-size_1-of-5"  title="{!row.caseNumber}">
+                                                    <div class="slds-truncate">
+                                                        <span>
+                                                            <lightning:buttonIcon variant="bare" size="small" iconName="{!row.expanded?'utility:chevrondown':'utility:chevronright'}" />
+                                                        </span>
+                                                        <span class="slds-p-left_small" onclick="{!c.stopPropagation}">
+                                                            <aura:if isTrue="{!row.status != 'Archived'}">
+                                                                <c:CaseAsSubTab CaseNumber="{!row.caseNumber}" caseId="{!row.caseId}">
+                                                                    <a>{!row.caseNumber}</a>                             
+                                                                </c:CaseAsSubTab>
+                                                                <aura:set attribute="else">
+                                                                    {!row.caseNumber}
+                                                                </aura:set>
+                                                            </aura:if>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="slds-size_2-of-5" title="{!row.subject}">
+                                                    <div class="slds-truncate subject">{!row.subject}</div>
+                                                </td>
+                                                <td class="slds-size_1-of-5">
+                                                    <div class="slds-truncate">
+                                                        <div>
+                                                            <c:FormattedDateTime value="{!row.date}" format="only-date"/>
+                                                        </div>
+                                                        <div style="font-size: 11px;color: #706e6b;">
+                                                            <c:FormattedDateTime value="{!row.date}" format="only-time"/>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="slds-size_1-of-5">
+                                                    <div class="slds-truncate status" title="{! row.status }">
+                                                        <aura:if isTrue="{! and(v.caseId, row.caseId == v.caseId) }">
+                                                            <span>
+                                                                <lightning:icon iconName="utility:user" alternativeText="Current" size="x-small" /> 
+                                                                {!row.status} - Current
+                                                            </span>
+                                                            <aura:set attribute="else">
+                                                                {!row.status}
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Table Expandable section  -->
+                                            <aura:if isTrue="{!row.expanded}">
+                                                <tr>
+                                                    <td colspan="4" class="slds-cell-wrap">
+                                                        <c:CaseInteractions accountId="{!v.accountId}" data="{!row}" />
+                                                    </td>
+                                                </tr>
+                                            </aura:if>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                            </c:InfiniteScrolling>
+                        </aura:set>
+                    </aura:if>
+                    <aura:if isTrue="{! and(v.isArchivedPulled, v.isNonArchivedPulled) }">
+                        <aura:if isTrue="{! v.tableRows.length > 20  }">
+                            <div class="slds-p-top_small slds-hide">
+                                No more data to load
+                            </div>
+                        </aura:if>
+                    </aura:if>
+                </div>
+            </aura:set>        
+        </aura:if>
+    </div>    
+</aura:component>

@@ -1,0 +1,36 @@
+<aura:component >
+    <aura:attribute name="show" type="String[]" default="['filter', 'search', 'expand', 'refresh']" />
+    <aura:attribute name="targetComponent" type="String[]" />
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div class="slds-grid search-container">
+        <div class="activity-filter slds-hide" aura:id="filter">
+            <lightning:select aura:id="activity-filter" label="" onchange="{! c.onChangeFilter }">
+                <option value="DESC">Latest activities</option>
+                <option value="ASC">Old activities</option>
+            </lightning:select>
+        </div>                    
+        <div class="slds-col_bump-left slds-m-right_x-small slds-hide" aura:id="search">
+            <lightning:input type="search" 
+                             name="search"
+                             class="search-input"
+                             placeholder="Search activities" 
+                             onchange="{! c.onChangeFilter }"
+                             variant="label-hidden"
+                             aura:id="activity-search"/>
+        </div>
+        <div class="slds-m-right_x-small slds-hide" aura:id="expand">
+            <lightning:buttonIcon iconName="utility:expand_all"  
+                                  variant="border-filled" 
+                                  alternativeText="Expand All"
+                                  onclick="{! c.toggleExpandAll }"/>
+        </div>
+        <div aura:id="refresh" class="slds-hide">
+            <lightning:buttonIcon iconName="utility:refresh"  
+                                  variant="border-filled" 
+                                  alternativeText="Refresh"
+                                  onclick="{! c.doRefresh }"/>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Data grid Application event">
+	<aura:attribute name="pk" type="String"/>
+   	<aura:attribute name="domEl" type="Object"/>
+    <aura:attribute name="agentWorkId" type="String"/>
+</aura:event>

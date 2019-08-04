@@ -1,0 +1,10 @@
+<aura:event type="APPLICATION" description="Enables Search Button" >
+
+	<aura:attribute name="enableSearch" type="Boolean"/>
+    <aura:attribute name="paymentType" type="String"/>
+    <aura:attribute name="lastName" type="String"/>
+    <aura:attribute name="fourDigits" type="String"/>
+    <aura:attribute name="cardType" type="String"/>
+    <aura:attribute name="billingEmail" type="String"/>
+    <aura:attribute name="retailNumber" type="String"/>
+</aura:event>

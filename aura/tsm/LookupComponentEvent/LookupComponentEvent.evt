@@ -1,0 +1,7 @@
+<aura:event type="COMPONENT">
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="Id" type="String"/>
+    <aura:attribute name="Name" type="String"/>
+    <aura:attribute name="Url" type="String"/>
+    <aura:attribute name="isEmpty" type="Boolean"/>
+</aura:event>

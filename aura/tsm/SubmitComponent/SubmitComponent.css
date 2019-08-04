@@ -1,0 +1,62 @@
+.THIS .footer-note{
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.THIS .pagination-footer {
+    margin-top: 15px;
+}
+
+.THIS .submit-modal {
+    max-width: 60rem;
+    width: 55%;
+}
+
+.THIS .risk-criteria-submit {
+    width: 50%;
+}
+
+.THIS .slds-accordion__section {
+    padding: 0;
+}
+
+.THIS .slds-accordion__summary{
+	margin-bottom: 0;
+}
+
+.THIS .slds-accordion__content{
+    margin-left: 45px;
+}
+
+.THIS .rule-name {
+    width: 85%;
+    display: inline-block;
+}
+
+.THIS .locale {
+    border-bottom: 1px solid;
+    padding-bottom: 10px;
+    font-size: 1.1rem;
+    margin-top: 5px;
+}
+
+.THIS .risk-type-submit {
+    font-size: 1rem;
+}
+
+.THIS .label-name {
+	border-bottom: 1px solid;
+    margin-top: 10px;
+    display: inline-flex;
+}
+
+.THIS .show-score {
+    margin-bottom: 10px;
+    width: 60%;
+   
+}
+
+.THIS .config-values {
+	display: inline-block;
+    width: 40%;
+}

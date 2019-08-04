@@ -1,0 +1,304 @@
+<aura:component controller="HistoryFilterController" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="inputData" type="Map" default="{}" access="public" description="Input data for Filters" />
+    <aura:attribute name="selectedProduct" type="Object" description="Selected Product data"/>
+    <aura:attribute name="selectedPlatform" type="Object" description="Selected Platform data"/>
+    <aura:attribute name="transactionFilterData" type="Object" description="Transaction Filter Data selected by the user"/>
+    <aura:attribute name="eventCategoryData" type="Object" description="Event Category Data selected in the Filters"/>
+    <aura:attribute name="challengesCategoryData" type="Object" description="Challenges Category Data selected by the user" default="No Category"/>
+    <aura:attribute name="draftCategoryData" type="Object" description="Draft Category Data selected by the user"/>
+    <aura:attribute name="setsCategoryData" type="Object" description="Sets Category Data selected by the user"/>
+    <aura:attribute name="matchesCategoryData" type="Object" description="Sets Category Data selected by the user"/>
+    <aura:attribute name="walletTxCategoryData" type="Object" description="Sets Category Data selected by the user"/>
+    <aura:attribute name="gameMode" type="String" description="gameMode selected by the user"/>
+    <aura:attribute name="selectedPersona" type="Object" description="selectedPersona by the user"/>
+    <aura:attribute name="transactionFilterList" type="Object" description="transactionFilterLista selected by the user"/>
+    <aura:attribute name="modeFilterList" type="Object" description="modeFilterList selected by the user"/>
+    <aura:attribute name="currencyFilterList" type="Object" description="currencyFilterList selected by the user"/>
+    <aura:attribute name="loginFilterList" type="Object" description="loginFilterList selected by the user"/>
+    <aura:attribute name="isModeFilterExist" type="boolean" description="checking if the mode filter exists"/>
+    <aura:attribute name="isCurrencyFilterExist" type="boolean" description="checking if the Currency Transaction filter exists"/>
+    <aura:attribute name="bulkDataTransfer" type="Object" description="bulkDataTransfer selected by the user"/>
+    <aura:attribute name="isLoading" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="selectedHistoryFilterCriteria" type="Object" />
+	<aura:attribute name="isMobileProduct" type="Boolean" default="false" />
+    <aura:attribute name="selectedIdentity" type="Object" />
+    
+    <!-- Global Storage attributes (Updated for TSM-2121) -->
+    <aura:attribute name="cacheBulkData" type="Object" />
+    <aura:attribute name="cacheFilterData" type="Object" />
+    <aura:attribute name="filterClick" type="boolean"/>
+    <aura:handler name="change" value="{!v.filterClick}" action="{!c.clearSelection}"/>
+    
+    <!-- Config UI values -->
+    <aura:attribute name="configUIData" type="Object" />
+    <aura:handler name="change" value="{!v.configUIData}" action="{!c.changeConfigUILayout}"/>
+    <aura:attribute name="isTransactonExist" type="boolean" default="false"/>
+    <aura:attribute name="isSetsExist" type="boolean" default="false"/>
+    <aura:attribute name="isChallengesExist" type="boolean" default="false"/>
+    <aura:attribute name="isLoginExist" type="boolean" default="false"/>
+    <aura:attribute name="isEventExist" type="boolean" default="false"/>
+    <aura:attribute name="isDraftsExist" type="boolean" default="false"/>
+    <aura:attribute name="isCurrencyTransactionExist" type="boolean" default="false"/>
+    <aura:attribute name="isMatchesExist" type="boolean" default="false"/>
+    
+    <aura:handler name="change" value="{!v.selectedProduct}" action="{!c.onChangeOfProduct}"/>
+    <aura:attribute name="EVENT_CATEGORY" type="boolean" default="false"/>
+    <aura:attribute name="CHALLENGE_CATEGORY" type="boolean" default="false"/>
+    <aura:attribute name="DRAFT_MODES" type="boolean" default="false"/>
+    <aura:attribute name="SET_CATEGORY" type="boolean" default="false"/>
+    <aura:attribute name="ITEM_TX_CATEGORY" type="boolean" default="false"/>
+    <aura:attribute name="ADD_CURRENCY_CATEGORY" type="boolean" default="false"/>
+    <aura:attribute name="inventoryStats" type="List" default="" description="Formatted Row Data"/>
+    <aura:attribute name="MATCH_TYPES" type="boolean" default="false"/>
+    
+    <aura:attribute name="nucleusId" type="Id"/> 
+    
+    <aura:attribute name="presentSelectionOptions" type="List"
+                    default="[{'label': 'Last 7 days', 'value': '7'},{'label': 'Last 3 days', 'value': '3'},{'label': 'Last 24 hours', 'value': '1'},{'label': 'Last 2 hours', 'value': '2'}]" /> 
+    
+    <aura:registerEvent name="onHistoryData" type="c:HistoryTableEvt" description="Trigger Aftrer Product History data fetched" />
+    
+    <!-- History Enhancement TSM 1622-->
+    <aura:attribute name="failedData" type="List" default="[]"/>
+    <aura:attribute name="modeFilterNameList" type="List"/>
+    <aura:attribute name="currentInventoryObject" type="Object" access="public"/>
+    <aura:attribute name="startDate" type="Object" access="public"/>
+    <aura:attribute name="endDate" type="Object" access="public"/>
+    
+    <!-- Modified as part of TSM - 1622 to stop propogation to other tabs -->    
+    <aura:handler name="change" value="{!v.currentInventoryObject}" action="{!c.onChangeCurrentInventoryDate}"/>
+    
+    <!--Attributes for Lookup-->
+    <aura:attribute name="eventSelectedData" type="Object" />
+    <aura:attribute name="challengesSelectedData" type="Object"/>
+    <aura:attribute name="setsSelectedData" type="Object"/>
+    <aura:attribute name="WalletsSelectedData" type="Object"/>
+    <aura:attribute name="matchesSelectedData" type="Object"/>
+    <aura:handler name="lookupActionEvent" event="c:LookupComponentEvent" action="{!c.handleBubbling}"/>
+    
+    <!-- TSM-2813 Attributes for Lookup-->
+    <aura:attribute name="paginationData" type="Object" access="public"/>
+    <aura:handler name="change" value="{!v.paginationData}" action="{!c.initiatePagination}"/>
+
+    <div class="c-container slds-is-relative">
+        <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+        {! v.inputData.startDateTime }
+        {! v.inputData.endDateTime }
+        <lightning:layout class="slds-m-top--x-small slds-m-bottom--medium">
+            <div class="tab-heading">Please select a date range and type(s) of product data to filter:</div>
+        </lightning:layout>
+        
+        <div class="slds-text-title_bold">Time Range</div>
+        
+        <lightning:layout class="slds-m-top--medium slds-m-bottom--x-small">
+            <lightning:layoutItem size="5" class="slds-m-right--large">
+                <lightning:combobox class="time-selection" aura:id="presentSelections" name="presentSelections" label="Preset Selections"  value = "7" placeholder="Select an Option" options="{! v.presentSelectionOptions }" onchange="{! c.handlePresentSelectionChange }"/>
+            </lightning:layoutItem> 
+            
+            <lightning:layoutItem size="6" >
+                <lightning:input class="slds-hide" aura:id="startDateTime" type="datetime" value="{!v.startDate}" name="startDate" onchange="{! c.validateDate}" timezone="GMT" /> 
+                <lightning:input label="Custom enter End Date/End Time" aura:id="endDateTime" type="datetime" name="endDate" value="{!v.endDate}" onchange="{! c.validateDate}" timezone="GMT"/>                 
+            </lightning:layoutItem>     
+        </lightning:layout> 
+        <div class="slds-m-bottom--large">
+            Product data from <lightning:formattedDateTime value="{!v.startDate}" year="numeric" month="short" day="numeric" hour="2-digit"
+                                                           minute="2-digit" timeZone="UTC" timeZoneName="short" hour12="false"/>
+            to <lightning:formattedDateTime value="{!v.endDate}" year="numeric" month="short" day="numeric" hour="2-digit"
+                                            minute="2-digit" timeZone="UTC" timeZoneName="short" hour12="false"/>
+            will be shown.
+        </div>
+        
+        <lightning:layout class="slds-m-bottom--large">
+            <aura:if isTrue="{!or(or(or(v.isLoginExist, v.isEventExist),or(v.isChallengesExist, v.isDraftsExist)), or(v.isSetsExist, v.isMatchesExist))}">
+                <lightning:layoutItem size="5" class="slds-m-right--x-large custom-height">
+                    <div class="slds-m-bottom--large">
+                        <aura:if isTrue="{!v.isLoginExist  == true}">
+                            <div class="slds-text-title_bold slds-m-bottom--medium"><lightning:icon class="close-icon" iconName="utility:identity" size="x-small" alternativeText="Login" /> Login</div>
+                            <div class="slds-text-body_regular">
+                                <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="All Types" name="All Types" onchange="{! c.openModeSelected}"/> 
+                            </div>
+                        </aura:if>
+                    </div>
+                    
+                    <div>
+                        <aura:if isTrue="{!or(or(or(v.isEventExist, v.isChallengesExist), or(v.isDraftsExist, v.isSetsExist)), v.isMatchesExist)}">
+                            <div class="slds-text-title_bold slds-m-bottom--medium"><lightning:icon class="close-icon" iconName="utility:activity" size="x-small" alternativeText="Mode" /> Mode</div>
+                        </aura:if>     
+                        <div class="slds-text-body_regular">
+                            <aura:if isTrue="{!v.isEventExist  == true}">
+                                <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="Events" name="EVENT_CATEGORY" onchange="{! c.openModeSelected}"/>                      
+                                <div class="{! join(' ',
+                                            'slds-m-left--x-large remove-label',
+                                            if(v.EVENT_CATEGORY, 'slds-show', 'slds-hide')
+                                            )}">
+                                    <c:LookupTSM selectedName="" fieldName="Events" lookupData="{!v.eventCategoryData}" />
+                                    <aura:if isTrue="{!v.eventSelectedData.length > 0 }">
+                                        <div class="slds-pill_container slds-m-top_small slds-m-bottom_medium slds-p-around_small cart-background">
+                                            <ul class="slds-listbox slds-listbox_horizontal" role="listbox" aria-label="Selected Options:" aria-orientation="horizontal">
+                                                <aura:iteration items="{!v.eventSelectedData}" var="item" indexVar="idx">        
+                                                    <li class="slds-listbox-item slds-p-bottom_x-small slds-p-right_xxx-small" role="presentation">
+                                                        <span class="slds-pill" role="option" tabindex="0" aria-selected="true">
+                                                            <span class="slds-pill__label" title="Full pill label verbiage mirrored here">{!item.Name}</span>
+                                                            <div id="{!item.Id}" data-name="eventSelectedData" data-value="{!idx}" class="pill-close-icon slds-icon_container slds-pill__remove" title="Remove" onclick="{!c.onFilterClose}">
+                                                                <lightning:icon iconName="utility:close" size="x-small" alternativeText="Remove" />
+                                                                <span class="slds-assistive-text">Press delete or backspace to remove</span>
+                                                            </div>
+                                                        </span>
+                                                    </li>
+                                                </aura:iteration> 
+                                            </ul>
+                                        </div> 
+                                    </aura:if>
+                                </div>    
+                            </aura:if>   
+                            
+                            <aura:if isTrue="{!v.isChallengesExist  == true}">
+                                <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="Challenges" name="CHALLENGE_CATEGORY" onchange="{! c.openModeSelected}"/>
+                                <div class="{! join(' ',
+                                            'slds-m-left--x-large remove-label',
+                                            if(v.CHALLENGE_CATEGORY, 'slds-show', 'slds-hide')
+                                            )}">
+                                    <aura:if isTrue="{!v.challengesCategoryData != 'No Category' }">
+                                        <c:LookupTSM selectedName="" fieldName="Challenges" lookupData="{!v.challengesCategoryData}" />
+                                        <aura:if isTrue="{!v.challengesSelectedData.length > 0 }">
+                                            <div class="slds-pill_container slds-m-top_small slds-m-bottom_medium slds-p-around_small cart-background">
+                                                <ul class="slds-listbox slds-listbox_horizontal" role="listbox" aria-label="Selected Options:" aria-orientation="horizontal">
+                                                    <aura:iteration items="{!v.challengesSelectedData}" var="item" indexVar="idx">        
+                                                        <li class="slds-listbox-item slds-p-bottom_x-small slds-p-right_xxx-small" role="presentation">
+                                                            <span class="slds-pill" role="option" tabindex="0" aria-selected="true">
+                                                                <span class="slds-pill__label" title="Full pill label verbiage mirrored here">{!item.Name}</span>
+                                                                <div id="{!item.Id}" data-name="challengesSelectedData" data-value="{!idx}" class="pill-close-icon slds-icon_container slds-pill__remove" title="Remove" onclick="{!c.onFilterClose}">
+                                                                    <lightning:icon iconName="utility:close" size="x-small" alternativeText="Remove" />
+                                                                    <span class="slds-assistive-text">Press delete or backspace to remove</span>
+                                                                </div>
+                                                            </span>
+                                                        </li>
+                                                    </aura:iteration> 
+                                                </ul>
+                                            </div> 
+                                        </aura:if>
+                                    </aura:if>
+                                </div>    
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!v.isDraftsExist  == true}">
+                                <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="Draft" name="DRAFT_MODES" onchange="{! c.openModeSelected}"/> 
+                            </aura:if> 
+                            
+                            <aura:if isTrue="{!v.isSetsExist  == true}">    
+                                <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="Sets" name="SET_CATEGORY" onchange="{! c.openModeSelected}"/>  
+                                <div class="{! join(' ',
+                                            'slds-m-left--x-large remove-label',
+                                            if(v.SET_CATEGORY, 'slds-show', 'slds-hide')
+                                            )}">
+                                    <c:LookupTSM selectedName="" fieldName="Sets" lookupData="{!v.setsCategoryData}" />
+                                    <aura:if isTrue="{!v.setsSelectedData.length > 0 }">
+                                        <div class="slds-pill_container slds-m-top_small slds-m-bottom_medium slds-p-around_small cart-background">
+                                            <ul class="slds-listbox slds-listbox_horizontal" role="listbox" aria-label="Selected Options:" aria-orientation="horizontal">
+                                                <aura:iteration items="{!v.setsSelectedData}" var="item" indexVar="idx">        
+                                                    <li class="slds-listbox-item slds-p-bottom_x-small slds-p-right_xxx-small" role="presentation">
+                                                        <span class="slds-pill" role="option" tabindex="0" aria-selected="true">
+                                                            <span class="slds-pill__label" title="Full pill label verbiage mirrored here">{!item.Name}</span>
+                                                            <div id="{!item.Id}" data-name="setsSelectedData" data-value="{!idx}" class="pill-close-icon slds-icon_container slds-pill__remove" title="Remove" onclick="{!c.onFilterClose}">
+                                                                <lightning:icon iconName="utility:close" size="x-small" alternativeText="Remove" />
+                                                                <span class="slds-assistive-text">Press delete or backspace to remove</span>
+                                                            </div>
+                                                        </span>
+                                                    </li>
+                                                </aura:iteration> 
+                                            </ul>
+                                        </div> 
+                                    </aura:if>                                    
+                                </div>    
+                            </aura:if>    
+                            <!-- For Match Details-->
+                            <aura:if isTrue="{!v.isMatchesExist  == true}">    
+                                <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="Matches" name="MATCH_TYPES" onchange="{! c.openModeSelected}"/>  
+                                <aura:if isTrue="{!v.MATCH_TYPES  == true}">
+                                    <div class="slds-m-left--x-large remove-label">
+                                        <aura:if isTrue="{!v.matchesCategoryData != 'No Category' }">
+                                            <c:LookupTSM selectedName="" fieldName="Matches" lookupData="{!v.matchesCategoryData}" />                                        
+                                            <aura:if isTrue="{!v.matchesSelectedData.length > 0 }">
+                                                <div class="slds-pill_container slds-m-top_small slds-m-bottom_medium slds-p-around_small cart-background">
+                                                    <ul class="slds-listbox slds-listbox_horizontal" role="listbox" aria-label="Selected Options:" aria-orientation="horizontal">
+                                                        <aura:iteration items="{!v.matchesSelectedData}" var="item" indexVar="idx">        
+                                                            <li class="slds-listbox-item slds-p-bottom_x-small slds-p-right_xxx-small" role="presentation">
+                                                                <span class="slds-pill" role="option" tabindex="0" aria-selected="true">
+                                                                    <span class="slds-pill__label" title="Full pill label verbiage mirrored here">{!item.Name}</span>
+                                                                    <div id="{!item.Id}" data-name="matchesSelectedData" data-value="{!idx}" class="pill-close-icon slds-icon_container slds-pill__remove" title="Remove" onclick="{!c.onFilterClose}">
+                                                                        <lightning:icon iconName="utility:close" size="x-small" alternativeText="Remove" />
+                                                                        <span class="slds-assistive-text">Press delete or backspace to remove</span>
+                                                                    </div>
+                                                                </span>
+                                                            </li>
+                                                        </aura:iteration> 
+                                                    </ul>
+                                                </div> 
+                                            </aura:if>  
+                                        </aura:if>                                  
+                                    </div>    
+                                </aura:if>    
+                            </aura:if>  
+                            <!--End of Match Details-->                      
+                        </div>                    
+                    </div>
+                </lightning:layoutItem> 
+            </aura:if>
+            <lightning:layoutItem size="7" class="">
+                <aura:if isTrue="{!v.isTransactonExist  == true}">
+                    <div class="slds-text-title_bold slds-m-bottom--medium"><lightning:icon class="close-icon" iconName="utility:change_record_type" size="x-small" alternativeText="Transaction" /> Transaction</div>
+                    <div class="slds-grid slds-wrap">
+                        <aura:iteration  items="{!v.transactionFilterData}" var="item" indexVar="idx">
+                            <lightning:input aura:id="productFiltersCheckBox" class="slds-size_6-of-12 slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="{!item.value}" name="{!item.key}" onchange="{! c.openModeSelected}"/> 
+                        </aura:iteration>  
+                        <aura:if isTrue="{!v.isCurrencyTransactionExist  == true}">
+                            <lightning:input aura:id="productFiltersCheckBox" class="slds-text-body_regular slds-m-bottom--x-small" type="checkbox" label="CurrencyTransaction" name="ADD_CURRENCY_CATEGORY" onchange="{! c.openModeSelected}"/> 
+                        </aura:if>
+                        <aura:if isTrue="{!v.ADD_CURRENCY_CATEGORY  == true}">
+                            <div class="slds-m-left--x-large remove-label">
+                                <c:LookupTSM selectedName="" fieldName="WalletTx" lookupData="{!v.walletTxCategoryData}" />
+                                <aura:if isTrue="{!v.WalletsSelectedData.length > 0 }">
+                                    <div class="slds-pill_container slds-m-top_small slds-m-bottom_medium slds-p-around_small cart-background">
+                                        <ul class="slds-listbox slds-listbox_horizontal" role="listbox" aria-label="Selected Options:" aria-orientation="horizontal">
+                                            <aura:iteration items="{!v.WalletsSelectedData}" var="item" indexVar="idx">        
+                                                <li class="slds-listbox-item slds-p-bottom_x-small slds-p-right_xxx-small" role="presentation">
+                                                    <span class="slds-pill" role="option" tabindex="0" aria-selected="true">
+                                                        <span class="slds-pill__label" title="Full pill label verbiage mirrored here">{!item.Name}</span>
+                                                        <div id="{!item.Id}" data-name="WalletsSelectedData" data-value="{!idx}" class="pill-close-icon slds-icon_container slds-pill__remove" title="Remove" onclick="{!c.onFilterClose}">
+                                                            <lightning:icon iconName="utility:close" size="x-small" alternativeText="Remove" />
+                                                            <span class="slds-assistive-text">Press delete or backspace to remove</span>
+                                                        </div>
+                                                    </span>
+                                                </li>
+                                            </aura:iteration> 
+                                        </ul>
+                                    </div> 
+                                </aura:if>                                    
+                            </div>    
+                        </aura:if> 
+                    </div>
+                </aura:if>                  
+            </lightning:layoutItem>   
+        </lightning:layout> 
+        
+        <lightning:layout>
+            <lightning:layoutItem size="9">  
+                <div class="slds-text-body_regular"><a onclick="{!c.clearSelection}">Clear All</a></div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="3">
+                <div class="slds-grid">   
+                    <div class="slds-size_1-of-2">
+                        <aura:if isTrue="{!v.cacheFilterData || v.currentInventoryObject}">
+                            <lightning:button aura:id="backFilter" label="Back" onclick="{! c.loadCacheValue }"/> 
+                        </aura:if>
+                    </div>
+                    
+                    <div class=" slds-size_1-of-2">
+                        <lightning:button aura:id="saveFilter" variant="brand" label="Save" onclick="{! c.saveFilterValue }" disabled="true"/>
+                    </div>  
+                </div>   
+            </lightning:layoutItem> 
+        </lightning:layout>    
+    </div>
+</aura:component>

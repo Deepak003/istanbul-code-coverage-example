@@ -1,0 +1,8 @@
+<aura:event type="COMPONENT" description="This is HistoryTable component">
+    <aura:attribute name="historyData" type="List" description=""/>
+    <aura:attribute name="historyDataCount" type="Integer" description="Total count of History data for pagination"/>
+    <!-- TSM-1622 -->
+    <aura:attribute name="failedData" type="List" description=""/>
+    <!-- TSM - 2813 For Pagination -->
+    <aura:attribute name="lastData" type="Object" description=""/>
+</aura:event>

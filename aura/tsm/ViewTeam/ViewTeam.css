@@ -1,0 +1,8 @@
+/* Table row */
+.THIS .tsm-table-row {
+   height: 50px;
+}
+
+.THIS .slds-backdrop.slds-backdrop_open {
+    z-index: 90;
+}

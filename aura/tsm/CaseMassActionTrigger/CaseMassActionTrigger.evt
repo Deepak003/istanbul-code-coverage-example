@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Case mass action Application event">
+	<aura:attribute name="massIds" type="String[]" default="[]"/>
+    <aura:attribute name="eventType" type="String"/>
+</aura:event>

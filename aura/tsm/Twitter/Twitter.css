@@ -1,0 +1,16 @@
+.THIS {
+    margin-top: 12px;
+    background-color: t(homepageComponentBackgroundColor);
+}
+
+.THIS .slds-icon {
+    /*fill: rgb(112, 110, 107);*/
+}
+
+.THIS .title lightning-primitive-icon svg{
+    background: #66CCFF;
+    border-radius: 5px;
+    padding: 4px;
+    height: token(homepageComponentIconHeight);
+    width: token(homepageComponentIconWidth);
+}

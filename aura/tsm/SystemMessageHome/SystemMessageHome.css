@@ -1,0 +1,14 @@
+.THIS .setting-absolute{
+    align-items: center;
+    z-index: 9999;
+    position: fixed;
+    top: 30px;
+    right: 0;
+    top:0;
+}
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+.THIS .close-icon{
+    cursor:pointer;
+}

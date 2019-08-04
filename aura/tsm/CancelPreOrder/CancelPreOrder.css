@@ -1,0 +1,53 @@
+.THIS .line-items-table td {
+    height: 50px;
+}
+
+.THIS .tax-row {
+    line-height: 40px;    
+}
+.THIS .tax-row > div {
+    border-top: 1px solid #cacaca;
+}
+.THIS .association-row {
+    font-size: 10px;
+}
+.THIS .slds-text-heading_medium{
+    font-weight:normal;
+}
+.THIS .leftPadding {
+    padding-left: 351px;
+    padding-bottom:19px;
+}
+
+.THIS .no-border-bottom {
+    border-bottom: none;
+}
+
+.THIS .modalBody{
+    height:60%;
+    overflow:auto;
+}
+.THIS .detailedTable{
+    width:60%;
+    margin-left:40%;
+}
+.THIS .Content{
+    height:32px;
+}
+
+.THIS .close-icon lightning-primitive-icon svg{
+    fill:#FFFFFF;
+}
+
+.THIS .amountAlignment {
+    text-align:right;    
+}
+
+.THIS .amountPadding {
+    padding-left:200px;    
+}
+
+.THIS .header {
+    color: #706e6b;
+    font-size:12px;    
+}

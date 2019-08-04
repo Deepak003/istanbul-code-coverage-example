@@ -1,0 +1,76 @@
+<aura:component controller="InvoiceAuraController">
+    <!-- attributes -->
+    <aura:attribute name="data" type="Map" access="public"/>
+    <aura:attribute name="caseId" type="String"/>
+    <aura:attribute name="openCancelPreOrder" type="Boolean" default="false" />    
+    <aura:attribute name="isLoading" type="Boolean" default="false" />
+    <aura:attribute name="reasons" type="List" default=""/>
+    <aura:attribute name="disableConfirmButton" type="Boolean" default="true"/>
+    <aura:attribute name="accountId" type="Id"/>
+    <!-- Handlers--> 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:registerEvent name="updateInvoiceRow"  
+                        type="c:UpdateInvoiceRowEvent"/>
+    
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container" >
+            <header class="slds-modal__header" style="border-bottom: 1px solid rgb(217, 219, 221)">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                    <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closePreOrder}"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Cancel Order</h1>
+            </header>                
+            <div class="modalBody slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large slds-is-relative">
+                <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                <table>
+                <tbody>                
+                    <aura:iteration items="{!v.data.lineItems}" var="item">
+                        <tr class="slds-hint-parent">                    
+                            <td data-label="PURCHASED ITEMS">
+                                <div class="slds-truncate slds-text-title_bold slds-p-vertical_xx-small" style="font-size:12px;" title="{!item.productName}">{!item.productName}</div>
+                                <aura:iteration items="{!item.associations}" var="association">
+                                    <div class="association-row slds-p-vertical_xx-small">{!association.productName}</div>
+                                </aura:iteration>
+                            </td>                            
+                            <td data-label="PRICE">
+                                <div class="{! join(' ', 'slds-truncate', if(not(empty(item.associations.length)), 'amountAlignment')) }" title="{!item.unitPrice}">{!v.data.currencySymbol}{!item.unitPrice}</div>
+                            </td>                 
+                        </tr> 
+                    </aura:iteration>
+                </tbody>
+            </table>
+
+      		<div class="slds-m-top_medium leftPadding"><lightning:combobox  aura:id="reasons" name="reasons" placeholder="Select a Reason" onchange="{!c.enableConfirmButton}" options="{!v.reasons}" /></div> 
+            <div> 
+                <div class="slds-grid slds-grid_align-end tax-row">
+                    <div class="slds-col slds-size_1-of-2">
+                        <span class="slds-truncate header">Sub Total ({!v.data.currencyName})</span>
+                        <span class="slds-float_right">{!v.data.currencySymbol}{!v.data.subtotal}</span>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-end tax-row">
+                    <div class="slds-col slds-size_1-of-2">
+                        <span class="slds-truncate header">Tax ({!v.data.currencyName})</span>
+                        <aura:if isTrue="{!v.data.tax}">
+                            <span class="slds-float_right">{!v.data.currencySymbol}{!v.data.tax}</span>
+                        </aura:if>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-end tax-row">
+                    <div class="slds-col slds-size_1-of-2">
+                        <span class="slds-truncate header">Total ({!v.data.currencyName})</span>
+                        <span class="slds-float_right ">{!v.data.currencySymbol}{!v.data.total}</span>
+                    </div>
+                </div>    
+                </div>
+            </div>
+            <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                <lightning:button aura:id="cancelButton" label="Cancel" onclick="{!c.closePreOrder}"/>
+                <lightning:button aura:id="confirmButton" label="Confirm Cancel" variant="brand" onclick="{!c.confirmCancelPreOrder}" disabled="{!v.disableConfirmButton}"/>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>  
+</aura:component>

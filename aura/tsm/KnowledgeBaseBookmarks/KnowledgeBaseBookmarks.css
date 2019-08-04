@@ -1,0 +1,15 @@
+.THIS tr{
+    display:block;
+}
+.THIS .deletPopover{
+    position:relative;
+    right:0px;
+    z-index: 10000;
+    text-align:left;
+    font-weight: normal;
+}
+.THIS .deletPopoverSection{
+    position:absolute;
+    top:calc(100% - 9px);
+    right:18px
+}

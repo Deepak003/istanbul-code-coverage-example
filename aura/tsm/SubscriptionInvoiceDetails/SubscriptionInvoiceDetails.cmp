@@ -1,0 +1,312 @@
+<aura:component >
+    <aura:attribute name="data" type="Map" access="public"/>
+    <aura:attribute name="subscription" type="Map" access="public" />
+    <aura:registerEvent name="onClickViewLog" type="c:SubscriptionEvt" access="public" />
+    <aura:registerEvent name="onClickResend" type="c:SubscriptionEvt" access="public" />
+    <aura:registerEvent name="onClickRefund" type="c:SubscriptionEvt" access="public" />
+    
+    <aura:handler name="init" value="{! this }" action="{! c.doInit }"/>
+    <aura:handler name="change" value="{! v.data }" action="{! c.doInit }"/>
+    
+    <aura:attribute name="showPopover" type="Boolean" access="private" />
+    <aura:attribute name="isRefunded" type="Boolean" access="private" default="false"/>
+    <aura:attribute name="isRefundable" type="Boolean" access="private" />
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="Map" />
+    
+    <div class="slds-is-relative"> 
+        <div class="slds-p-bottom_medium">
+            <span class="slds-text-title_bold slds-p-bottom_small">
+                Invoice Details
+                <aura:if isTrue="{! v.isRefunded }">
+                    <span class="refund">Refunded</span>
+                </aura:if>
+            </span>
+            <span class="slds-float_right slds-p-right--medium"> 
+                <aura:if isTrue="{! (v.data.transactionType != 'REFUND')}">
+                    <a class="blue" onclick="{!c.handleResendInvoice}">Resend Invoice</a>
+                </aura:if>
+            </span>
+        </div>
+        <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                <div class="slds-text-body_small edit-field-label">Purchase Type</div>
+                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                    <bdi>
+                        <aura:if isTrue="{!v.data.isGift}">
+                            <div>Gift - Recipiant:</div>
+                            <div class="blue">
+                                Nucleus {!v.data.gift.recipientId}
+                            </div>                        
+                            <aura:set attribute="else">
+                                Regular
+                            </aura:set>                        
+                        </aura:if>                    
+                    </bdi>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                <div class="slds-text-body_small edit-field-label">Payment Processor</div>
+                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                    <bdi>
+                        {!v.data.provider || 'N/A'}
+                        <aura:if isTrue="{!v.data.providerReference}">
+                            (Ref: {!v.data.providerReference})
+                        </aura:if>
+                    </bdi>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                <div class="slds-text-body_small edit-field-label">IP</div>
+                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                    <bdi>
+                        <aura:if isTrue="{! and(v.data.ipAddress,v.data.ipAddress!='0.0.0.0') }">
+                            {!v.data.ipAddress}
+                            <aura:if isTrue="{!v.data.country}">
+                                ({!v.data.country})
+                            </aura:if>
+                            <aura:set attribute="else">N/A</aura:set>
+                        </aura:if>                        
+                    </bdi>
+                </div>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                <div class="slds-text-body_small edit-field-label">Status Reason</div>
+                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                    <bdi>
+                        <aura:if isTrue="{!v.data.status}">
+                            <a class="blue" onclick="{!c.togglePopover}">{!v.data.status}</a>
+                            <aura:set attribute="else">
+                                <a class="blue">N/A</a>
+                            </aura:set>
+                        </aura:if>                            
+                    </bdi>                    
+                </div>                
+                <aura:if isTrue="{!v.showPopover}">
+                    <c:ErrorPopover code="{!v.data.statusReason}" state="{!v.showPopover}" />
+                </aura:if>         
+            </lightning:layoutItem>
+            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                <div class="slds-text-body_small edit-field-label">Transaction Logs</div>
+                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">                   
+                    <a class="blue" onclick="{!c.handleViewLogs}">View Logs</a>
+                </div>                
+            </lightning:layoutItem>
+            <aura:if isTrue="{!v.data.fraudReviewDecision}">
+                <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                    <div class="slds-text-body_small edit-field-label">Fraud State</div>
+                    <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                        <bdi>
+                            {!v.data.fraudReviewDecision}
+                        </bdi>
+                    </div>
+                </lightning:layoutItem>
+            </aura:if>
+            <aura:if isTrue="{!v.data.invoiceDate}">
+                <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                    <div class="slds-text-body_small edit-field-label">Purchase Time</div>
+                    <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                        <bdi>
+                            <c:FormattedDateTime value="{!v.data.invoiceDate}" />
+                        </bdi>
+                    </div>
+                </lightning:layoutItem>
+            </aura:if>
+        </lightning:layout>
+        <table class="slds-table slds-table_bordered line-items-table no-border-bottom">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="PURCHASED ITEMS">PURCHASED ITEMS</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="QUANTITY">QUANTITY</div>
+                    </th>
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="PRICE">PRICE</div>
+                    </th>                    
+                </tr>
+            </thead>
+            <tbody>                
+                <aura:iteration items="{!v.data.lineItems}" var="item">
+                    <tr class="slds-hint-parent">                    
+                        <td data-label="PURCHASED ITEMS">
+                            <div class="slds-truncate slds-text-title_bold slds-p-vertical_xx-small" title="{!item.productName || v.data.productName}">
+                                <div>{!item.productName || v.data.productName}</div>
+                                <aura:if isTrue="{!item.shippingStatus}">
+                                    <div>({!item.shippingStatus})</div>
+                                </aura:if>
+                            </div>
+                            <aura:iteration items="{!item.associations}" var="association">
+                                <div class="slds-text-body_small slds-p-vertical_xx-small">{!association.productName}</div>
+                            </aura:iteration>
+                        </td>
+                        <td data-label="QUANTITY">
+                            <div class="{! join(' ', 'slds-truncate', if(not(empty(item.associations.length)), 'col-position')) }" title="{!item.quantity}">
+                                {!item.quantity}
+                            </div>
+                        </td>
+                        <td data-label="PRICE">
+                            <div class="{! join(' ', 'slds-truncate', if(not(empty(item.associations.length)), 'col-position')) }" title="{!item.unitPrice}">{!v.data.currencySymbol}{!item.unitPrice}</div>
+                        </td>                 
+                    </tr> 
+                </aura:iteration>
+            </tbody>
+        </table>
+        <aura:if isTrue="{! v.data.subtotal }">
+            <div class="slds-grid slds-grid_align-end tax-row">
+                <div class="slds-col slds-size_1-of-2">
+                    <span>Sub Total ({!v.data.currencyName})</span>
+                    <span class="slds-float_right slds-p-right_large">{!v.data.currencySymbol}{!v.data.subtotal}</span>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{! v.data.tax }">
+            <div class="slds-grid slds-grid_align-end tax-row">
+                <div class="slds-col slds-size_1-of-2">
+                    <span>Tax ({!v.data.currencyName})</span>
+                    <aura:if isTrue="{!v.data.tax}">
+                        <span class="slds-float_right slds-p-right_large">{!v.data.currencySymbol}{!v.data.tax}</span>
+                    </aura:if>
+                </div>
+            </div>
+        </aura:if>
+        <aura:if isTrue="{! v.data.total }">
+            <div class="slds-grid slds-grid_align-end tax-row">
+                <div class="slds-col slds-size_1-of-2">
+                    <span>Total ({!v.data.currencyName})</span>
+                    <span class="slds-float_right slds-p-right_large">{!v.data.currencySymbol}{!v.data.total}</span>
+                </div>
+            </div>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.isRefundable}">
+            <lightning:button label="Refund" title="Refund" value="{!idx}" onclick="{!c.handleRefund}" disabled="{!not(v.accountMaskingList.IssueRefund)}"/>
+        </aura:if>
+        
+        <aura:iteration items="{!v.data.refunds}" var="row" indexVar="idx">
+            <div class="slds-m-top_medium side-bar-rectangle">
+                <div class="refund-title slds-p-left_medium slds-m-bottom_medium">Refund Invoice</div>                
+                <div class="refund-body slds-p-left_medium">                    
+                    <lightning:layout multipleRows="true">
+                        <aura:if isTrue="{! row.invoiceId }">
+                            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                                <div class="slds-text-body_small edit-field-label">Refund</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>
+                                        {! row.invoiceId }
+                                    </bdi>                    
+                                </div>               
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{! row.status }">
+                            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                                <div class="slds-text-body_small edit-field-label">Status</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>
+                                        {! row.status }
+                                    </bdi>                    
+                                </div>               
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{! row.invoiceDate }">
+                            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                                <div class="slds-text-body_small edit-field-label">Date</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>
+                                        <c:FormattedDateTime value="{!row.invoiceDate}" format="only-date" />
+                                        at
+                                        <c:FormattedDateTime value="{!row.invoiceDate}" format="only-time" />
+                                    </bdi>                    
+                                </div>               
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{! row.statusReason }">
+                            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                                <div class="slds-text-body_small edit-field-label">Reason</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>
+                                        {! row.statusReason }
+                                    </bdi>                    
+                                </div>               
+                            </lightning:layoutItem>
+                        </aura:if>
+                        <aura:if isTrue="{!row.providerReference}">
+                            <lightning:layoutItem size="4" class="slds-m-bottom--medium">
+                                <div class="slds-text-body_small edit-field-label">Ref</div>
+                                <div class="slds-text-body_regular wrap-text slds-size_11-of-12">
+                                    <bdi>
+                                        {!row.providerReference}
+                                        <aura:if isTrue="{!row.provider}">
+                                            ({!row.provider})
+                                        </aura:if>
+                                    </bdi>
+                                </div>
+                            </lightning:layoutItem>
+                        </aura:if>
+                    </lightning:layout>
+                    <table class="slds-table slds-table_bordered line-items-table no-border-bottom">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="REFUNDED ITEMS">REFUNDED ITEMS</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="AMOUNT">AMOUNT</div>
+                                </th>                    
+                            </tr>
+                        </thead>
+                        <tbody>                
+                            <aura:iteration items="{!row.lineItems}" var="item">
+                                <tr class="slds-hint-parent">                    
+                                    <td data-label="REFUNDED ITEMS">
+                                        <div class="slds-truncate slds-text-title_bold slds-p-vertical_xx-small" title="{!item.productName || row.productName}">
+                                            <div>{!item.productName || row.productName}</div>
+                                            <aura:if isTrue="{!item.shippingStatus}">
+                                                <div>({!item.shippingStatus})</div>
+                                            </aura:if>
+                                        </div>
+                                        <aura:iteration items="{!item.associations}" var="association">
+                                            <div class="slds-text-body_small slds-p-vertical_xx-small">{!association.productName}</div>
+                                        </aura:iteration>
+                                    </td>
+                                    <td data-label="AMOUNT">
+                                        <div class="{! join(' ', 'slds-truncate', if(not(empty(item.associations.length)), 'col-position')) }" title="{!item.unitPrice}">{!row.currencySymbol}{!item.unitPrice}</div>
+                                    </td>       
+                                </tr> 
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                    <aura:if isTrue="{! row.subtotal }">
+                        <div class="slds-grid slds-grid_align-end tax-row">
+                            <div class="slds-col slds-size_1-of-2">
+                                <span>Sub Total ({!row.currencyName})</span>
+                                <span class="slds-float_right slds-p-right_large">{!row.currencySymbol}{!row.subtotal}</span>
+                            </div>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{! row.tax }">
+                        <div class="slds-grid slds-grid_align-end tax-row">
+                            <div class="slds-col slds-size_1-of-2">
+                                <span>Tax ({!row.currencyName})</span>
+                                <aura:if isTrue="{!row.tax}">
+                                    <span class="slds-float_right slds-p-right_large">{!row.currencySymbol}{!row.tax}</span>
+                                </aura:if>
+                            </div>
+                        </div>
+                    </aura:if>
+                    <aura:if isTrue="{! row.total }">
+                        <div class="slds-grid slds-grid_align-end tax-row">
+                            <div class="slds-col slds-size_1-of-2">
+                                <span>Refund Total ({!row.currencyName})</span>
+                                <span class="slds-float_right slds-p-right_large">{!row.currencySymbol}{!row.total}</span>
+                            </div>
+                        </div>
+                    </aura:if>
+                </div>
+            </div>
+        </aura:iteration>
+    </div>
+    
+</aura:component>

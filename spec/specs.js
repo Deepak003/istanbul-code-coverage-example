@@ -5,7 +5,7 @@ const jasmine = new Jasmine();
 var reporter = new JasmineConsoleReporter({
         colors: 1,
         cleanStack: 3,
-        verbosity: 4,
+        verbosity: 2,
         listStyle: 'indent',
         activity: false
 });

@@ -1,0 +1,117 @@
+<aura:component controller="LoginAndChangeHistoryAuraCtl" access="global">
+    <!-- attributes -->
+    <aura:attribute name="columns" type="List" default="[]"/>
+    <aura:attribute name="caseUpdatesList" type="List" default="[]"/>
+    <aura:attribute name="caseUpdatesFilteredList" type="List" default="[]"/>
+    <aura:attribute name="emailData" type="List" default="[]"/>
+    <aura:attribute name="emailFilteredData" type="List" default="[]"/>
+    <aura:attribute name="SearchKeyWord" type="String" default=""/>
+    <aura:attribute name="nucleusId" type="String" default="1000321191894"/>
+    <aura:attribute name="pillsFilterList" type="List" default="[{'label': 'Last 30 days', 'value': 'ThirtyDays'}]" />
+    <aura:attribute name="loginFilter" type="Object" />
+    <aura:attribute name="changeFilter" type="Object"/>
+    <aura:attribute name="durationFilter" type="Object"/>
+    <aura:attribute name="pillLength" type="Integer"/>
+    <aura:attribute name="loginTypes" type="List" default="[]"/>
+    <aura:attribute name="changeTypes" type="List" default="[]"/>
+    <aura:attribute name="duration" type="List" default="[]"/>
+    <aura:attribute name="isOverview" type="Boolean" default="false"/>
+    <aura:attribute name="hideAccountData" type="boolean" default="false"/>
+    <aura:attribute name="caseId" type="Id"/>
+    
+    <aura:attribute name="isLoading" type="Boolean" default="false"/>
+    <aura:attribute name="accountData" type="Map" access="public"/>
+    
+    <!--tsm 2940-->
+    <aura:attribute name="grantAttribute" type="Boolean" default="false"/>
+    <aura:handler name="change" value="{!v.grantAttribute}" action="{!c.doInit}"/>
+
+
+    <aura:if isTrue="{!v.isOverview}">
+        <div class="slds-text-heading_small slds-m-top_medium slds-m-bottom_medium"><strong>Sessions Overview</strong></div>    
+    </aura:if>
+    
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/>
+    <div class="slds-grid">                
+        <!-- Search Field with Filter Button -->
+        <div class="slds-size_8-of-12 ">
+            <div class="slds-grid">
+                <div class="slds-size_9-of-12 slds-form-element__control slds-show_inline-block">
+                    <div class="slds-input-has-icon slds-input-has-icon--left">
+                        <lightning:icon class="slds-input__icon  slds-show" aura:id="searchIcon1" iconName="utility:search" size="x-small" alternativeText="search"/> 
+                        <div aura:id="lookupField" class="slds-show" id="{!v.eventType}">
+                            <ui:inputText updateOn="keyup" keyup="{!c.keyPressController}" 
+                                          class="slds-lookup__search-input slds-input leftPaddingClass" 
+                                          value="{!v.SearchKeyWord}" placeholder="Filter Emails, Numbers, and Location"
+                                          required="{!v.required}" aura:id="inputText" />
+                        </div>   
+                    </div>
+                </div>
+                <div class="slds-size_3-of-12 slds-is-relative slds-show_inline-block">
+                    <div class="filterButtonInline slds-p-left_small">
+                        <lightning:button label="{!'Filters ('+v.pillLength+')'}" title="Filters" onclick="{! c.toggleFilterBox }" class="buttonHeight"/>
+                    </div>
+                    <!-- Filter Boxes -->
+                    <div class="slds-box boxStyle boxToggle slds-p-around_large" aura:id="filterBox">
+                        
+                        <lightning:combobox aura:id="logintype" name="logintype" label="Login Type" value="{!v.loginFilter}" placeholder="All Logins" options="{! v.loginTypes }" class="slds-m-bottom_small" />
+                        
+                        <lightning:combobox aura:id="changetype" name="changetype" label="Account Change Type" value="{!v.changeFilter}" placeholder="All Changes" options="{! v.changeTypes }" class="slds-m-bottom_small"/>
+                        
+                        <lightning:combobox aura:id="duration" name="duration" label="Date Range" value="{!v.durationFilter}"  options="{! v.duration }" class="slds-m-bottom_medium" />
+                        
+                        <div >
+                            <lightning:button label="Cancel" title="Cancel" onclick="{!c.toggleFilterBox}"/>
+                            
+                            <lightning:button class="leftMarginSmall" variant="brand" label="Filter" title="Filter" onclick="{!c.applyFilters}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Restore Button Commenting as part of TSM-2811-->
+        <!--  <div class="slds-size_4-of-12 slds-text-align_right">
+            <lightning:button variant="brand" label="Restore" title="Restore" onclick="{! c.handleClick }" disabled="true" class="buttonHeight"/>           
+        </div> -->
+        
+    </div>
+    
+    <!-- Pills Section -->    
+    <div class="pillsList slds-m-top_small">
+        <aura:iteration items="{!v.pillsFilterList}" var="pillRec" indexVar="pillIdx">
+            <div data-id="{!pillIdx}" class="pillsBlock">
+                <lightning:pill label="{!pillRec.label}" onremove="{!c.removeFilter}" onclick="{!c.pillClick }" href="#"/>
+            </div>
+        </aura:iteration>
+    </div>
+    
+    
+    
+    <!-- Account Change History Section -->
+    <div class="slds-is-relative">
+            <aura:if isTrue="{!v.isLoading}">
+        <div aura:id="accountChangeSpinner" class="spinnerBlock">
+            <lightning:spinner  alternativeText="Processing.." title="Loading..." variant="brand" size="small" />
+        </div>
+    </aura:if>
+        <c:AccountLoginChangeHistoryTable caseUpdatesFilteredList="{!v.caseUpdatesFilteredList}" columns="{!v.columns}" cmpName="AccountHistoryTable" />
+        <div align="center" class="slds-hide" aura:id="noResultsBlock">
+            <c:EmptyState message="{!'No Results for \''+v.SearchKeyWord + '\''}"></c:EmptyState>
+        </div>
+        <div align="center" class="slds-hide" aura:id="noResultsBlockWithoutSearch">
+            <c:EmptyState message="{!'No Results'}"></c:EmptyState>
+        </div>
+    </div>
+    
+    <!-- Email History Section -->
+    <aura:if isTrue="{!not(v.isOverview)}">
+        <div class="slds-is-relative slds-m-top_large">
+            <div class="slds-text-heading_small slds-m-bottom_medium"><strong>Email Changes Past 90 days</strong></div>
+            <div aura:id="emailChangeSpinner" class="spinnerBlock">
+                <lightning:spinner  alternativeText="Processing.." title="Loading..." variant="brand" size="large" />
+            </div>
+            <c:EmailHistoryTable emailFilteredData="{!v.emailFilteredData}" cmpName="EmailHistoryTable"/>
+        </div> 
+    </aura:if>    
+</aura:component>

@@ -1,0 +1,192 @@
+<aura:component controller="FraudAdminToolController">
+    <aura:handler name = "init" value="{!this}" action="{!c.doInit}"></aura:handler>
+    <aura:attribute name ="records" type="list"></aura:attribute>    
+    <aura:attribute name="RoutingOptions" type="String[]" default="Standard,Email,en Email + C2C,Dummy Case,Multi Language Email"/>
+    <aura:attribute name="routingOptionsObj" type="Map" />
+    <aura:attribute name="riskTypeOptionByLocale" type="Object"/>
+    <aura:attribute name="Weights" type="Integer[]" default="0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100"/>
+    <aura:attribute name="selectedLocale" type="String" default="English"/>
+	<aura:attribute name="oldRiskTypeOBJ" type="Object"/>
+    <aura:attribute name="newRiskTypeOBJ" type="Object"/>
+    <aura:registerEvent name="riskTypeChangeEvent" type="c:RiskTypeEvent"/>
+    <aura:attribute name="minRiskTypeValue" type="Integer"/>
+    <aura:attribute name="maxRiskTypeValue" type="Integer"/>
+    <aura:registerEvent name="riskCriteriaEvent" type="c:RiskCriteriaChangeEvent"/>            
+            <lightning:layout multipleRows="true" class="layoutBottomBorder">
+              <div class="label">
+                  <div class="label-check">&nbsp;&nbsp;&nbsp;
+                        <lightning:layoutItem>
+                            <ui:inputCheckbox aura:id="riskTypeNormal" label="" value="{!v.newRiskTypeOBJ.NORMAL.active}" change="{!c.onRiskTypeFlagChangeEvent}" disabled="true"/>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem class="risk-type-label" size="3" >
+                            <label style="font-size: 20px;">&nbsp;Normal</label>
+                        </lightning:layoutItem>
+                  </div>
+                  <div class="label-values">
+                        <lightning:layoutItem size="3">
+                            <label>&nbsp;&nbsp;&nbsp;{!v.newRiskTypeOBJ.NORMAL.minValue}&nbsp;</label>  
+                        </lightning:layoutItem><b>-</b>
+                        <lightning:layoutItem>
+                            <lightning:select class="maxValue" name="NORMAL" value="{!v.newRiskTypeOBJ.NORMAL.maxValue}" onchange="{!c.handleNormalMaxChange}" label="" >
+                                <aura:iteration items="{!v.Weights}" var="Weight">
+                                        <option text="{!Weight}"></option>
+                                    </aura:iteration>
+                            </lightning:select>
+                        </lightning:layoutItem>
+                  </div>
+             </div>
+             <div class="routing-options"> 
+                 <div class="routing-auth">
+                    <lightning:layoutItem size="3">
+                        <label>Authenticated</label>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="5">
+                        <lightning:select class="authActive" name="normalAuth" value ="{!v.newRiskTypeOBJ.NORMAL.authActive}" label="" onchange="{!c.onChangeEvent}" disabled="true">
+                            <aura:iteration items="{!v.routingOptionsObj}" var="RoutingOption">
+                                    <option text="{!RoutingOption.value}" value="{!RoutingOption.key}"></option>
+                                </aura:iteration>
+                        </lightning:select>
+                    </lightning:layoutItem>
+                 </div>
+				<div class="routing-unauth">
+                    <lightning:layoutItem size="3">
+                        <label class="Unauthenticated">Unauthenticated</label>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="5">
+                        <lightning:select  class ="unauthActive" name="normalUnauth" value ="{!v.newRiskTypeOBJ.NORMAL.unauthActive}" label="" onchange="{!c.onChangeEvent}" disabled="true">
+                            <aura:iteration items="{!v.routingOptionsObj}" var="RoutingOption">
+                                    <option text="{!RoutingOption.value}" value="{!RoutingOption.key}"></option>
+                                </aura:iteration>
+                        </lightning:select>
+                    </lightning:layoutItem>
+                </div>
+				<div class="show-details">
+                    <lightning:layoutItem >
+                        <ui:inputCheckbox aura:id="checkbox" label="" value="{!v.newRiskTypeOBJ.NORMAL.showCriteriaRuleInOmega}" change="{!c.onChangeEvent}" disabled="true"/>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem class="bottomPadding">
+                        <label>&nbsp;Show score details in case notes</label>
+                     </lightning:layoutItem>
+                 </div>
+                </div>
+			</lightning:layout>
+           <br/><br/>
+<lightning:layout multipleRows="true" class="layoutBottomBorder">
+              <div class="label">
+                  <div class="label-check">&nbsp;&nbsp;&nbsp;
+						<lightning:layoutItem>
+							<ui:inputCheckbox aura:id="riskTypeLRF" label="" value="{!v.newRiskTypeOBJ.LRF.active}" change="{!c.onRiskTypeFlagLRFFlagChangeEvent}"/>
+						</lightning:layoutItem>
+						<lightning:layoutItem class="risk-type-label" size="10">
+							<label style="font-size: 20px;">&nbsp;Low Risk</label>
+						</lightning:layoutItem>
+                  </div>
+                  <div class="label-values">
+                        <lightning:layoutItem size="3">
+							<label>&nbsp;&nbsp;&nbsp;{!v.newRiskTypeOBJ.LRF.minValue}&nbsp;</label>
+						</lightning:layoutItem><b>-</b>
+						 <lightning:layoutItem>
+							<lightning:select class="maxValue" name="LRF" value ="{!v.newRiskTypeOBJ.LRF.maxValue}" onchange="{!c.handleLRFMaxChange}" label="">
+								<aura:iteration items="{!v.Weights}" var="Weight">
+										<option text="{!Weight}"></option>
+									</aura:iteration>
+							</lightning:select>
+						</lightning:layoutItem>
+                  </div>
+             </div>
+             <div class="routing-options"> 
+                 <div class="routing-auth">
+                    <lightning:layoutItem size="3">
+                        <label>Authenticated</label>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="5">
+						<lightning:select class="authActive" name="LRFAuth" value ="{!v.newRiskTypeOBJ.LRF.authActive}" label="" onchange="{!c.onChangeEvent}">
+							<aura:iteration items="{!v.routingOptionsObj}" var="RoutingOption">
+									<option text="{!RoutingOption.value}" value="{!RoutingOption.key}"></option>
+								</aura:iteration>
+						</lightning:select>
+                    </lightning:layoutItem>
+                 </div>
+				<div class="routing-unauth">
+                    <lightning:layoutItem size="3">
+                        <label class="Unauthenticated">Unauthenticated</label>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="5">
+                        <lightning:select  class = "unauthActive" name="LRFUnauth" value ="{!v.newRiskTypeOBJ.LRF.unauthActive}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.routingOptionsObj}" var="RoutingOption">
+								<option text="{!RoutingOption.value}" value="{!RoutingOption.key}"></option>
+							</aura:iteration>
+						</lightning:select>
+                    </lightning:layoutItem>
+                </div>
+				<div class="show-details">
+                    <lightning:layoutItem>
+						<ui:inputCheckbox aura:id="checkbox" label="" value="{!v.newRiskTypeOBJ.LRF.showCriteriaRuleInOmega}" change="{!c.onChangeEvent}"/>
+					</lightning:layoutItem>
+					<lightning:layoutItem class="bottomPadding">
+						<label>&nbsp;Show score details in case notes</label>
+					</lightning:layoutItem>
+                 </div>
+                </div>
+			</lightning:layout>
+ <br/><br/>
+ 
+    		<lightning:layout multipleRows="true">
+              <div class="label">
+                  <div class="label-check">&nbsp;&nbsp;&nbsp;
+						<lightning:layoutItem>
+							<ui:inputCheckbox aura:id="riskTypeHRF" label="" value="{!v.newRiskTypeOBJ.HRF.active}" change="{!c.onRiskTypeFlagHRFFlagChangeEvent}"/>
+						</lightning:layoutItem>
+						<lightning:layoutItem class="risk-type-label" size="10">
+							<label style="font-size: 20px;">&nbsp;High Risk</label>
+						</lightning:layoutItem>
+                  </div>
+                  <div class="label-values">
+                        <lightning:layoutItem size="3">
+							<label>&nbsp;&nbsp;&nbsp;{!v.newRiskTypeOBJ.HRF.minValue}&nbsp;</label>
+						</lightning:layoutItem><b>-</b>
+						 <lightning:layoutItem>
+									<lightning:select class="maxValue"  name="HRF" value ="{!v.newRiskTypeOBJ.HRF.maxValue}" label="" disabled="true">
+										<aura:iteration items="{!v.Weights}" var="Weight">
+												<option text="{!Weight}"></option>
+											</aura:iteration>
+									</lightning:select>
+						</lightning:layoutItem>
+                  </div>
+             </div>
+             <div class="routing-options"> 
+                 <div class="routing-auth">
+                    <lightning:layoutItem size="3">
+                        <label>Authenticated</label>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="5">
+						<lightning:select class="authActive" name="HRFAuth" value ="{!v.newRiskTypeOBJ.HRF.authActive}" label="" onchange="{!c.onChangeEvent}">
+							<aura:iteration items="{!v.routingOptionsObj}" var="RoutingOption">
+									<option text="{!RoutingOption.value}" value="{!RoutingOption.key}"></option>
+								</aura:iteration>
+						</lightning:select>
+                    </lightning:layoutItem>
+                 </div>
+				<div class="routing-unauth">
+                    <lightning:layoutItem size="3">
+                        <label class="Unauthenticated">Unauthenticated</label>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="5">
+                        <lightning:select  class = "unauthActive" name="HRFUnauth" value ="{!v.newRiskTypeOBJ.HRF.unauthActive}" label="" onchange="{!c.onChangeEvent}">
+						<aura:iteration items="{!v.routingOptionsObj}" var="RoutingOption">
+								<option text="{!RoutingOption.value}" value="{!RoutingOption.key}"></option>
+							</aura:iteration>
+						</lightning:select>
+                    </lightning:layoutItem>
+                </div>
+				<div class="show-details">
+                    <lightning:layoutItem>
+						<ui:inputCheckbox aura:id="checkbox" label="" value="{!v.newRiskTypeOBJ.HRF.showCriteriaRuleInOmega}" change="{!c.onChangeEvent}"/>
+					</lightning:layoutItem>
+					<lightning:layoutItem class="bottomPadding">
+						<label>&nbsp;Show score details in case notes</label>
+					</lightning:layoutItem>
+                 </div>
+                </div>
+			</lightning:layout>
+</aura:component>

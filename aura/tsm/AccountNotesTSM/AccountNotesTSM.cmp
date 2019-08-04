@@ -1,0 +1,130 @@
+<aura:component controller="AccountNotesAuraCtl" access="global" >
+    <!-- attributes -->
+    <aura:attribute name="addAccountFlag" type="Boolean" default="false"/>
+    <aura:attribute name="accNotesList" type="List"/>     
+    <aura:attribute name="accountId" type="String" default=""/>
+    <aura:attribute name="pinnedNoteCount" type="Integer" default="0"/>
+    <aura:attribute name="isFetched" type="Boolean" default="false"/>
+    <aura:attribute name="isSaved" type="Boolean" default="false"/>
+    <aura:attribute name="isDisabled" type="boolean" default="true"/>  
+    
+    <!-- Function used to initilize the masking data TSM-2577 -->
+    <aura:attribute name="accountMaskingList" type="List" />
+    
+    <!-- handlers-->
+    <aura:handler name="change" value="{!v.accNotesList}" action="{!c.accNotesListChange}"/>
+    <!-- Methods -->
+    <aura:method name="getAccNotes" 
+                 action="{!c.getAccNotes}" 
+                 access="PUBLIC"
+                 description="call the get acc Note method" />
+    
+    <aura:if isTrue="{! v.isFetched}" >
+        <!-- TSM-1013 -->
+        <div class="slds-page-header__title slds-truncate slds-align-left slds-hide">
+            <aura:if isTrue="{!v.pinnedNoteCount}">
+                {!v.pinnedNoteCount} Notes Pinned
+                <aura:set attribute="else">
+                    No Notes Pinned
+                </aura:set>
+            </aura:if> 
+        </div>
+    </aura:if>
+    
+    
+    <div class="target-account-notes slds-is-relative">
+        
+        <div class="slds-m-top_large slds-grid slds-wrap">
+            <div class="slds-size_1-of-2">
+                <h1 class="slds-page-header__title slds-truncate slds-align-left">
+                    Account Notes
+                </h1>
+            </div>
+            <div class="slds-size_1-of-2 slds-text-align_right slds-m-bottom_x-small">
+                <!--<aura:if isTrue="{! v.isSaved}">                    
+                    <span class="note-saved">Saved</span>                    
+                </aura:if>-->
+                <a id="accNoteClk"  class="{! not(v.accountMaskingList.AddAccountNote) ? 'isDisabled' : '' }" onclick="{!c.addAccNoteClick}">
+                    <span class="add-account-note">
+                        <lightning:icon iconName="utility:add" 
+                                        size="small" 
+                                        variant="bare" 
+                                        class="slds-icon_x-small"
+                                        alternativeText="Add" />
+                        Add Account Notes
+                    </span>
+                </a>
+            </div>
+        </div>
+        <aura:if isTrue="{!v.addAccountFlag}">
+            <div class="slds-p-around_medium add-notes">                
+                <lightning:textarea aura:id="accNote" id="accNote" label="{!'New Account Notes ( Limited to '+ $Label.c.ACCOUNT_NOTES_TSM+' Characters)'}"  name="notes" 
+                                    maxlength="{!$Label.c.ACCOUNT_NOTES_TSM}" value="" onchange="{!c.handleChange}"/>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-size_1-of-2 slds-text-body_small">
+                        <ui:inputCheckbox label="" aura:id="accNoteSticky" class="accNoteSticky"/>
+                        <span class="slds-m-left_small slds-avatar slds-avatar_x-small slds-m-around_xx-small">
+                            <lightning:icon iconName="utility:pin" 
+                                            size="small" 
+                                            variant="bare" 
+                                            alternativeText="Sticky" />
+                        </span>
+                        Mark this note as "Pinned"
+                    </div>
+                    <div class="slds-size_1-of-2 slds-text-align_right">
+                        <lightning:button variant="neutral"                                               
+                                          label="Cancel" title="Cancel" 
+                                          onclick="{!c.cancelAddNoteClick }" />
+                        <lightning:button variant="brand" 
+                                          label="Save" title="Save" 
+                                          onclick="{!c.saveAddNoteClick}" disabled="{!v.isDisabled}"/>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <div class="target-account-notes slds-scrollable_y slds-p-around_medium">
+            <aura:iteration items="{!v.accNotesList}" var="row" indexVar="idx">
+                <div class="slds-media">                    
+                    <div class="slds-media__figure slds-p-top_x-small slds-m-right_xxx-small">
+                        <span class="{!row.noteType + ' slds-avatar slds-avatar_x-small'}" data-pk="{!row.noteId}" onclick="{!c.changeStickyClick}">
+                            <lightning:icon iconName="utility:pin" 
+                                            size="small" 
+                                            variant="bare" 
+                                            alternativeText="Sticky" />
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-grid slds-grid_align-spread slds-timeline__trigger slds-size_12-of-12">
+                            <div class="slds-grid slds-size_10-of-12 slds-no-space note-text">
+                                <p class="slds-m-horizontal_xx-small">
+                                    {!row.noteText}
+                                </p>
+                            </div>                            
+                            <div class="slds-timeline__actions slds-timeline__actions_inline slds-size_2-of-12">
+                                <p class="slds-timeline__date relativeDateTime"><lightning:relativeDateTime value="{!row.relativeDateTime}"/> </p>
+                            </div>
+                        </div>                        
+                        <p class="slds-m-horizontal_xx-small slds-p-bottom_small">
+                            <span class="created-label">Created </span>
+                            <!--<ui:outputDateTime value="{!row.noteDate}" format="MMM/d/Y H:ma z"/>-->
+                            <c:FormattedDateTime value="{!row.noteDate}"/>
+                            <span class="advisor-label"> Advisor </span>
+                            <span class="advisor-name">{!row.advisorName}</span>
+                            <!-- <span class="case-label"> Case ID </span>
+                            <span class="case-id">{!row.caseId}</span>
+                            <span class="attachment-label"> Attachment </span>
+                            <span class="attachment-content">{!row.isAttachmentAvailable=='true' ? 'Available' : 'Not Available'}</span> -->
+                        </p>
+                    </div>
+                </div>
+            </aura:iteration>  
+            <aura:if isTrue="{! and(v.accNotesList.length == 0, v.isFetched)}">
+                <div class="no-notes">
+                    <div>No Current account notes</div>
+                    <div>It looks like there are not any on this account.</div>
+                </div>                
+            </aura:if>
+        </div>        
+        <lightning:spinner class="slds-hide" aura:id="spinner" variant="brand" size="small"/>        
+    </div>
+</aura:component>

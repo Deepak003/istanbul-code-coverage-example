@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Case Ativity filter">
+    <aura:attribute name="type" type="String"/>
+    <aura:attribute name="searchTerm" type="String"/>
+    <aura:attribute name="targetComponent" type="String" />
+</aura:event>

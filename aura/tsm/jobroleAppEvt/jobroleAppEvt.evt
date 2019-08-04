@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="Job role event template">
+    <aura:attribute name="tabsInfo" type="object" />
+    <aura:attribute name="roleName" type="String" />
+    <aura:attribute name="focusedTabId" type="String" />
+</aura:event>

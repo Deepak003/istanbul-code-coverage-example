@@ -1,0 +1,10 @@
+<design:component>
+	<design:attribute name="caseId" 
+                      label="Case Id" 
+                      default="12345" 
+                      description="Please provide CaseId" />
+    <design:attribute name="accountId" 
+                      label="Account Id" 
+                      default="1000241978357" 
+                      description="Please provide AccountId" />
+</design:component>

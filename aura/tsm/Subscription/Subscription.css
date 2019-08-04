@@ -1,0 +1,10 @@
+.THIS .labelColor{
+    color:#706E6B;
+}
+
+
+.THIS .hide-textarea {
+    width: 0px; 
+    height: 0px; 
+    opacity: 0;
+}

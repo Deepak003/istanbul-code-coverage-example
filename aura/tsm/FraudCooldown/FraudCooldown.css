@@ -1,0 +1,24 @@
+.THIS .slds-text-heading_medium.slds-hyphenate{
+    font-weight: normal;
+}
+.THIS .HIGH {    
+    color: #ff7373;
+}
+.THIS .MEDIUM {
+    color : #d4b63b;
+}
+.THIS .LOW {    
+    color: #03c503;
+}
+.THIS .NA {    
+    color: #979797;
+}
+.THIS .backdropClass{
+    width: 100% !important
+}
+.THIS .slds-modal__content.slds-p-around_large.slds-is-relative {
+    height: 30%;
+}
+.THIS .slds-modal.slds-fade-in-open.modal-small {
+    width: 55%;
+}

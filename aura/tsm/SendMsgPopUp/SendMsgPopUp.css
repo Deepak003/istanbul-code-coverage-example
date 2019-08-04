@@ -1,0 +1,42 @@
+.THIS .slds-modal__content {
+    white-space: normal;
+}
+.THIS .chat-log-container {
+    background: linear-gradient(#ffffff 5%,#ffffff 15%,#fff 85%);    
+    border: 1px solid #dddbda;
+    position: relative;
+    height: 196px;
+    overflow: hidden;
+}
+.THIS .petitioner-chat-log {
+    width: 90%;
+}
+.THIS .petitioner-chat-log > span {
+    opacity: 0.3;
+}
+.THIS .petitioner-chat-log .date-user {
+    opacity: 0.5;
+}
+.THIS .petitioner-msg {
+    border: 1px solid #ddd;
+}
+.THIS .petitioner-msg .msg {
+    opacity: 0.8;
+}
+.THIS .target-msg {
+    border: 1px solid #ddd;
+    color: #fff;
+    background: linear-gradient(#93c7f5 1%,#94caf9 55%,#9ccbf3 100%);
+}
+.THIS .date-user > span {
+    padding-right: 5px;
+}
+.THIS .target-container {
+    position: relative;
+}
+.THIS .target-container .target-chat-log  {
+    width: 90%;
+    position: absolute;
+    top: 0;
+    right: 0;
+}

@@ -1,0 +1,6 @@
+<aura:event type="APPLICATION" description="Event template">
+	<aura:attribute name="nucleusId" type="String"/>
+    <aura:attribute name="paymentId" type="String"/>
+    <aura:attribute name="emailAddress" type="String"/>
+    <aura:attribute name="uniqueId" type="String"/>
+</aura:event>

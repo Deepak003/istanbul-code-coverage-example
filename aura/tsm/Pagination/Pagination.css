@@ -1,0 +1,45 @@
+.THIS {
+}
+
+.THIS.pagination {
+    display: inline-block;
+}
+
+.THIS.pagination .btn {
+    color: black;
+    float: left;
+    padding: unset;
+    width: 32px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+}
+
+.THIS.pagination .btn.side {
+    padding: 3.5px 8px;
+}
+
+.THIS.pagination .btn.active {
+    background-color: #0070d2;
+    color: white;
+    border: 1px solid #0070d2;
+}
+
+.THIS .active {
+    background-color: #0070d2;
+    color: white;
+    border: 1px solid #0070d2;
+}
+
+.THIS.pagination .btn:hover:not(.active) {
+    background-color: #ddd;
+}
+
+.THIS.pagination .btn:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.THIS.pagination .btn:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}

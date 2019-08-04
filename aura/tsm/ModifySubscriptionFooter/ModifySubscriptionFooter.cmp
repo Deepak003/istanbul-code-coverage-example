@@ -1,0 +1,9 @@
+<aura:component >
+	
+       
+    <lightning:overlayLibrary aura:id="overlayModal"/>
+    
+    <lightning:button label="Cancel" title="Cancel" onclick="{!c.closeModal}" aura:id="cancelBtn"/>
+    <lightning:button variant="brand" disabled="true"  aura:id="searchBtn">Save</lightning:button>
+    
+</aura:component>

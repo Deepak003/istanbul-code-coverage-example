@@ -1,0 +1,47 @@
+<aura:component controller="AccountBasicInfoAuraController">
+    <aura:attribute name="nucleusId" type="Id" access="public" />
+    <aura:attribute name="caseId" type="String" access="public" />
+    <aura:attribute name="strAccountId" type="String" access="public" />
+    <aura:attribute name="socialColumns" type="List" access="private" />
+    <aura:attribute name="socialData" type="List" access="private" />
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="true" />
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}" />    
+    <aura:handler name="change" value="{!v.nucleusId}" action="{!c.doInit}" />
+    
+    <div class="slds-text-title_bold">Social Settings</div>
+    <div class="slds-is-relative">
+        <aura:if isTrue="{!v.isLoading}">
+            <lightning:spinner aura:id="spinner" variant="brand" size="small" />
+            <aura:set attribute="else">
+                <aura:if isTrue="{!empty(v.socialData)}">
+                    <div style="">
+                    	<c:EmptyState message="No result found"></c:EmptyState>
+                    </div>
+                    <aura:set attribute="else">
+                        <lightning:datatable
+                                     columns="{! v.socialColumns }"
+                                     data="{! v.socialData }"
+                                     keyField="id"
+                                     hideCheckboxColumn="true"
+                                     onrowaction="{! c.handleRowAction }" />
+                    </aura:set>
+                </aura:if>                
+            </aura:set>
+        </aura:if>
+    </div>
+    
+    <aura:attribute name="isOpen" type="Boolean" access="private" default="false" />  
+    <aura:attribute name="selectedRow" type="Map" access="private" />
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="{!v.isOpen}" title="Remove External Reference" class="modal-small">            
+            <aura:set attribute="content">
+                <p>Are you sure that you want to remove the external reference for {!v.selectedRow.referenceType}?</p>
+            </aura:set>
+            <aura:set attribute="success" value="Remove"/>
+            <aura:set attribute="onSuccess" value="{!c.handleRemoveClick}"/>
+        </c:ParentModal>
+    </aura:if>
+    
+</aura:component>

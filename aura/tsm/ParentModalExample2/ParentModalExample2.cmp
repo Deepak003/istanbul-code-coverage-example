@@ -1,0 +1,28 @@
+<aura:component>
+    <aura:attribute name="isOpen" type="Boolean" access="private" default="false" />
+    
+    <aura:attribute name="isLoading" type="Boolean" access="private" default="false" />
+    
+    <lightning:button label="Open Modal" title="Open Modal" onclick="{! c.openModal2 }"/>
+    
+    <aura:if isTrue="{!v.isOpen}">
+        <c:ParentModal isModalOpen="{!v.isOpen}">
+            <aura:set attribute="class" value="slds-modal_medium" />
+            <aura:set attribute="outerClass" value="modal-container" />
+            <aura:set attribute="title">
+                <b>Modal Title</b>
+            </aura:set>
+            <aura:set attribute="content">
+                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+                <lightning:button label="Click me for alert" title="Neutral action" onclick="{! c.handleClick }"/>
+            </aura:set>
+            <aura:set attribute="showSpinner" value="{!v.isLoading}"/>
+            <aura:set attribute="isDirectionalFooter" value="true"/>
+            <aura:set attribute="success" value="Action-1"/>
+            <aura:set attribute="cancel" value="Action-2"/>
+            <aura:set attribute="onSuccess" value="{!c.handleSuccessClick}"/>
+            <aura:set attribute="onCancel" value="{!c.handleCancelClick}"/>
+            <aura:set attribute="onClose" value="{!c.handleCloseClick}"/>
+        </c:ParentModal>
+    </aura:if>    
+</aura:component>

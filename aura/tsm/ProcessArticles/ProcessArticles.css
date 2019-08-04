@@ -1,0 +1,97 @@
+.THIS {
+    background: token(homepageComponentBackgroundColor);
+    height: token(homepageComponentHeight);
+    overflow-y: auto;
+}
+.THIS.processArticles{
+    font-size: 13px;
+}
+
+.THIS .card-details {
+    height: t(homepageComponentCardHeight1);
+    cursor: pointer;   
+}
+
+.THIS .card-details2 {
+    height: t(homepageComponentCardHeight2);
+    cursor: pointer;
+}
+
+.THIS .scope-process{
+    color : white;
+    background-color : #4bca81;
+}
+
+.THIS .body-text-small{
+    font-size: 0.625rem;
+}
+
+.THIS .articletileUpdated{
+    height: 90px;
+}
+
+.THIS .articletileAdded{
+    height: 120px;
+}
+
+.THIS .card-height{
+    min-height: 150px;
+    max-height: 150px;
+    border: 1px solid rgb(221, 219, 218) !important;
+    border-radius: 0.25rem !important;
+}
+
+.THIS .dateField{
+    color: t(colorGray9);
+    font-size: 10px;
+}
+
+.THIS .colorCss{
+    /*color: grey;*/
+    /*padding-left: 0.65rem;*/
+    color: t(colorGray9);
+}
+
+.THIS .slds-card__header{
+    margin-bottom: -0.75rem;
+    margin-left: -0.25rem;
+    font-weight: bold;
+}
+
+.THIS .slds-text-heading_small {
+    font-size: 12px;
+}
+
+.THIS .slds-p-around_small.slds-size_6-of-12 {
+    /*
+    margin-top: -15px;
+    padding-right: 4px;
+    */
+}
+
+.THIS .processCSS{
+    background-color: transparent;
+}
+
+.THIS .processCSS lightning-primitive-icon svg{
+    background: #4bca81;
+    border-radius: 5px;
+    height: token(homepageComponentIconHeight);
+    width: token(homepageComponentIconWidth);
+}
+
+.THIS .titleBox{
+    position: relative;
+}
+
+.THIS .titleText{
+    font-size:16px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 155px;
+}
+
+.THIS .marginTop{
+    margin-bottom: 20px;
+}

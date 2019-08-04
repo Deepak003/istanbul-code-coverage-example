@@ -1,0 +1,56 @@
+<aura:component controller="AccountBillingAuraCtl" implements="force:hasRecordId">
+    <aura:attribute name="paymentOptions" type="List" access="public" />
+    <aura:attribute name="invoices" type="List" access="public" />
+    <aura:attribute name="paymentOptionsBkp" type="List" access="public"/>
+    <aura:attribute name="invoicesBkp" type="List" access="public"/>
+    <aura:attribute name="picklistOptions" type="List" access="public"/>
+    <aura:attribute name="selectedFilter" type="String" access="public"/>
+    <aura:attribute name="placeholderValue" type="String" access="public"/>
+    <aura:attribute name="searchKeyword" type="String" access="public"/>
+    <aura:attribute name="showModal" type="Boolean" default="false" access="public"/>
+    <aura:attribute name="nucleusId" type="String" access="public" />
+    <aura:attribute name="selectedPaymentOption" type="Map" access="public" />
+    <aura:attribute name="invoiceSource" type="String" access="public" />
+    <aura:attribute name="totalInvoiceCount" type="Integer" access="public" />
+    <aura:attribute name="totalInvoiceCount_Copy" type="Integer" access="public" />
+    <aura:attribute name="caseId" type="String" access="public" />
+    <aura:attribute name="accountData" type="Map" access="public"/>
+    <!--<aura:handler name="init" value="{! this }" action="{! c.doInit }"/> -->
+    <aura:attribute name="billingCmpId" type="String" />
+    <aura:attribute name="showFilter" type="Boolean" access="public" />
+    
+    <aura:handler name="change" value="{! v.invoices }" action="{!c.keepCopy}"/>
+    <aura:handler name="change" value="{! v.totalInvoiceCount }" action="{!c.keepCopy}"/>
+    <aura:handler name="change" value="{! v.paymentOptions }" action="{!c.keepCopy}"/>
+
+    <aura:handler name="change" value="{! v.invoicesRaw }" action="{!c.keepCopy}"/>
+
+    <aura:handler name="change" value="{!v.showModal}" action="{!c.displayModal}"/>
+    
+    <aura:handler event="c:SetPaymentOption" action="{!c.handlePaymentOptionEvt}"/>
+    
+    <ltng:require scripts="{!$Resource.Util}" afterScriptsLoaded="{!c.doInit}"/>
+    <lightning:workspaceAPI aura:id="workspace" /> 
+    
+    <div class="slds-is-relative slds-m-bottom_small">
+        <lightning:layout>
+            <lightning:layoutItem size="7">                
+                <!--search box for invoice number-->
+                <div onkeyup="{! c.searchByInvoiceNumber }">
+                    <lightning:input  aura:id="invoiceSearch" variant="label-hidden" name="invoiceSearch" placeholder="Search by invoice number" type="search" />
+                </div> 
+                <lightning:spinner  alternativeText="Processing.." title="Loading..." variant="brand" size="small" aura:id="invoicesSpinner" class="slds-hide"/>
+            </lightning:layoutItem>
+            <lightning:layoutItem size="5" class="slds-p-left_small">
+                <lightning:button label="Filter Invoices" title="Filter Invoices" onclick="{! c.toggleFilter }"/>
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        <div class="{!v.showFilter == true ? 'slds-show' : 'slds-hide' }">
+            <c:InvoiceFilter showFilter="{!v.showFilter}" />
+        </div>
+        
+        <lightning:overlayLibrary aura:id="overlayModal"/>    
+        <!--<a onclick="{!c.displayModal}" style="position: absolute; top: 0; right: 0;">show modal</a>-->
+    </div>
+</aura:component>

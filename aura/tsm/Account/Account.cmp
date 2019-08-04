@@ -1,0 +1,41 @@
+<aura:component extends="c:ThorBase" 
+    implements="flexipage:availableForRecordHome,force:appHostable,flexipage:availableForAllPageTypes"
+                access="global" controller="AccountSearchAuraCtl">
+    <lightning:workspaceAPI aura:id="workspace"/>
+    <aura:attribute name="record" type="Object"/>
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="targetAccountSFId" type="String"/>
+    <aura:attribute name="accountSearch" type="Boolean" default="false"/>
+    <aura:attribute name="gamerDataFlag" type="Boolean" default="false"/>
+    <aura:attribute name="accountFlag" type="Boolean" default="true"/>
+	<aura:attribute name = "productList" type="Object[]"/>
+    <aura:attribute name = "franchiseList" type="Object[]"/>													  
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <h1 class="slds-m-top_x-large slds-m-bottom_x-large slds-m-left_x-large slds-page-header__title slds-truncate slds-align-left">
+        Player Persona: {!v.simpleRecord.persona}
+    </h1>
+    <lightning:layout multipleRows="true" class="{!v.accountSearch + ' account-container'}">
+        <lightning:layoutItem flexibility="auto" size="12">
+            <lightning:layout class="slds-gutters slds-m-bottom_xx-large">
+            	<lightning:layoutItem flexibility="auto" size="9">
+                    <lightning:tabset class="slds-m-left_large" selectedTabId="accDetail" onselect="{!c.tabSelected}" >
+                        <lightning:tab label="Account Details" id="accDetail" title="Account Details">
+                            <c:AccountDetail gamerDataFlag="{!v.gamerDataFlag}" targetAccountSFId="{!v.targetAccountSFId}" playerAccData="{!v.simpleRecord}" aura:id="playerAccDetail" productList = "{!v.productList}" franchiseList = "{!v.franchiseList}"/>
+                        </lightning:tab>
+                        <lightning:tab label="Case History" id="accCaseHistory" title="Case History" >
+                            <c:CaseHistory accountIdNucleus="{!v.simpleRecord.id}" accountIdSF="{!v.simpleRecord.strSFAccountId}" aura:id="caseHistory" accountFlag="{!v.accountFlag}"/>
+                        </lightning:tab>
+                    </lightning:tabset>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto" size="3">
+                    <div class="slds-m-top_x-large">
+                        <c:CaseActionComponent isAccount="true" targetAccount="{!v.simpleRecord}" />
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </lightning:layoutItem>
+    </lightning:layout>
+	<lightning:spinner class="slds-hide" aura:id="accDetailSpinner" variant="brand" size="large"/>
+     
+</aura:component>

@@ -1,0 +1,39 @@
+<aura:component controller="AuraSelectRole">    
+    <aura:attribute name="showSelectStateModal" type="Boolean" default="false" />
+    <aura:attribute name="isLoading" type="Boolean" default="false" />
+    <aura:attribute name="selectStateModalTitle" type="String" default="Select a State" />
+    <aura:attribute name="selectedStatus" type="String" />
+    <!-- todo::Coming sprint we need to get all the status from backend api and remove below code -->
+    <aura:attribute name="stateOptions" type="List" default="[]"/>
+    
+    <aura:registerEvent name="presenceStatusEvt" type="c:PresenceStatusEvt" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!-- Handlers-->
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container" >
+            <header class="slds-modal__header" style="border-bottom: 1px solid rgb(217, 219, 221)">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                    <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeSelectStateModal}"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{!v.selectStateModalTitle}</h1>
+            </header>                
+            <div class="modalBody slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large setting-height">
+                <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>
+                <lightning:layout class="slds-p-bottom_medium" multipleRows="true">
+                    <lightning:layoutItem size="12" >
+						<div class="slds-text-body_regular">Select from the following states to go into after saving and closing this case.</div>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem size="12" class="slds-p-bottom_medium">
+                         <lightning:combobox aura:id="chooseStatus" label="" name="status" value="{!v.selectedStatus}" placeholder="Select a State" options="{!v.stateOptions}" />
+                    </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                <lightning:button aura:id="closeSelectStateModal" label="Close" onclick="{!c.closeSelectStateModal}"/>
+                <lightning:button aura:id="saveSelectStateModal" variant="brand" label="Save" onclick="{!c.saveStatus}"  disabled="{! empty(v.selectedStatus) }" />
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>    
+</aura:component>

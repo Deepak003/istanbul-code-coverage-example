@@ -1,0 +1,10 @@
+<aura:component controller="NotificationAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" access="global">       
+    <!-- Handle event --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+     <!-- Local variables -->  
+    <aura:attribute name="currentNotificationBody" type="Map"/>
+    
+    <div class="message-content" aura:id="notificationDOM" onclick="{!c.getKnowledgeBaseArticles}">
+        <ui:outputRichText value="{!v.currentNotificationBody.messageText}"/>	
+    </div>	
+</aura:component>

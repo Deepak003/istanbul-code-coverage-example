@@ -1,0 +1,33 @@
+.THIS .begin-message{
+    margin: 0px auto;    
+    background-color: #fff;
+    opacity: .9;
+    z-index: 9;
+    padding: 6.5% 0 19% 0;
+    top: 0px;
+    width: 94%;
+    height: 100%;
+}
+
+.THIS .begin-message > div {    
+    margin: 0px auto;
+}
+
+.THIS .scrollerSize {
+    display: flex;
+    height: calc(100vh - 38vh);
+}
+.THIS > div::-webkit-scrollbar-track {    
+	background-color: #ffffff;
+}
+.THIS > div::-webkit-scrollbar
+{
+	width: 12px;
+    background-color: #ffffff;
+}
+
+.THIS > div::-webkit-scrollbar-thumb
+{
+	border-radius: 6px;
+    background-color: #e0dfdf;
+}

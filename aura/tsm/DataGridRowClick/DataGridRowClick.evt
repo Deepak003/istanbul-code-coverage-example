@@ -1,0 +1,6 @@
+<aura:event type="COMPONENT" 
+            description="Fired from DataGrid" >   
+   <aura:attribute name="pk" type="String"/>
+   <aura:attribute name="domEl" type="Object"/>
+
+</aura:event>

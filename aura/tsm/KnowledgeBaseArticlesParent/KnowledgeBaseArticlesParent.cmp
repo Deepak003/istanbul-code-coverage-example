@@ -1,0 +1,38 @@
+<aura:component controller="KnowledgeBaseAuraCtl" implements="flexipage:availableForAllPageTypes,force:appHostable" description="Layout to hold the KnowledgeBaseArticles component">
+    <ltng:require styles="{! $Resource.TSMArabic }" />
+    <ltng:require scripts="{! $Resource.Util }" />
+    
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/soundcloud-api.js'}" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/webcomponents-lite.min.js'}" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/masonry.pkgd.min.js'}" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/picturefill.min.js'}" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/txn1klh.js'}" />
+    
+    <ltng:require scripts="{! $Resource.jquery_min_js }" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/underscore-min.js'}" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/twig.min.js'}" />
+    <ltng:require scripts="{!$Resource.TwigNDS + '/twigNDS/twig-translator.js'}" />
+    <aura:attribute name="TwigTranslator" type="Object" />
+    <aura:attribute name="selectedArticle" type="Object" default="{}"/>
+    <aura:attribute name="localStorage" type="Object" default="{}"/>
+    <aura:handler name="articleSelectEvent" event="c:KnowledgeComponentEvent" action="{!c.handleBubbling}"/>
+    <aura:handler event="c:PostMessage" action="{!c.handlePostMessage}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    
+    <aura:attribute name="languageLocales" type="Map"/>
+    
+    <div class="slds-grid slds-grid_align-spread petition-detail-container slds-wrap">  
+        <div class="slds-size_3-of-12">
+            <div aura:id="parentDiv">
+                <c:KnowledgeBaseToolkit selectedArticle="{!v.selectedArticle}" localStorage="{!v.localStorage}"/>
+            </div>    
+        </div>
+        
+        <div class="slds-size_9-of-12 back-ground-white">
+            <div aura:id="parentDiv" class="slide-bar">
+                <c:KnowledgeSummaryView languageLocales="{!v.languageLocales}" selectedArticle="{!v.selectedArticle}" TwigTranslator="{!v.TwigTranslator}" localStorage="{!v.localStorage}"/>
+            </div>    
+        </div>
+    </div>
+    
+</aura:component>

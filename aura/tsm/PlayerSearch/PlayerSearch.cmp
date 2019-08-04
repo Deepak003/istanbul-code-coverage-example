@@ -1,0 +1,124 @@
+<aura:component controller="AccountSearchAuraCtl">
+    <!-- Attributes -->
+    <aura:attribute name="filterKeyWord" type="string" default=""/>
+    <aura:attribute name="filterOptions" type="List"/>
+    <aura:attribute name="filterSelection" type="string" default=""/>
+    <aura:attribute name="searchVal" type="string"/>
+    <aura:attribute name="searchDataList" type="List"/>
+    <aura:attribute name="gamerDataList" type="List"/>
+    <aura:attribute name="gameName" type="String"/>
+    <aura:attribute name="traverseIndx" type="Integer" default="0" />
+    <!-- Register Handlers --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <lightning:workspaceAPI aura:id="workspace"/>
+    
+    <div class="slds-grid plsearch-wrapper">
+        <div class="slds-col slds-size_1-of-1 plsearch-main">
+            <div class="slds-global-header__item slds-form-element">
+              <label class="slds-form-element__label" for="combobox-id-24"></label>
+              <div class="slds-form-element__control">
+                <div class="slds-combobox-group">
+                  <div class="slds-combobox_object-switcher slds-combobox-addon_start">
+                    <div class="slds-form-element">
+                      <label class="slds-form-element__label slds-assistive-text" for="combobox-id-25">Filter Search by:</label>
+                      <div class="slds-form-element__control">
+                        <div class="slds-combobox_container">
+                          <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aura:id="playerFilterListBox" aria-controls="primary-combobox-id-1" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left" role="none">
+                              <input type="text" name="plfilterInput" onfocus="{!c.onfocusSearchBox}" autocomplete="off" onclick="{!c.playerFilterClick}" class="slds-input slds-combobox__input slds-combobox__input-value"
+                                     arua:id="playerFilter" id="playerfilter" aria-controls="objectswitcher-listbox-id-01"
+                                     role="textbox" placeholder="Select Filter" onkeyup="{!c.keyUpFilterController}" value="{!v.filterKeyWord}" />
+                              <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_left">
+                                    <lightning:icon iconName="utility:down" alternativeText="down" size="small"
+                                                        title="down" />	                    
+                              </span>
+                            </div>
+                            <div id="objectswitcher-listbox-id-01" class="slds-dropdown slds-dropdown_length-5 slds-dropdown_x-small slds-dropdown_left" role="listbox"> <!--  slds-is-open -->
+                              <ul class="slds-listbox slds-listbox_vertical" role="group" aria-label="Suggested for you">
+                                <!--li role="presentation" class="slds-listbox__item">
+                                  <div id="object0" class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="presentation">
+                                    <h3 class="slds-text-title_caps" role="presentation">Suggested for you</h3>
+                                  </div>
+                                </li -->
+                                <aura:iteration items="{!v.filterOptions}" var="filterOpt" indexVar="idx">
+                                    <li onclick="{!c.selectPlayerFilterType}" data-model="{!filterOpt.value}" 
+                                        role="presentation" class="slds-listbox__item" aura:id="plsfilterOptions" 
+                                        tabIndex="{!idx}" onkeyup="{!c.keyUpFilterController}">
+                                      <div id="{!'object'+idx}" class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option"><!--  slds-is-selected -->
+                                        <span class="slds-media__figure">
+                                          <!--lightning:icon iconName="utility:check" alternativeText="check" size="small"
+                                                            title="check" /-->
+                                                                </span>
+                                                                <span class="slds-media__body">
+                                                                    <span class="slds-truncate" title="{!filterOpt.label}">
+                                                                        {!filterOpt.label}</span>
+                                                                </span>
+                                                            </div>
+                                                        </li>
+                                                    </aura:iteration>
+                                                    <!-- END Iteration -->
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-combobox_container slds-combobox-addon_end">
+                            <div class="slds-hide slds-p-bottom_medium gamerDropdownOuter" aura:id="gamerDropdownOuter">
+                                <lightning:combobox class="gamer-dropdown" aura:id="gamerDropdown" id="gamerDropdown" name="gamerDropdown" value="{!v.gameName}" 
+                                        placeholder="Select a Product" options="{!v.gamerDataList}"
+                                                onchange="{!c.selectGamerSearchResult}" />            	
+                            </div>
+                            <div aura:id="searchResutlsDropDown" class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-expanded="false" aria-haspopup="listbox" id="primary-combobox-id-1" role="combobox">
+                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left" role="none">
+                                    <input type="text" name="plSearchInput" autocomplete="off" value="{!v.searchVal}" class="slds-input slds-combobox__input" id="playersearchInput" 
+                                           aria-controls="listbox-id-20" role="textbox" 
+                                           placeholder="Search..." onclick="{!c.onfocusSearchBox}" onfocus="{!c.onfocusSearchBox}" onkeydown="{!c.keyDownController}" onkeyup="{!c.keyPressController}" aura:id="playersearchInput"/>
+                                    <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_left">
+                                        <lightning:icon iconName="utility:search" alternativeText="search" size="x-small"
+                                                        title="search" />
+                                    </span>
+                                </div>
+                                <div id="listbox-id-20" class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox">
+                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                        <aura:if isTrue="{!v.filterSelection == 'gameId'}">
+                                            <li role="presentation" class="slds-listbox__item">
+                                            	<div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                	Please select a ID type associated with the ID
+                                                </div>
+                                            </li>
+                                        </aura:if>
+                                        <!--  SEARCH Resuts iterate STARTS  -->
+                                        <aura:iteration items="{!v.searchDataList}" var="searchData" indexVar="idx">
+                                            <li role="presentation" class="slds-listbox__item" onclick="{!c.selectPlayerSearchResult}" data-model="{!searchData.value}">
+                                                <div id="option1" class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta" role="option">
+                                                    <span class="slds-media__figure">
+                                                        <span class="slds-icon_container slds-icon-standard-account">
+                                                            
+                                                        </span>
+                                                    </span>
+                                                    <span class="slds-media__body">	                    
+                                                        <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{!searchData.label}</span>
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        </aura:iteration>
+                                        <!--  SEARCH Resuts iterate ENDS  -->                         
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--div class="slds-hide slds-p-bottom_medium" aura:id="gamerDropdownOuter">
+                <lightning:combobox class="gamer-dropdown" aura:id="gamerDropdown" id="gamerDropdown" name="gamerDropdown" value="{!v.gameName}" 
+                        placeholder="Select a Product" options="{!v.gamerDataList}"
+                                onchange="{!c.selectGamerSearchResult}" />            	
+            </div-->
+        </div>
+    </div>
+    <lightning:spinner class="slds-hide player-search-spin" alternativeText="loader" aura:id="plSearchSpinner" variant="brand" size="large"/>
+</aura:component>

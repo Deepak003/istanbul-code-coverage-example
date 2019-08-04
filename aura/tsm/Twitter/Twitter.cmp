@@ -1,0 +1,29 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes">
+    <aura:attribute name="timeCount" type="Integer" default="0"/>
+    <aura:attribute name="twitterAppSrc" type="String"/>
+    <aura:attribute name="twitterList" type="String" default="EA"/>
+    <aura:attribute name="timer" type="Integer"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.onRefresh}" />
+    
+    <div class="c-container slds-box twitterFeed">
+        <lightning:layout class="slds-grid" >
+            <div class="slds-m-right_x-small title" >
+                <lightning:icon iconName="utility:trending" 
+                                size="small" 
+                                variant="bare"/>
+            </div>
+            <div class="slds-media__body slds-text-heading_small slds-p-left_x-small">
+                <span> <b> EA List </b></span>
+            </div> 
+            <div class="slds-col_bump-left" >
+                <lightning:buttonIcon iconName="utility:refresh" size="medium"  variant="bare" onclick="{! c.onRefresh }" alternativeText="refersh" />
+                <span class="slds-p-left_x-small"> {!v.timeCount} Minutes ago </span>
+            </div>
+        </lightning:layout>
+    
+        <iframe aura:id="twitterContainer" src="{!v.twitterAppSrc}" 
+                width="100%" height="500px" frameBorder="0"/>
+        <!--<lightning:container src="{!$Resource.twitter_app}"/>-->
+    </div>
+</aura:component>

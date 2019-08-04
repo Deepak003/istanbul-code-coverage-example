@@ -1,0 +1,29 @@
+<aura:component controller="PetitionRequestAuraCtl" >
+    <aura:attribute name="mergedpetList" type="List"/>
+    <aura:attribute name="petitionUuid" type="string"/>    
+    <aura:method name="getMergedPetitions" 
+                 action="{!c.getMergedPetitions}" 
+                 access="PUBLIC"
+                 description="call get merged petition method" />
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <div class="supportingPetitionsBody">
+        <h2 class="slds-m-top_large slds-page-header__title slds-truncate slds-align-left slds-m-bottom_medium">Supporting Petitions -
+            <aura:if isTrue="{!v.mergedpetList != null}">
+                {!v.mergedpetList.length}
+                <aura:set attribute="else">0</aura:set>
+            </aura:if>
+        </h2>
+        <span> Supporting petitions are petitions submitted by players about the same content and target player within a certain timeframe, but only one petition in this time frame is passed through for evaluation.
+            This information may be useful in order to appropriately evaluate and execute account actions.</span><br></br>
+       <ui:scrollerWrapper class="scrollerSize">
+            <c:DataGrid data="{!v.mergedpetList}" cmpName="SupportingPetitions" pkField="Id" aura:id="petitiondatagrid">
+                <c:DataGridColumn fieldName="subject" label="Subject" />
+                <c:DataGridColumn fieldName="contentType" label="Content Type"/>
+                <c:DataGridColumn fieldName="contentText" label="Content Text"/>
+                <c:DataGridColumn fieldName="petitionerPersonaName" label="Petitioner"/>
+				<c:DataGridColumn fieldName="createdOn" label="Submitted" type="datetimefull" />
+            </c:DataGrid> 
+        </ui:scrollerWrapper>   
+    </div>
+</aura:component>

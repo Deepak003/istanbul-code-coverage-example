@@ -1,0 +1,20 @@
+.THIS {
+}
+
+.THIS.select-locale{
+    display: inline-flex;
+    margin-left: 10px;
+    margin-top: 30px;
+}
+.THIS.select-locale .slds-form-element__label span {
+    font-size: 20px;
+    color: black;
+    margin-left: 53px;
+}
+
+.THIS.select-locale .slds-select{
+ width: 200px;    
+}
+.THIS .slds-select_container {
+    bottom: -5px;
+}

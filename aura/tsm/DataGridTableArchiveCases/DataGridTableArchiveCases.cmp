@@ -1,0 +1,4 @@
+<aura:component extensible="true" abstract="true" controller="CaseHistoryAuraCtl">
+	
+	<div> {!v.body} </div>
+</aura:component>

@@ -1,0 +1,23 @@
+<aura:component controller="OutboundEmailMessageAuraCtl" implements="flexipage:availableForAllPageTypes,force:hasRecordId" access="global" >
+    <aura:attribute name="message" type="String" />
+    <aura:attribute name="errorMessage" type="String" default="You haven't composed anything yet."/>
+    <aura:attribute name="validity" type="Boolean" default="true"/>
+    <aura:attribute name="emailId" type="String" default="" />
+    <aura:attribute name="caseId" type="String" default="" />
+    
+    <ltng:require styles="{! $Resource.TSMArabic }" />
+
+    <div class="emailContainer slds-m-around_medium">
+        <!--Icon & Heading-->
+        <div class="slds-m-bottom_medium emailHeader"><lightning:icon iconName="utility:edit_form" alternativeText="Event" size="small" /><div class="slds-text-heading_medium messageHeading">Message Player</div></div>
+        
+        <!--Lightining rich text editor-->
+        <div class="emailBody" aura:id="emailBody"><lightning:inputRichText value="{!v.message}" placeholder="" messageWhenBadInput="{!v.errorMessage}" valid="{!v.validity}" disabledCategories="ALIGN_TEXT,FORMAT_FONT" /></div>
+
+        
+        
+        <!--Send Button-->
+        <lightning:button name="send" label="Send" onclick="{!c.validate}" class="slds-m-top_x-small"/>
+        
+    </div>
+</aura:component>

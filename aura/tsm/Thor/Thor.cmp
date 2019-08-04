@@ -1,0 +1,177 @@
+<aura:component extends="c:ThorBase" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes" access="global"
+                controller="QueueListAuraCtl"> 
+    <!-- OMNI Toolkit for OMNI Channel -->
+    <lightning:omniToolkitAPI aura:id="omniToolkit" />
+    <!-- Overlay for Pop up Model -->
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    <lightning:workspaceAPI aura:id="workspace"/>
+	
+    <!-- attributes -->
+    <aura:attribute name="timer" type="Integer"/>
+    <aura:attribute name="petitionMsg" type="Boolean" default="false" />
+    <aura:attribute name="queueCount" type="Integer" default="0" />
+    <aura:attribute name="presenceStatusId" type="String" default="" />
+    <aura:attribute name="completedCount" type="Integer" default="0" />
+    <aura:attribute name="data" type="List"/>
+    <aura:attribute name="filterQueData" type="List"/>
+    <aura:attribute name="filterCompData" type="List"/>
+    <aura:attribute name="filterData" type="Object" />
+    <aura:attribute name="simpleCase" type="Object" />
+    <aura:attribute name="completedData" type="List" />
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="ackMsg" type="Boolean" default="true" />
+	<aura:attribute name="recordId" type="String" default=""/>  
+    <aura:attribute name="userType" type="String" default=""/>
+    <aura:attribute name="userRoles" type="Object" default=""/>
+    <aura:attribute name="roleOptions" type="List" default=""/>
+    <aura:attribute name="queueNames" type="String" default="Empty Queue"/>
+    <aura:attribute name="advisorRoleSelect" type="String" default=""/>
+    <aura:attribute name="selectedQueueList" type="List"/>
+    <aura:attribute name="isOpen" type="boolean" default="false"/>
+    <aura:attribute name="omniRoutingPermission" type="Boolean" default="false" />
+    <aura:attribute name="queueSelectionPermission" type="Boolean" default="false" />
+    <aura:attribute name="tabId" type="String" default=""/>
+    <aura:attribute name="nMoreLabel" type="Integer"/>
+    <aura:attribute name="selectedTabId" type="String"/>
+    <aura:attribute name="isResetOmni" type="boolean" default="false"/>
+    <aura:attribute name="queueComplete" type="boolean" default="false"/>
+    <aura:attribute name="currentJobRole" type="String" />
+    <aura:attribute name="selectedQueueOptions" type="List"/>    
+    <aura:attribute name="timeout" type="Integer"/>
+    <aura:attribute name="allPermsList" type="List"/>
+    <aura:attribute name="getCases" type="Boolean"/>
+    <aura:attribute name="isManageQueue" type="Boolean" default="false"/>
+    <aura:attribute name="isChangeRole" type="Boolean" default="false"/>    
+    <aura:attribute name="isQueue" type="Boolean" default="false"/>
+    <aura:attribute name="currentOmniStatus" type="String"/>
+    <!--Mass action  THOR-486,92,483-->
+    <aura:attribute name="showCaseMassAction" type="Boolean" default="false" />
+    <aura:attribute name="showPetitionPreview" type="Boolean" default="true" />
+    <aura:attribute name="caseCount" type="Integer"/>
+    <aura:attribute name="caseIds" type="String[]"/>
+        
+	<aura:attribute name = "productList" type="Object[]"/>													  
+    <!-- Register Handlers --> 
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <aura:handler name="change" value="{!v.completedData}" action="{!c.completedDataChanges}"/>
+    <aura:handler name="change" value="{!v.queueNames}" action="{!c.queueListChanged}"/>
+    <aura:handler name="change" value="{!v.advisorRoleSelect}" action="{!c.selectedRole}"/>
+    <aura:handler name="change" value="{!v.queueCount}" action="{!c.checkQueueCount}" />
+    <aura:handler event="c:ThorPermissionsAppEvent" action="{!c.thorPermissionEventHandler}" />    
+    <aura:handler event="c:RoleQueueAppEvt" action="{!c.roleQueueAppEvtSubs}" />
+    <!-- aura:handler event="c:DataGridRowClickApp" action="{!c.rowClickPetitionEvent}" /-->
+    <aura:handler event="c:PetitionDetailEvent" action="{!c.viewPetitionDetails}" />
+    <aura:handler event="c:PetitionCommitApp" action="{!c.commitPetionEvent}" />
+    <aura:handler name="change" value="{!v.ackMsg}" action="{!c.getPetitions}"/>
+    <aura:handler event="lightning:omniChannelWorkAccepted" action="{! c.onWorkAccepted }"/>
+    <aura:handler event="lightning:tabCreated" action="{! c.onTabCreated }"/>
+    <aura:handler event="lightning:omniChannelStatusChanged" action="{! c.onStatusChanged }"/>
+   	<aura:handler event="lightning:omniChannelLogout" action="{! c.onLogout }"/>
+	<aura:handler event="lightning:omniChannelWorkloadChanged" action="{! c.onWorkloadChanged }"/>
+    <aura:handler event="lightning:tabClosed" action="{! c.ontabClosed }"/>
+    <aura:handler event="lightning:tabFocused" action="{! c.onTabFocused }"/>
+    <!--Mass action handler THOR-486,92,483-->
+    <aura:handler event="c:CaseMassActionTrigger" action="{!c.hidePetitionPreviewonMassAction}" />
+	<aura:handler event="c:TabViewClickAppEvt" action="{!c.tabViewClickEventHandler}"/>
+    <!--aura:handler event="c:FilterDataListEvt" action="{!c.getFilterDataListEvt}" /-->
+    <aura:handler 
+                  name="loading"
+                  event="c:loading" 
+                  action="{!c.showSpinner}"/>
+    
+    <aura:handler 
+                  name="doneloading"
+                  event="c:doneloading" 
+                  action="{!c.hideSpinner}"/>
+    
+    <aura:registerEvent name="getnextrowclickApp" type="c:GetNextRowClickApp"/>
+    <aura:registerEvent name="FilterQueueEvtApp" type="c:FilterQueueEvt"/> 
+    
+	<div class="c-container" aura:id="mainLayoutContainer">        
+        <lightning:layoutItem flexibility="auto" class="slds-p-top_small" size="12">
+            <lightning:layout >
+                <lightning:layoutItem flexibility="auto" size="8">
+                    <div class="slds-p-left_xx-large slds-p-right_xx-large slds-p-top_large slds-text-align_left">
+                        <div class="queueTitle slds-grid">
+                            <div aura:id="queueTitle" class="slds-size_11-of-12 slds-truncate queueTitle slds-p-around_xsmall">
+                                {!v.queueNames}
+                            </div>
+                            <div class="slds-text-link_reset slds-hide" aura:id="moreLabel" id="moreLabel">
+                            	<span class="slds-text-link" onclick="{!c.moreLabelClick}">+ {!v.nMoreLabel} More</span>
+                            </div>
+                        </div>
+                        <div class="slds-grid role-section">
+                            <span class="slds-m-top_xx-small slds-p-vertical_small slds-p-right_medium slds-hide" aura:id="advRole">
+                            	Role: <b>{!v.advisorRoleSelect}</b>
+                            </span>
+                            <aura:if isTrue="{!v.queueSelectionPermission}">
+                                <div aura:id="manageQueue" class="slds-p-vertical_small manage-queue-disable">
+                                    <lightning:button variant="base"
+                                              label="Manage Queue" title="Manage Queue"
+                                              onclick="{!c.manageQueueClick }" />
+                                </div>
+                           </aura:if>
+                        </div>
+                    </div>
+                </lightning:layoutItem>
+                <lightning:layoutItem flexibility="auto" size="4">
+                    <div class="slds-text-align_left">
+                       <c:AHTBadge />
+                    </div>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </lightning:layoutItem>
+        
+        <c:FilterTab aura:id="filterCmp" selectedTabId="{!v.selectedTabId}" filterData="{!v.filterData}" />
+        <div class="slds-container">
+            <lightning:layout multipleRows="true">
+                <lightning:layoutItem flexibility="auto" class="slds-p-top_small" size="12">
+                    <lightning:layout >
+                        <lightning:layoutItem flexibility="auto" size="9">
+                            <c:TabView completedData="{!v.completedData}" 
+                                       completedCnt="{!v.completedCount}" 
+                                       ackMsg="{!v.ackMsg}"
+                                       queueComplete="{!v.queueComplete}"
+                                       data="{!v.data}" 
+                                       queueCnt="{!v.queueCount}"
+                                       columns="{!v.columns}"
+                                       filterData="{!v.filterData}"
+                                       selectedTabId="{!v.selectedTabId}"
+                                       filterQueData="{!v.filterQueData}"
+                                       queueSelectionPermission="{!v.queueSelectionPermission}"
+                                       roleOptions="{!v.roleOptions}"/>    
+                        </lightning:layoutItem>
+                        <lightning:layoutItem flexibility="auto" size="3">
+                            <div>
+                                <aura:if isTrue="{!v.showCaseMassAction}">
+                                    <c:CaseMassAction queueNames="{!v.queueNames}" caseCount="{!v.caseCount}" selectedCaseIdsForMassAction="{!v.caseIds}"/>
+                                </aura:if>
+                                <aura:if isTrue="{!v.showPetitionPreview}">
+                              <c:PetitionPreview aura:id="ppreview" userType="{!v.userType}" previewData="{!v.data}" recordId="{!v.recordId}" petitionMsg="{!v.petitionMsg}"/>
+                            </aura:if>
+                                </div>                   
+                        </lightning:layoutItem>
+                    </lightning:layout>
+                </lightning:layoutItem>            
+            </lightning:layout>
+        </div>
+    </div>    
+    <div class="slds-hide" aura:id="detailContainer">
+        <c:PetitionDetail aura:id="pdCmp" allPermsList="{!v.allPermsList}" simpleCase="{!v.simpleCase}" productList = "{!v.productList}"/>
+    </div>
+    <!--
+    <div aura:id="disableScreen" class="thor-disable">
+    	
+    </div>
+	-->
+    <c:SelectRole isQueue="{!v.isQueue}" isOpen="{!v.isOpen}" isManageQueue="{!v.isManageQueue}"  queueNames="{!v.queueNames}" advisorRoleSelect="{!v.advisorRoleSelect}" selectedQueueOptions="{!v.selectedQueueOptions}" currentJobRole ="{!v.currentJobRole}"
+     				 isChangeRole="{!v.isChangeRole}" nMoreLabel="{!v.nMoreLabel}" allPermsList="{!v.allPermsList}" />
+    <lightning:spinner class="slds-hide thor-main-spin" aura:id="disScreenSpinner" variant="brand" size="large"/> 
+    <div class="thor-roles">
+    	<lightning:button variant="brand"
+                          class="role-button"
+                          label="Select Role" title="Select Role"
+                          onclick="{!c.popUpsClick }" />
+    </div>
+</aura:component>

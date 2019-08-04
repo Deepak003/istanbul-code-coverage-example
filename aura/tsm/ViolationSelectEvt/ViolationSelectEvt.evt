@@ -1,0 +1,7 @@
+<aura:event type="APPLICATION" description="Violation select event">
+    <aura:attribute name="violationFlg" type="boolean" default="false" />
+    <aura:attribute name="rValidation" type="boolean" default="false" />
+    <aura:attribute name="qValidation" type="boolean" default="false" />
+    <aura:attribute name="lstOfViolationMsg" type="Array" default="[]" />
+    <aura:attribute name="jobRoleId" type="String" default="" />
+</aura:event>

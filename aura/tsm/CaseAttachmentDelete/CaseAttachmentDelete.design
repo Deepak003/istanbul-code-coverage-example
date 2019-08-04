@@ -1,0 +1,4 @@
+<design:component>
+	<design:attribute name="caseId" label="Case Id" default="12345"/>
+	<design:attribute name="contentDocumentId" label="ContentDocumentId" default="12345"/>
+</design:component>

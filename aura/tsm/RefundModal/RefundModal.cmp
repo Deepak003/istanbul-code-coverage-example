@@ -1,0 +1,232 @@
+<aura:component controller="InvoiceAuraController">    
+    <!-- attributes -->
+    <aura:attribute name="invoiceId" type="String" default=""/>
+    <aura:attribute name="transactionLogList" type="List" default="[]" />   
+    <aura:attribute name="showRefundModal" type="Boolean" default="false" />
+    <aura:attribute name="refundModalTitle" type="String" default="Refund" />
+    <aura:attribute name="data" type="Map" />
+    <aura:attribute name="reasons" type="List" default=""/>
+    <aura:attribute name="index" type="String" access="public"/>
+    <aura:attribute name="totalRefund" type="String" access="public" default="0"/>
+    <aura:attribute name="refundButtonLabel" type="String" access="public" default="Refund"/>
+    <aura:attribute name="preRefundInvoiceData" type="String" access="public"/>
+    <aura:attribute name="disableRefundButton" type="Boolean" default="true"/>
+    <aura:attribute name="partialRefund" type="Boolean" default="true"/>
+    <aura:attribute name="allItemValid" type="Boolean" default="false"/>
+    <aura:attribute name="refundReason" type="String" access="public"/>
+    <aura:attribute name="caseId" type="Id"/>
+    <aura:attribute name="accountId" type="Id"/>
+    <aura:attribute name="refundOptions" type="List" default="[
+                                                              {'label': '%', 'value': 'percent'}
+                                                              ]"/>
+    <!-- Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />        
+    <aura:attribute name="isLoading" type="Boolean" access="public" default="false" /> 
+    <aura:registerEvent name="updateInvoiceRow"  
+                        type="c:UpdateInvoiceRowEvent"/>   
+
+    <aura:registerEvent name="onRefund" type="c:InvoiceEvent" />
+    
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container" >
+            <header class="slds-modal__header" style="border-bottom: 1px solid rgb(217, 219, 221)">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                    <lightning:icon class="close-icon" iconName="utility:close" size="small" onclick="{!c.closeRefundModal}"/>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h1 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate slds-text-title_bold">{!v.refundModalTitle}</h1>
+            </header>                
+            <div class="modalBody slds-modal__content slds-p-top_large slds-p-right_x-large slds-p-left_x-large setting-height">
+                <lightning:spinner variant="brand" size="small" class="{! v.isLoading ? 'slds-show' : 'slds-hide' }"/>                
+                <aura:if isTrue="{!v.partialRefund}">
+                    <div>
+                        <div class="slds-text-body_small field-label slds-p-bottom_xx-small">Select item(s) to refund</div>
+                        <aura:iteration items="{!v.data.lineItems}" var="item" indexVar="idx">
+                            <div class="{! v.data.lineItems.length > 1 ? 'slds-border_bottom' : '' }">
+                                <lightning:layout multipleRows="true" class="slds-border_bottom slds-p-bottom_x-small" >
+                                    <lightning:layoutItem size="12">
+                                        <div class="page-section page-header">
+                                            <lightning:layout>
+                                                <lightning:layoutItem size="1">
+                                                    <div data-id="{!idx}" onchange="{!c.rowClicked}">
+                                                        <lightning:input type="checkbox" label="" aura:id="row-checkbox" name="input2" checked="{!item.isChecked}" />
+                                                    </div>  
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="9">
+                                                    <div class="page-section">
+                                                        <div class="slds-truncate slds-p-vertical_xx-small" title="{!item.productName}">{!item.productName}</div>
+                                                        <aura:iteration items="{!item.associations}" var="association">
+                                                            <div class="association-row slds-p-vertical_xx-small">{!association.productName}</div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="2">
+                                                    <div class="page-section">
+                                                        <span title="{!item.quantity}" class="slds-p-right_small">
+                                                            {!item.quantity}
+                                                        </span>
+                                                        <span title="{!item.subtotal}">{!v.data.currencySymbol}{!item.subtotal}</span>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </div>
+                                    </lightning:layoutItem>
+                                    <aura:if isTrue="{!item.isChecked}">
+                                        <lightning:layoutItem size="12" aura:id="row-data" class="slds-p-bottom_medium slds-p-top_medium">
+                                            <lightning:layout>
+                                                <lightning:layoutItem size="7">
+                                                    <div class="page-section page-main">
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="5">
+                                                    <div class="page-section page-right">
+                                                        <lightning:layout multipleRows="true">
+                                                            <lightning:layoutItem size="12">
+                                                                <lightning:layout>
+                                                                    <lightning:layoutItem size="6">
+                                                                        <div data-id="{!idx}" onchange="{!c.handleRefundAmoundChange}">
+                                                                            <lightning:input data-id="{!idx}" aura:id="refundAmount" name="input3" formatter="currency" value="{!item.formRefundAmount}" step="0.01" label="" messageWhenRangeOverflow="Can't exceed max amount" messageWhenTooLong="Can't exceed 100%" placeholder="Refund amount" />
+                                                                        </div>    
+                                                                    </lightning:layoutItem>
+                                                                    <lightning:layoutItem size="6">
+                                                                        <div data-id="{!idx}" onchange="{!c.handleRefundAmountTypeChange}" class="slds-p-left_xx-small">
+                                                                            <lightning:combobox data-id="{!idx}" aura:id="refundAmountType" name="refundPercent" label="" value="{!item.formRefundAmountType}" options="{! v.refundOptions }" />
+                                                                        </div>    
+                                                                    </lightning:layoutItem>
+                                                                </lightning:layout>
+                                                            </lightning:layoutItem>
+                                                        </lightning:layout>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </lightning:layoutItem>
+                                    </aura:if>
+                                </lightning:layout>
+                            </div>
+                        </aura:iteration>
+                        <lightning:layout>
+                            <lightning:layoutItem padding="around-small" size="6">
+                                <div class="page-section page-main">
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem padding="around-small" size="6">
+                                <div onchange="{!c.handleReasonChange}">
+                                    <lightning:combobox aura:id="refundReason" label="" name="reasons" value="" placeholder="Select a reason for refund" options="{!v.reasons}" />
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                        <lightning:layout>
+                            <lightning:layoutItem size="6">
+                                <div class="page-section page-main">
+                                </div>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="6">
+                                <div class="page-section page-right">
+                                    <lightning:layout>
+                                        <lightning:layoutItem padding="around-small" size="8">
+                                            <div class="page-section page-main">
+                                                <h2>Sub Total + Tax ({!v.data.currencyName})</h2>
+                                            </div>
+                                        </lightning:layoutItem>
+                                        <lightning:layoutItem padding="around-small" size="4">
+                                            <div class="page-section page-right">
+                                                <h2>{!v.data.currencySymbol}{!v.totalRefund}</h2>
+                                            </div>
+                                        </lightning:layoutItem>
+                                    </lightning:layout>
+                                </div>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </div>
+                    <aura:set attribute="else">
+                        <aura:iteration items="{!v.data.lineItems}" var="item" indexVar="idx">
+                            <div class="{! v.data.lineItems.length > 1 ? 'slds-border_bottom' : '' }">
+                                <lightning:layout multipleRows="true" >
+                                    <lightning:layoutItem size="12">
+                                        <div class="page-section page-header">
+                                            <lightning:layout>
+                                                <lightning:layoutItem size="10">
+                                                    <div class="page-section">
+                                                        <div class="slds-truncate slds-p-vertical_xx-small" title="{!item.productName}">{!item.productName}</div>
+                                                        <aura:iteration items="{!item.associations}" var="association">
+                                                            <div class="association-row slds-p-vertical_xx-small">{!association.productName}</div>
+                                                        </aura:iteration>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="1">
+                                                    <div class="page-section">
+                                                        <div title="{!item.quantity}">
+                                                            {!item.quantity}
+                                                        </div>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                                <lightning:layoutItem size="1">
+                                                    <div class="page-section">
+                                                        <div title="{!item.unitPrice}">{!v.data.currencySymbol}{!item.unitPrice}</div>
+                                                    </div>
+                                                </lightning:layoutItem>
+                                            </lightning:layout>
+                                        </div>
+                                    </lightning:layoutItem>
+                                </lightning:layout>
+                            </div>
+                        </aura:iteration>
+                        <lightning:layoutItem size="12" aura:id="row-data" class="slds-p-bottom_medium slds-p-top_medium">
+                            <lightning:layout>
+                                <lightning:layoutItem size="5">
+                                    <div class="page-section page-main">
+                                    </div>
+                                </lightning:layoutItem>
+                                <lightning:layoutItem size="7">
+                                    <div class="page-section page-right">
+                                        <lightning:layout class="slds-border_top slds-p-around_x-small">
+                                            <lightning:layoutItem size="6">
+                                                <div class="slds-float_left">
+                                                    <p>Refund Sub Total ({!v.data.currencyName})</p>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="6">
+                                                <div class="slds-float_right">
+                                                    <p>{!v.data.currencySymbol}{!v.data.subtotal}</p>
+                                                </div>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                        <lightning:layout class="slds-border_top slds-p-around_x-small">
+                                            <lightning:layoutItem size="6">
+                                                <div class="slds-float_left">
+                                                    <p>Tax ({!v.data.currencyName})</p>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="6">
+                                                <div class="slds-float_right">
+                                                    <p>{!v.data.currencySymbol}{!v.data.tax}</p>
+                                                </div>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                        <lightning:layout class="slds-border_top slds-p-around_x-small">
+                                            <lightning:layoutItem size="6">
+                                                <div class="slds-float_left">
+                                                    <p>Refund Total ({!v.data.currencyName})</p>
+                                                </div>
+                                            </lightning:layoutItem>
+                                            <lightning:layoutItem size="6">
+                                                <div class="slds-float_right">
+                                                    <p>{!v.data.currencySymbol}{!v.data.total}</p>
+                                                </div>
+                                            </lightning:layoutItem>
+                                        </lightning:layout>
+                                    </div>
+                                </lightning:layoutItem>
+                            </lightning:layout>
+                        </lightning:layoutItem>
+                    </aura:set>  
+                </aura:if>
+            </div>
+            <footer class="slds-modal__footer slds-p-top_large" style="border-top: unset">
+                <lightning:button aura:id="closeRefundModalButton" label="Close" onclick="{!c.closeRefundModal}"/>
+                <lightning:button aura:id="refundButton" variant="brand" label="{!v.refundButtonLabel}" onclick="{!c.confirmRefund}" disabled="{!v.disableRefundButton}" />
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>    
+</aura:component>
