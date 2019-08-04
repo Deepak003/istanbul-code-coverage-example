@@ -12,5 +12,5 @@ var reporter = new JasmineConsoleReporter({
 
 jasmine.addReporter(reporter);
 jasmine.showColors(true);
-jasmine.loadConfigFile('spec/jasmine.json');
+jasmine.loadConfigFile('./spec/jasmine.json');
 jasmine.execute();
