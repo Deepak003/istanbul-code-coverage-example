@@ -37,8 +37,14 @@ for(var i=0;i<=filelist.length-1;i++){
         console.log(err);
       }
       // Processing Aura Files : Adding module.exports Functionality
-      if(auraCode.indexOf("module.exports") ==-1)
-           auraCode = "module.exports = " + auraCode;
+      if(process.argv[0]=="instrument")
+           auraCode = "module.exports=" + auraCode;
+      else if(process.argv[0]=="restore")
+           auraCode = auraCode.split("module.exports=")[1];
+      else{
+           console.log("Wrong Parameter Passed to Intrument.js.Exiting");
+           return false;
+      }
       //auraCode = auraCode.replace("({", "function "+fileName+"(){");
       auraCode = auraCode.replace(/^\s+|\s+$/g, '');
       //auraCode = auraCode + "_lcov_";  
@@ -72,3 +78,4 @@ for(var i=0;i<=filelist.length-1;i++){
     }
   }
 };
+return true;
