@@ -37,12 +37,12 @@ for(var i=0;i<=filelist.length-1;i++){
         console.log(err);
       }
       // Processing Aura Files : Adding module.exports Functionality
-      console.log("process.arg.0 ->"+process.argv[0]);
-      if(process.argv[0]=="instrument"){
+      console.log("process.argv.2 ->"+process.argv[2]);
+      if(process.argv[2]=="instrument"){
            console.log("Instrumenting Aura Files.......");
            auraCode = "module.exports=" + auraCode;
       }  
-      else if(process.argv[0]=="restore"){
+      else if(process.argv[2]=="restore"){
            console.log("Restoring Aura Files.......");
            auraCode = auraCode.split("module.exports=")[1];
       }  
