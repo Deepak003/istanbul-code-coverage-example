@@ -37,10 +37,14 @@ for(var i=0;i<=filelist.length-1;i++){
         console.log(err);
       }
       // Processing Aura Files : Adding module.exports Functionality
-      if(process.argv[0]=="instrument")
+      if(process.argv[0]=="instrument"){
+           console.log("Instrumenting Aura Files.......");
            auraCode = "module.exports=" + auraCode;
-      else if(process.argv[0]=="restore")
+      }  
+      else if(process.argv[0]=="restore"){
+           console.log("Restoring Aura Files.......");
            auraCode = auraCode.split("module.exports=")[1];
+      }  
       else{
            console.log("Wrong Parameter Passed to Intrument.js.Exiting");
            return false;
